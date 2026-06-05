@@ -1,0 +1,182 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
+#include "InputActionValue.h"
+#include "GameScene/EnumHeader/EnumHeader.h"
+#include "GameFramework/Character.h"
+#include "Interface/Damageable.h"
+#include "PlayerCharacter.generated.h"
+
+class URailPartsData;
+class UItemData;
+class UItemInstance;
+class UGunItemData;
+class UInventory;
+class UPlayerWeapon;
+class UCardManager;
+struct FInputActionValue;
+class UInputAction;
+class AMyPlayerController;
+class UCameraComponent;
+class USpringArmComponent;
+
+UCLASS()
+class RANDOMFPS_API APlayerCharacter :
+public ACharacter,
+public IGenericTeamAgentInterface,
+public IDamageable
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* LookAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* PerspectiveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* SprintAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* CrouchAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* ZoomHoldAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* ZoomQuickAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* ShotAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* ReloadAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* InventoryAction;
+
+	UPROPERTY(EditAnywhere)
+	EEntityType EntityType;
+		
+	UPROPERTY(Replicated)
+	float AimPitch;
+	UPROPERTY(BlueprintReadOnly)
+	FTransform LeftHandIK;
+
+public:
+	//생성자
+	APlayerCharacter();
+	
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	FORCEINLINE bool GetAiming() const { return bIsAiming; }
+	FORCEINLINE bool GetReloading() const { return bIsReloading; }
+	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
+	
+	
+	void RequestAddItem(UItemData* ItemData, int Amount = 1);
+	bool HasWeapon() const;
+
+	virtual EEntityType GetEntityType() override;
+	virtual void TakeDamage(FDamageContext& Context) override;
+	
+protected:
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartZoom();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartZoomReverse();
+	
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	USpringArmComponent* CameraBoom;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	UCameraComponent* FollowCamera;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UCameraComponent* FP_Camera;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UCardManager* CardManager;
+	AMyPlayerController* Controller;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess))
+	UPlayerWeapon* PlayerWeapon;
+	UCharacterMovementComponent* CharacterMovement;
+	UPROPERTY(VisibleAnywhere)
+	UInventory* Inventory;
+	
+	bool bIsThirdPerspective;
+	
+	UPROPERTY(Replicated)
+	bool bIsAiming;
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsReloading) 
+	bool bIsReloading; //애니메이션 모션에 동기화
+	bool bCanSprint;
+	bool bIsSprint;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	float WalkSpeed = 250.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	float SprintSpeed = 500.0f;
+
+	FGenericTeamId TeamId;
+	
+private:
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void DoMove(float Right, float Forward);
+	void StartJump(const FInputActionValue& Value);
+	void Sprint(const FInputActionValue& Value);
+	void StopSprint();
+	void ActionCrouch();
+	void ZoomHold();
+	bool CanZoom() const;
+	void ZoomHoldRelease();
+	void ZoomQuick();
+	void Shot();
+	void ShotRelease();
+	void ChangePerspective();
+	void Reload();
+	bool CanReload();
+	void PlayReloadMontage();
+	void CheckPlayerMovement(float Delta);//?
+	void ToggleInventory();
+	
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+	
+	UFUNCTION(Server, Unreliable)
+	void Server_ChangeAimPitch(float Pitch);
+
+	UFUNCTION(Server, Unreliable)
+	void Server_ChangeZoomState(bool IsZoom);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ChangeSpeed(float Speed);
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCast_ChangeSpeed(float Speed);
+
+	UFUNCTION(Server, Reliable)
+	void Server_TryReload();
+	UFUNCTION()
+	void OnRep_bIsReloading();
+	UFUNCTION()
+	void OnReloadMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_AddItem(UItemData* ItemData, int Amount = 1);
+	void AddItem(UItemInstance* Item, int Amount = 1);
+
+
+	void GetLeftHandIKTransform();
+	
+	
+
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	void MakeComponents();
+	void BindKey(UEnhancedInputComponent* EIC);
+	virtual void Tick(float DeltaSeconds) override;
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+	virtual void PostInitializeComponents() override;
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+};
