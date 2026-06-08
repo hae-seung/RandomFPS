@@ -82,6 +82,8 @@ private:
 	AActor* GetTargetInTargets();
 	void ChangeCurrentTarget(AActor* NewTargetActor);
 	void PlayFlinchMontage();
+	bool CheckTargetAlive();
+	void RefreshTargets();
 
 	UFUNCTION()
 	void OnDeadEnd(UAnimMontage* Montage, bool bInterrupted);

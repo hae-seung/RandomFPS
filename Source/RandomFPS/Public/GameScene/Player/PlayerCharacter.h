@@ -10,6 +10,7 @@
 #include "Interface/Damageable.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerCombatSystem;
 class URailPartsData;
 class UItemData;
 class UItemInstance;
@@ -57,7 +58,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	EEntityType EntityType;
-		
+	
 	UPROPERTY(Replicated)
 	float AimPitch;
 	UPROPERTY(BlueprintReadOnly)
@@ -71,7 +72,9 @@ public:
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
 	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
-	
+	FORCEINLINE bool IsDead() const { return bIsDead; }
+	virtual bool GetIsDead() override;
+	void Dead();
 	
 	void RequestAddItem(UItemData* ItemData, int Amount = 1);
 	bool HasWeapon() const;
@@ -97,13 +100,19 @@ private:
 	UCameraComponent* FP_Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	UCardManager* CardManager;
-	AMyPlayerController* Controller;
+	UPROPERTY()
+	AMyPlayerController* MyController;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess))
 	UPlayerWeapon* PlayerWeapon;
-	UCharacterMovementComponent* CharacterMovement;
+	UPROPERTY()
+	UCharacterMovementComponent* CharacterMovementComp;
 	UPROPERTY(VisibleAnywhere)
 	UInventory* Inventory;
-	
+	UPROPERTY(EditAnywhere)
+	UPlayerCombatSystem* CombatSystem;
+
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
+	bool bIsDead;
 	bool bIsThirdPerspective;
 	
 	UPROPERTY(Replicated)
@@ -165,7 +174,13 @@ private:
 	void Server_AddItem(UItemData* ItemData, int Amount = 1);
 	void AddItem(UItemInstance* Item, int Amount = 1);
 
+	UFUNCTION()
+	void OnRep_bIsDead();
+	void Revive(UAnimMontage* Montage, bool Interrupted);
+	
+	void SetCharacterOptionAliveState();
 
+	
 	void GetLeftHandIKTransform();
 	
 	
@@ -179,4 +194,5 @@ private:
 	virtual void PostInitializeComponents() override;
 	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
+	void SetCharacterOptionDeadState();
 };

@@ -13,6 +13,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameScene/Player/Components/CardManager.h"
 #include "GameScene/Player/Components/Inventory.h"
+#include "GameScene/Player/Components/PlayerCombatSystem.h"
 #include "GameScene/Player/Components/PlayerWeapon.h"
 #include "GameScene/Player/ItemData/GunItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
@@ -36,7 +37,6 @@ APlayerCharacter::APlayerCharacter()
 	
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 
 	bUseControllerRotationPitch = false;
@@ -66,13 +66,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		if(AMyPlayerController* MyController = Cast<AMyPlayerController>(GetController()))
+		if(AMyPlayerController* LocalController = Cast<AMyPlayerController>(GetController()))
 		{
-			Controller = MyController;
-			if(Controller->PlayerCameraManager)
+			MyController = LocalController;
+			if(MyController->PlayerCameraManager)
 			{
-				Controller->PlayerCameraManager->ViewPitchMin = -80.f;
-				Controller->PlayerCameraManager->ViewPitchMax = 55.f;
+				MyController->PlayerCameraManager->ViewPitchMin = -80.f;
+				MyController->PlayerCameraManager->ViewPitchMax = 55.f;
 			}
 			BindKey(EnhancedInputComponent);
 		}
@@ -82,8 +82,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	UE_LOG(LogTemp, Warning, TEXT("PostINitComponent"));
 	
 	Inventory->SetComponents(PlayerWeapon);
 }
@@ -96,7 +94,7 @@ void APlayerCharacter::BeginPlay()
 	bIsAiming = false;
 	bIsThirdPerspective = true;
 
-	CharacterMovement = GetCharacterMovement();
+	CharacterMovementComp = GetCharacterMovement();
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -141,6 +139,8 @@ void APlayerCharacter::MakeComponents()
 	FP_Camera->SetAutoActivate(false);
 
 	Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
+
+	CombatSystem = CreateDefaultSubobject<UPlayerCombatSystem>(TEXT("CombatSystem"));
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)
@@ -156,15 +156,16 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(APlayerCharacter, AimPitch);
 	DOREPLIFETIME(APlayerCharacter, bIsAiming);
+	DOREPLIFETIME(APlayerCharacter, bIsDead);
 }
 
 void APlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 
-	if(!CharacterMovement || !IsLocallyControlled()) return;
+	if(!CharacterMovementComp || !IsLocallyControlled()) return;
 	
-	if(CharacterMovement->MovementMode == MOVE_Falling && bIsAiming)
+	if(CharacterMovementComp->MovementMode == MOVE_Falling && bIsAiming)
 	{
 		bIsAiming = false;
 
@@ -175,7 +176,7 @@ void APlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uin
 			FP_Camera->SetActive(false);
 		}
 
-		Controller->SetViewTargetWithBlend(this, 0.15f);
+		MyController->SetViewTargetWithBlend(this, 0.15f);
 
 		Server_ChangeZoomState(bIsAiming);
 	}
@@ -282,25 +283,25 @@ EEntityType APlayerCharacter::GetEntityType()
 	return EntityType;
 }
 
-void APlayerCharacter::TakeDamage(FDamageContext& Context)
+void APlayerCharacter::TakeDamage(FDamageContext& Context) //override
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f"), Context.Damage);
+	UE_LOG(LogTemp, Warning, TEXT("%f"), Context.BaseDamage);
+	CombatSystem->TakeDamage(Context);
 }
 
 //server
 void APlayerCharacter::OnReloadMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	bIsReloading = false;
+	
 	if(bInterrupted)
 	{
 		//구현 필요없음
+		return;
 	}
-	else
-	{
-		bIsReloading = false;
-		PlayerWeapon->Reload();
-	}
+	
+	PlayerWeapon->Reload();
 }
-
 
 void APlayerCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
 {
@@ -311,6 +312,70 @@ FGenericTeamId APlayerCharacter::GetGenericTeamId() const
 {
 	return TeamId;
 }
+
+//server
+void APlayerCharacter::Dead()
+{
+	bIsDead = true; //replicated
+	SetCharacterOptionDeadState();
+}
+
+void APlayerCharacter::OnRep_bIsDead()
+{
+	if(bIsDead)
+	{
+		SetCharacterOptionDeadState();
+	}
+	else
+	{
+		SetCharacterOptionAliveState();
+	}
+}
+
+void APlayerCharacter::SetCharacterOptionDeadState()
+{
+	StopAnimMontage();
+	
+	bUseControllerRotationYaw = false;
+	CharacterMovementComp->DisableMovement();
+	
+	if(IsLocallyControlled())
+	{
+		StopSprint();
+		UnCrouch();
+		ZoomQuick();
+		ZoomHoldRelease();
+		ShotRelease();
+		if(!bIsThirdPerspective)
+		{
+			ChangePerspective();
+		}
+	}
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Dead")); //되살아날땐 Pawn으로
+	GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);//되살아날땐 ECR_Block으로
+}
+
+//server
+void APlayerCharacter::Revive(UAnimMontage* Montage, bool Interrupted)
+{
+	bIsDead = false;
+	SetCharacterOptionAliveState();
+}
+
+void APlayerCharacter::SetCharacterOptionAliveState()
+{
+	//bUseControllerRotationYaw = true;
+		
+	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn")); //되살아날땐 Pawn으로
+	//GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block); //되살아날땐 ECR_Block으로
+}
+
+bool APlayerCharacter::GetIsDead()
+{
+	return bIsDead;
+}
+
 
 
 #pragma endregion Functions
@@ -328,6 +393,9 @@ FGenericTeamId APlayerCharacter::GetGenericTeamId() const
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
+	if(bIsDead)
+		return;
+	
 	FVector2D MovementVector = Value.Get<FVector2d>();
 	
 	DoMove(MovementVector.X, MovementVector.Y);
@@ -368,17 +436,17 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::StartJump(const FInputActionValue& Value)
 {
-	if(!IsLocallyControlled() || !Value.Get<bool>() || bIsAiming) return;
+	if(!IsLocallyControlled() || !Value.Get<bool>() || bIsAiming || bIsDead) return;
 	Super::Jump();
 }
 
 void APlayerCharacter::Sprint(const FInputActionValue& Value)
 {
-	if(bIsSprint || !bCanSprint || !IsLocallyControlled() || bIsAiming || bIsReloading) return;
+	if(bIsSprint || !bCanSprint || !IsLocallyControlled() || bIsAiming || bIsReloading || bIsDead) return;
 	
 	bIsSprint = true;
 
-	CharacterMovement->MaxWalkSpeed = SprintSpeed;
+	CharacterMovementComp->MaxWalkSpeed = SprintSpeed;
 	
 	if(HasAuthority())
 	{
@@ -392,11 +460,11 @@ void APlayerCharacter::Sprint(const FInputActionValue& Value)
 
 void APlayerCharacter::StopSprint()
 {
-	if(!IsLocallyControlled() || !bIsSprint) return;
+	if(!IsLocallyControlled() || !bIsSprint || bIsDead) return;
 	
 	bIsSprint = false;
 
-	CharacterMovement->MaxWalkSpeed = WalkSpeed;
+	CharacterMovementComp->MaxWalkSpeed = WalkSpeed;
 	
 	if(HasAuthority())
 	{
@@ -418,12 +486,12 @@ void APlayerCharacter::MultiCast_ChangeSpeed_Implementation(float Speed)
 {
 	if(IsLocallyControlled()) return;
 	
-	CharacterMovement->MaxWalkSpeed = Speed;
+	CharacterMovementComp->MaxWalkSpeed = Speed;
 }
 
 void APlayerCharacter::ActionCrouch()
 {
-	if(!IsLocallyControlled()) return;
+	if(!IsLocallyControlled() || bIsDead) return;
 	
 	if(CanCrouch())
 	{
@@ -463,24 +531,24 @@ void APlayerCharacter::ZoomQuick()
 	{
 		//줌 종료
 		bIsAiming  = false;
-		Controller->SetViewTargetWithBlend(this, 0.15f);
-		PlayerWeapon->ZoomShort(bIsAiming);
+		MyController->SetViewTargetWithBlend(this, 0.15f);
 	}
 	else
 	{
 		if(!CanZoom()) return;
 		
 		bIsAiming  = true;
-		PlayerWeapon->ZoomShort(bIsAiming);
 	}
-
+	
+	PlayerWeapon->ZoomShort(bIsAiming);
+	
 	if(!HasAuthority())
 		Server_ChangeZoomState(bIsAiming);
 }
 
 bool APlayerCharacter::CanZoom() const
 {
-	if(bIsAiming || !IsLocallyControlled() || bIsSprint || bIsReloading)
+	if(bIsAiming || !IsLocallyControlled() || bIsSprint || bIsReloading || bIsDead)
 		return false;
 
 	if(GetCharacterMovement()->IsFalling())
@@ -497,7 +565,7 @@ void APlayerCharacter::Server_ChangeZoomState_Implementation(bool IsZoom)
 
 void APlayerCharacter::Shot()
 {
-	if(!PlayerWeapon || bIsReloading)
+	if(!PlayerWeapon || bIsReloading || bIsDead)
 		return;
 
 	//총을 쐇다 라는 신호만 주면됨.
@@ -520,6 +588,9 @@ void APlayerCharacter::ChangePerspective()
 	if(bIsThirdPerspective)
 	{
 		//1인칭으로 변경
+		if(bIsDead)
+			return;
+		
 		FollowCamera->SetActive(false);
 		FP_Camera->SetActive(true);
 	}
@@ -547,11 +618,10 @@ void APlayerCharacter::Server_TryReload_Implementation()
 	PlayReloadMontage();
 }
 
-
 bool APlayerCharacter::CanReload()
 {
 	if(bIsAiming || bIsSprint || bIsReloading || !HasWeapon() ||
-		!PlayerWeapon->CanReload())
+		!PlayerWeapon->CanReload() || bIsDead)
 		return false;
 	
 	return true;
@@ -560,9 +630,9 @@ bool APlayerCharacter::CanReload()
 void APlayerCharacter::ToggleInventory()
 {
 	if(!IsLocallyControlled()) return;
-	if(!Controller->GetUIManager()) return;
+	if(!MyController->GetUIManager()) return;
 
-	Controller->GetUIManager()->ToggleInventory();
+	MyController->GetUIManager()->ToggleInventory();
 }
 
 

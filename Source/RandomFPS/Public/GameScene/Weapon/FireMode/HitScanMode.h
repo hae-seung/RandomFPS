@@ -8,9 +8,8 @@
 #include "HitScanMode.generated.h"
 
 class UHitScanModeData;
-/**
- * 
- */
+
+
 UCLASS()
 class RANDOMFPS_API UHitScanMode : public UFireMode
 {

@@ -91,7 +91,7 @@ void AMonsterController::InitSightPerception(const FAISightPerceptionInfo& Sight
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
 
-	//벽 뒤에 숨었는데 자동감지 방지
+	//벽 또는 무언가 뒤에 숨었는데 자동감지 방지
 	SightConfig->AutoSuccessRangeFromLastSeenLocation = -1.f; 
 }
 
@@ -121,6 +121,12 @@ void AMonsterController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 
 void AMonsterController::ActorInSight(AActor* Actor)
 {
+	if(IDamageable* Damageable = Cast<IDamageable>(Actor))
+	{
+		if(Damageable->GetIsDead())
+			return;
+	}
+	
 	if(!IsValid(CurrentTarget))
 	{
 		ChangeCurrentTarget(Actor);
@@ -144,19 +150,25 @@ void AMonsterController::ChangeCurrentTarget(AActor* NewTargetActor)
 {
 	if(CurrentTarget == NewTargetActor)
 		return;
-
-	//타겟을 잃음
+	
+	//타겟을 잃은경우
 	if(IsValid(CurrentTarget) && NewTargetActor == nullptr)
 	{
-		BB->SetValueAsVector(LostLocationKey, CurrentTarget->GetActorLocation());
-		BB->SetValueAsBool(LostTargetKey, true);
+		if(IDamageable* Damageable = Cast<IDamageable>(CurrentTarget))
+		{
+			if(!Damageable->GetIsDead())
+			{
+				BB->SetValueAsVector(LostLocationKey, CurrentTarget->GetActorLocation());
+				BB->SetValueAsBool(LostTargetKey, true);
+			}
+		}
 		BB->SetValueAsObject(TargetActorKey, nullptr);
-		
 		Targets.Remove(CurrentTarget);
 		CurrentTarget = nullptr;
 		return;
 	}
-
+	
+	
 	//타겟 획득 또는 변경
 	CurrentTarget = NewTargetActor;
 	Targets.Add(CurrentTarget);
@@ -170,6 +182,9 @@ AActor* AMonsterController::GetTargetInTargets()
 	if(Targets.Num() <= 0)
 		return nullptr;
 
+	//인지내에 죽은 타겟들이 있다면 모두 제거
+	RefreshTargets();
+	
 	AActor* NewTarget = nullptr;
 	float SmallestDistance = TNumericLimits<float>::Max();
 	for(AActor* Actor : Targets)
@@ -188,9 +203,49 @@ AActor* AMonsterController::GetTargetInTargets()
 	return NewTarget;
 }
 
+void AMonsterController::RefreshTargets()
+{
+	for (TSet<AActor*>::TIterator It = Targets.CreateIterator(); It; ++It)
+	{
+		AActor* Actor = *It;
+
+		if (!IsValid(Actor))
+		{
+			It.RemoveCurrent();
+			continue;
+		}
+
+		if (IDamageable* Damageable = Cast<IDamageable>(Actor))
+		{
+			if (Damageable->GetIsDead())
+			{
+				It.RemoveCurrent();
+			}
+		}
+	}
+}
+
+bool AMonsterController::CheckTargetAlive()
+{
+	if(!IsValid(CurrentTarget))
+		return false;
+
+	if(IDamageable* Damageable = Cast<IDamageable>(CurrentTarget))
+	{
+		if(Damageable->GetIsDead())
+		{
+			//타겟이 죽었다면 타겟 변경
+			ChangeCurrentTarget(GetTargetInTargets());
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 void AMonsterController::CheckCanAttackTarget()
 {
-	if(!IsValid(CurrentTarget) || bIsAttacking)
+	if(!CheckTargetAlive()|| bIsAttacking)
 	{
 		//공격판정이 계속 가능하다고 착각하는 오판 방지
 		BB->SetValueAsBool(CanAttackKey, false);

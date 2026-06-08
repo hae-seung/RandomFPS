@@ -25,4 +25,5 @@ class RANDOMFPS_API IDamageable
 public:
 	virtual EEntityType GetEntityType() = 0;
 	virtual void TakeDamage(FDamageContext& Context) = 0;
+	virtual bool GetIsDead() = 0;
 };

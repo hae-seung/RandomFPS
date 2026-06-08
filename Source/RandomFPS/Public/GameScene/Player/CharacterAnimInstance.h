@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bHasGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsDead;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FTransform LeftHandIKTransform;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FVector JointTargetLocation;

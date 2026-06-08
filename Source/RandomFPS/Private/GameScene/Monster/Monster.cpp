@@ -92,6 +92,11 @@ void AMonster::TakeDamage(FDamageContext& Context)
 	
 }
 
+bool AMonster::GetIsDead()
+{
+	return bIsDead;
+}
+
 
 void AMonster::ApplyDamage(FHitResult& HitResult)
 {

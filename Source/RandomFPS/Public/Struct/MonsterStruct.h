@@ -10,7 +10,8 @@ USTRUCT(BlueprintType)
 struct FMonsterStat
 {
 	GENERATED_BODY()
-
+	UPROPERTY(EditAnywhere)
+	EEntityType EntityType;
 	UPROPERTY(EditAnywhere)
 	float MaxHP;
 	UPROPERTY(EditAnywhere)

@@ -19,18 +19,22 @@ void UMonsterCombatSystem::BeginPlay()
 void UMonsterCombatSystem::Init(UMonsterData* Data)
 {
 	Stat = Data->GetMonsterStatData();
+	Hp = Stat.MaxHP;
 }
 
 void UMonsterCombatSystem::ApplyDamage(FHitResult& HitResult)
 {
 	//몬스터 기준 맞은 놈은 무조건 플레이어임.(Trace로 걸러낸 상태임)
-	IDamageable* DamageableActor = Cast<IDamageable>(HitResult.GetActor());
-	
-	FDamageContext AttackContext;
-	AttackContext.Attacker = GetOwner();
-	AttackContext.Damage = CalculateAttackDamage(AttackContext);
+	if(IDamageable* DamageableActor = Cast<IDamageable>(HitResult.GetActor()))
+	{
+		FDamageContext AttackContext;
+		AttackContext.EntityType = Stat.EntityType;
+		AttackContext.Attacker = GetOwner();
+		AttackContext.BaseDamage = Stat.AttackDamage;
+		AttackContext.FinalDamage = CalculateAttackDamage(AttackContext);
 
-	DamageableActor->TakeDamage(AttackContext);
+		DamageableActor->TakeDamage(AttackContext);
+	}
 }
 
 

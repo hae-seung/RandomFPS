@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
+#include "GameScene/EnumHeader/EnumHeader.h"
 #include "CombatStructHeader.generated.h"
 
 USTRUCT(BlueprintType)
@@ -17,26 +17,34 @@ struct FPlayerStat
 	float WalkSpeed;
 	UPROPERTY(EditAnywhere)
 	float AttackDamage;
+	
+	//방어력상수
+	UPROPERTY(EditAnywhere)
+	float K;
 	UPROPERTY(EditAnywhere)
 	float Defense;
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f, ClampMax=1.f))
+	float CriticalDamageDefense;
+	//방어무시
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f, ClampMax=1.f))
+	float DismissDefenseRate;
+
+	//몬스터 기절확률
 	UPROPERTY(EditAnywhere)
 	int MonsterFlinchProbability;
-	UPROPERTY(EditAnywhere)
-	float CriticalDamageDefense;
 };
 
 USTRUCT()
 struct FPlayerDamageContext
 {
 	GENERATED_BODY()
-
-	//데이터에셋에서 고정으로 생성되므로 포인터 접근 가능
+	
 	const FPlayerStat* PlayerStat;
 	
 	//payback 구독 델리게이트
 };
 
-
+//때릴때의 정보
 USTRUCT()
 struct FDamageContext
 {
@@ -44,9 +52,10 @@ struct FDamageContext
 
 	UPROPERTY()
 	AActor* Attacker;
-	// UPROPERTY()
-	// EEntityType EntityType;
-	float Damage;
+	UPROPERTY()
+	EEntityType EntityType;
+	float BaseDamage;
+	float FinalDamage;
 	bool bIsCritical;
 	
 	//플레이어가 때리는 경우 필요

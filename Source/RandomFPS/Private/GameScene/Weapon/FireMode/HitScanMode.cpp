@@ -3,13 +3,9 @@
 
 #include "GameScene/Weapon/FireMode/HitScanMode.h"
 
-#include "Components/DecalComponent.h"
 #include "GameScene/Cards/StructHeader.h"
-#include "GameScene/Manager/ImpactManager/ImpactManager.h"
-#include "GameScene/Player/MyPlayerController.h"
 #include "GameScene/Weapon/Gun.h"
 #include "GameScene/Weapon/FireMode/HitScanModeData.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UHitScanMode::Init(int TrueDamage, UFireData* FireData)

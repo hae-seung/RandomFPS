@@ -5,32 +5,29 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Struct/CombatStructHeader.h"
-#include "Struct/MonsterStruct.h"
-#include "MonsterCombatSystem.generated.h"
+#include "PlayerCombatSystem.generated.h"
 
-class UMonsterData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class RANDOMFPS_API UMonsterCombatSystem : public UActorComponent
+class RANDOMFPS_API UPlayerCombatSystem : public UActorComponent
 {
 	GENERATED_BODY()
-	
-public:	
-	UMonsterCombatSystem();
-	void Init(UMonsterData* Data);
-	void ApplyDamage(FHitResult& HitResult);
 
+public:	
+	UPlayerCombatSystem();
+	void TakeDamage(FDamageContext& Context);
+
+	
 protected:
 	virtual void BeginPlay() override;
 
 
-private:
-	float Hp;
-	
-	UPROPERTY()
-	FMonsterStat Stat;
-	
 
 private:
-	float CalculateAttackDamage(FDamageContext& AttackContext);
+	float Hp;
+	UPROPERTY(EditAnywhere)
+	FPlayerStat Stat;
+
+private:
+	int CalculateGetDamage(FDamageContext& Context);
 };

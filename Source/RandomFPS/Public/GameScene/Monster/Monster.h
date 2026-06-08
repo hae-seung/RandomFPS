@@ -37,6 +37,7 @@ public:
 
 	virtual EEntityType GetEntityType() override;
 	virtual void TakeDamage(FDamageContext& Context) override;
+	virtual bool GetIsDead() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,6 +49,8 @@ private:
 	UBehaviorTree* BT;
 	UPROPERTY(EditAnywhere)
 	UMonsterData* Data;
+
+	bool bIsDead;
 
 private:
 	UPROPERTY()

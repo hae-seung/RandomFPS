@@ -39,6 +39,7 @@ void UCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	bIsCrouch = OwningCharacter->bIsCrouched;
 	bIsAiming = OwningCharacter->GetAiming();
 	bIsReloading = OwningCharacter->GetReloading();
+	bIsDead = OwningCharacter->IsDead();
 	bHasGun = OwningCharacter->HasWeapon();
 	LeftHandIKTransform = OwningCharacter->LeftHandIK;
 }
