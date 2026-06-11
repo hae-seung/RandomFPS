@@ -13,6 +13,8 @@ struct FPlayerStat
 
 	UPROPERTY(EditAnywhere)
 	float MaxHP;
+	UPROPERTY()
+	float Hp;
 	UPROPERTY(EditAnywhere)
 	float WalkSpeed;
 	UPROPERTY(EditAnywhere)
@@ -32,6 +34,8 @@ struct FPlayerStat
 	//몬스터 기절확률
 	UPROPERTY(EditAnywhere)
 	int MonsterFlinchProbability;
+	UPROPERTY(EditAnywhere)
+	int ReviveTime;
 };
 
 USTRUCT()

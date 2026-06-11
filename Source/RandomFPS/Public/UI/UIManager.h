@@ -47,8 +47,10 @@ public:
 
 	FORCEINLINE UInventoryUI* GetInventoryUI()const { return InventoryUI; }
 	UCombatUI* GetCombatUI() const { return CombatUI; }
-
+	void Init(APawn* Pawn);
+	
 private:
+	UPROPERTY()
 	AMyPlayerController* LocalController;
 
 	//CanvasPanel자식으로 UISet을 두어야함.
@@ -66,8 +68,4 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	UCombatUI* CombatUI;
-	
-private:
-	virtual void NativeOnInitialized() override;
-	void Init();
 };

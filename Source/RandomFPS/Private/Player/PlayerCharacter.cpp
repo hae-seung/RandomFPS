@@ -141,6 +141,8 @@ void APlayerCharacter::MakeComponents()
 	Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 
 	CombatSystem = CreateDefaultSubobject<UPlayerCombatSystem>(TEXT("CombatSystem"));
+	CombatSystem->OnPlayerDead.AddUObject(this, &APlayerCharacter::Dead);
+	CombatSystem->OnPlayerRevive.AddUObject(this, &APlayerCharacter::Revive);
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)
@@ -316,6 +318,9 @@ FGenericTeamId APlayerCharacter::GetGenericTeamId() const
 //server
 void APlayerCharacter::Dead()
 {
+	if(!HasAuthority())
+		return;
+	
 	bIsDead = true; //replicated
 	SetCharacterOptionDeadState();
 }
@@ -357,18 +362,22 @@ void APlayerCharacter::SetCharacterOptionDeadState()
 }
 
 //server
-void APlayerCharacter::Revive(UAnimMontage* Montage, bool Interrupted)
+void APlayerCharacter::Revive()
 {
+	if(!HasAuthority())
+		return;
+	
 	bIsDead = false;
 	SetCharacterOptionAliveState();
 }
 
 void APlayerCharacter::SetCharacterOptionAliveState()
 {
-	//bUseControllerRotationYaw = true;
-		
-	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn")); //되살아날땐 Pawn으로
-	//GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block); //되살아날땐 ECR_Block으로
+	bUseControllerRotationYaw = true;
+	CharacterMovementComp->SetMovementMode(MOVE_Walking);
+	
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PawnCapsule")); //되살아날땐 Pawn으로
+	GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block); //되살아날땐 ECR_Block으로
 }
 
 bool APlayerCharacter::GetIsDead()

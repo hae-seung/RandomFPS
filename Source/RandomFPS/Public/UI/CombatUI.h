@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "GameScene/Weapon/Gun.h"
+#include "Struct/CombatStructHeader.h"
 #include "CombatUI.generated.h"
 
+class UProgressBar;
+class UOverlay;
+class UImage;
+class UPlayerCombatSystem;
 class UTextBlock;
 class UHorizontalBox;
 /**
@@ -18,11 +23,15 @@ class RANDOMFPS_API UCombatUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	void Init(UPlayerCombatSystem* CombatComponent);
+
 	void EquipGun();
 	
 	void BindTotalAmmoDelegate(FOnTotalAmmoChanged& OnTotalAmmoChanged);
 	void BindMagAmmoDelegate(FOnMagAmmoChanged& OnMagAmmoChanged);
 	void BindMagAmmoTypeDelegate(FOnMagAmmoTypeChanged& OnMagAmmoTypeChanged);
+	
+	
 	
 	
 private:
@@ -33,10 +42,32 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* TotalAmmoText;
 
+	UPROPERTY(meta=(BindWidget))
+	UImage* DeathBackGround;
+	UPROPERTY(meta=(BindWidget))
+	UOverlay* ReviveInfo;
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* ReviveTimeText;
+
+	UPROPERTY(meta=(BindWidget))
+	UProgressBar* HPBar;
+	UPROPERTY(meta=(BindWidget))
+	UProgressBar* HealthPreview;
+
+
+	float MaxHp;
+	
+
 private:
 	virtual void NativeOnInitialized() override;
 	
 	void UpdateTotalAmmoText(int TotalAmmo);
 	void UpdateMagAmmoText(int MagAmmo);
 	void UpdateMagAmmoTextColor(bool bIsRealBullet);
+	
+	void UpdateStatUI(const FPlayerStat& Stat);
+	void UpdateHp(const float Hp);
+	void UpdateReviveTime(int ReviveRemainTime);
+	void OpenDeadUI();
+	void CloseDeadUI();
 };

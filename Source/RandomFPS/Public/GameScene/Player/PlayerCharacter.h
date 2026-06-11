@@ -69,12 +69,12 @@ public:
 	APlayerCharacter();
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	FORCEINLINE UPlayerCombatSystem* GetCombatComponent() const { return CombatSystem; }
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
 	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
 	FORCEINLINE bool IsDead() const { return bIsDead; }
 	virtual bool GetIsDead() override;
-	void Dead();
 	
 	void RequestAddItem(UItemData* ItemData, int Amount = 1);
 	bool HasWeapon() const;
@@ -176,7 +176,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_bIsDead();
-	void Revive(UAnimMontage* Montage, bool Interrupted);
+	void Dead();
+	void Revive();
 	
 	void SetCharacterOptionAliveState();
 

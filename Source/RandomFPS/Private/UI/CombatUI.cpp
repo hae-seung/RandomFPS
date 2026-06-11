@@ -4,7 +4,11 @@
 #include "UI/CombatUI.h"
 
 #include "Components/HorizontalBox.h"
+#include "Components/Image.h"
+#include "Components/Overlay.h"
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "GameScene/Player/Components/PlayerCombatSystem.h"
 
 
 void UCombatUI::NativeOnInitialized()
@@ -15,9 +19,25 @@ void UCombatUI::NativeOnInitialized()
 	TotalAmmoText->SetText(FText::AsNumber(0));
 	MagAmmoText->SetText(FText::AsNumber(0));
 	BulletSet->SetVisibility(ESlateVisibility::Hidden);
+
+	HealthPreview->SetVisibility(ESlateVisibility::Hidden);
+	
+	CloseDeadUI();
 }
 
 
+void UCombatUI::Init(UPlayerCombatSystem* CombatComponent)
+{
+	CombatComponent->OnStateChanged.AddUObject(this, &UCombatUI::UpdateStatUI);
+	CombatComponent->OnReviveTimeChanged.AddUObject(this, &UCombatUI::UpdateReviveTime);
+	CombatComponent->OnPlayerDead.AddUObject(this, &UCombatUI::OpenDeadUI);
+	CombatComponent->OnPlayerRevive.AddUObject(this, &UCombatUI::CloseDeadUI);
+
+	CombatComponent->SubScribeInit();
+}
+
+
+#pragma region Gun
 void UCombatUI::EquipGun()
 {
 	BulletSet->SetVisibility(ESlateVisibility::Visible);
@@ -61,3 +81,36 @@ void UCombatUI::UpdateMagAmmoTextColor(bool bIsRealBullet)
 	MagAmmoText->SetColorAndOpacity(
 		bIsRealBullet ? FLinearColor::White : FLinearColor::Red);
 }
+
+
+#pragma endregion
+
+
+#pragma region Combat
+
+void UCombatUI::UpdateStatUI(const FPlayerStat& Stat)
+{
+	const float Percent = Stat.Hp / Stat.MaxHP;
+	
+	HPBar->SetPercent(Percent);
+	HealthPreview->SetPercent(Percent);
+}
+
+void UCombatUI::UpdateReviveTime(int ReviveRemainTime)
+{
+	ReviveTimeText->SetText(FText::AsNumber(ReviveRemainTime));
+}
+
+void UCombatUI::OpenDeadUI()
+{
+	DeathBackGround->SetVisibility(ESlateVisibility::Visible);
+	ReviveInfo->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UCombatUI::CloseDeadUI()
+{
+	DeathBackGround->SetVisibility(ESlateVisibility::Collapsed);
+	ReviveInfo->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+#pragma endregion

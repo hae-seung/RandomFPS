@@ -33,25 +33,35 @@ void AMyPlayerController::SetupInputComponent()
 	}
 }
 
-
+//서버전용
 void AMyPlayerController::OnPossess(APawn* InPawn)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnPossess %s"), *GetName());
 	Super::OnPossess(InPawn);
 	CreateUIManager();
 }
 
+//클라
 void AMyPlayerController::OnRep_Pawn()
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_Pawn %s"), *GetName());
+
 	Super::OnRep_Pawn();
 	CreateUIManager();
 }
 
 void AMyPlayerController::CreateUIManager()
 {
+	UE_LOG(LogTemp, Warning,
+		TEXT("CreateUIManager Local=%d UIManager=%p Pawn=%s"),
+		IsLocalController(),
+		UIManager,
+		*GetNameSafe(GetPawn()));
 	if(!IsLocalController() || UIManager) return;
 	
 	UIManager = CreateWidget<UUIManager>(this, BP_UIManager);
 	UIManager->AddToViewport();
+	UIManager->Init(GetPawn());
 }
 
 void AMyPlayerController::SetInputModeUI()

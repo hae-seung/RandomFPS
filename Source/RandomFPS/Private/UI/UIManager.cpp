@@ -4,25 +4,21 @@
 #include "UI/UIManager.h"
 
 #include "Components/Button.h"
-#include "GameScene/Player/MyPlayerController.h"
 #include "GameScene/Player/PlayerCharacter.h"
 #include "GameScene/Player/ItemData/BulletItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
+#include "UI/CombatUI.h"
 #include "UI/GunMenu.h"
 #include "UI/InventoryUI.h"
 
 
-void UUIManager::NativeOnInitialized()
+void UUIManager::Init(APawn* Pawn)
 {
-	LocalController = Cast<AMyPlayerController>(GetOwningPlayer());
-	Init();
-}
-
-
-void UUIManager::Init()
-{
+	APlayerCharacter* APC = Cast<APlayerCharacter>(Pawn);
+	
 	InventoryUI->Init();
 	GunMenuUI->Init(InventoryUI);
+	CombatUI->Init(APC->GetCombatComponent());
 
 	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
 	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);
