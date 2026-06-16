@@ -31,7 +31,6 @@ void UHitScanMode::Shot(
 	if(Hit.bBlockingHit)
 	{
 		EndLoc = Hit.ImpactPoint;
-
 		//맞은 대상이 몬스터이거나 사람이면 데미지 넣고 Impact, 데칼 소환 불필요
 		//맞은 대상이 알아서 스폰할거임. 피 튀는 연출 등
 		

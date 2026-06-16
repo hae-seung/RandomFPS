@@ -65,8 +65,7 @@ private:
 	void UpdateMagAmmoText(int MagAmmo);
 	void UpdateMagAmmoTextColor(bool bIsRealBullet);
 	
-	void UpdateStatUI(const FPlayerStat& Stat);
-	void UpdateHp(const float Hp);
+	void UpdateHealthUI(const FPlayerHealthStat& Stat);
 	void UpdateReviveTime(int ReviveRemainTime);
 	void OpenDeadUI();
 	void CloseDeadUI();

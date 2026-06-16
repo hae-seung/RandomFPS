@@ -116,11 +116,11 @@ void ABullet::ClearTimer()
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandler);
 }
 
-void ABullet::Acquire(APlayerCharacter* NewOwner)
+void ABullet::Acquire(AActor* NewOwner)
 {
 	bIsActive = true;
 
-	SetInstigator(NewOwner);
+	SetInstigator(Cast<APawn>(NewOwner));
 	SetOwner(NewOwner);
 	
 	SetActorHiddenInGame(false);

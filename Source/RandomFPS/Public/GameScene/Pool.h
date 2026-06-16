@@ -15,7 +15,7 @@ class RANDOMFPS_API UPool : public UObject
 	GENERATED_BODY()
 
 public:
-	AActor* GetActor(TSubclassOf<AActor> BP_Actor, AActor* Player);
+	AActor* GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner);
 
 private:
 	UPROPERTY()

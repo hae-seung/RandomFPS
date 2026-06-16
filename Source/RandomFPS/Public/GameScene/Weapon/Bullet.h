@@ -19,7 +19,7 @@ class RANDOMFPS_API ABullet : public AActor, public IPoolable
 	
 public:	
 	ABullet();
-	virtual void Acquire(APlayerCharacter* NewOwner) override;
+	virtual void Acquire(AActor* NewOwner) override;
 	UFUNCTION()
 	virtual void Release() override;
 	virtual bool IsActive() const override;

@@ -20,7 +20,7 @@ void UPlayerCombatSystem::BeginPlay()
 	
 	if(GetOwner()->HasAuthority())
 	{
-		Stat.Hp = Stat.MaxHP;
+		HealthStat.Hp = HealthStat.MaxHp;
 	}
 	
 	//multi 순서문제
@@ -29,7 +29,9 @@ void UPlayerCombatSystem::BeginPlay()
 
 void UPlayerCombatSystem::SubScribeInit()
 {
-	OnStateChanged.Broadcast(Stat);
+	OnPlayerHealthStatChanged.Broadcast(HealthStat);
+	OnPlayerCombatStatChanged.Broadcast(CombatStat);
+	OnPlayerUtilityStatChanged.Broadcast(UtilityStat);
 }
 
 
@@ -37,7 +39,9 @@ void UPlayerCombatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UPlayerCombatSystem, Stat);
+	DOREPLIFETIME(UPlayerCombatSystem, HealthStat);
+	DOREPLIFETIME(UPlayerCombatSystem, CombatStat);
+	DOREPLIFETIME(UPlayerCombatSystem, UtilityStat);
 	DOREPLIFETIME(UPlayerCombatSystem, RemainReviveTime);
 }
 
@@ -45,8 +49,8 @@ void UPlayerCombatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 {
 	const int FinalGetDamage = CalculateGetDamage(Context);
-	Stat.Hp = FMath::Max(0, Stat.Hp - FinalGetDamage);
-	if(Stat.Hp <= 0)
+	HealthStat.Hp = FMath::Max(0, HealthStat.Hp - FinalGetDamage);
+	if(HealthStat.Hp <= 0)
 	{
 		//die
 		OnPlayerDead.Broadcast();
@@ -54,7 +58,7 @@ void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 	}
 	
 	//UI
-	OnStateChanged.Broadcast(Stat);
+	OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
 
 
@@ -65,25 +69,25 @@ int UPlayerCombatSystem::CalculateGetDamage(FDamageContext& Context)
 	if (Context.bIsCritical)
 	{
 		float CritBonus = Context.FinalDamage - Context.BaseDamage;
-		CritBonus *= (1.f - Stat.CriticalDamageDefense);
+		CritBonus *= (1.f - CombatStat.CriticalDamageDefense);
 		TotalDamage += CritBonus;
 	}
 
-	float EffectiveDefense = Stat.Defense;
+	float EffectiveDefense = CombatStat.Defense;
 
 	if (Context.EntityType == EEntityType::Player)
 	{
-		EffectiveDefense *= (1.f - Context.PlayerContext.PlayerStat->DismissDefenseRate);
+		EffectiveDefense *= (1.f - Context.PlayerContext.PlayerCombatStat->DismissDefenseRate);
 	}
 
-	TotalDamage *= (Stat.K / (Stat.K + EffectiveDefense));
+	TotalDamage *= (CombatStat.K / (CombatStat.K + EffectiveDefense));
 
 	return (int)(TotalDamage);
 }
 
 void UPlayerCombatSystem::StartReviveTimer()
 {
-	RemainReviveTime = Stat.ReviveTime; //replicated
+	RemainReviveTime = UtilityStat.ReviveTime; //replicated
 	OnReviveTimeChanged.Broadcast(RemainReviveTime);
 	
 	GetWorld()->GetTimerManager().SetTimer(
@@ -93,6 +97,7 @@ void UPlayerCombatSystem::StartReviveTimer()
 		true);
 }
 
+//server
 void UPlayerCombatSystem::CheckReviveTime()
 {
 	RemainReviveTime -= 1; //replicated
@@ -105,20 +110,33 @@ void UPlayerCombatSystem::CheckReviveTime()
 		OnPlayerRevive.Broadcast();
 		
 		//부활시 체력 회복
-		Stat.Hp = Stat.MaxHP;
-		OnStateChanged.Broadcast(Stat);
+		HealthStat.Hp = HealthStat.MaxHp;
+		OnPlayerHealthStatChanged.Broadcast(HealthStat);
 	}
 }
 
-void UPlayerCombatSystem::OnRep_Stat()
+
+void UPlayerCombatSystem::OnRep_HealthStat()
 {
-	if(Stat.Hp <= 0)
+	if(HealthStat.Hp <= 0)
 	{
 		OnPlayerDead.Broadcast();
 	}
-	
-	OnStateChanged.Broadcast(Stat);
+
+	OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
+
+void UPlayerCombatSystem::OnRep_CombatStat()
+{
+	
+}
+
+void UPlayerCombatSystem::OnRep_UtilityStat()
+{
+	
+}
+
+
 
 void UPlayerCombatSystem::OnRep_RemainReviveTime()
 {

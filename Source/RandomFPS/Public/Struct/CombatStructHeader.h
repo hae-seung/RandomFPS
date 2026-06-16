@@ -6,17 +6,23 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "CombatStructHeader.generated.h"
 
+
 USTRUCT(BlueprintType)
-struct FPlayerStat
+struct FPlayerHealthStat
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere)
+	float MaxHp;
+	UPROPERTY()
+	float Hp;
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerCombatStat
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
-	float MaxHP;
-	UPROPERTY()
-	float Hp;
-	UPROPERTY(EditAnywhere)
-	float WalkSpeed;
 	UPROPERTY(EditAnywhere)
 	float AttackDamage;
 	
@@ -34,16 +40,31 @@ struct FPlayerStat
 	//몬스터 기절확률
 	UPROPERTY(EditAnywhere)
 	int MonsterFlinchProbability;
+};
+
+USTRUCT()
+struct FPlayerUtilityStat
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	float WalkSpeed;
 	UPROPERTY(EditAnywhere)
 	int ReviveTime;
 };
+
+
+
+
+
+
 
 USTRUCT()
 struct FPlayerDamageContext
 {
 	GENERATED_BODY()
 	
-	const FPlayerStat* PlayerStat;
+	const FPlayerCombatStat* PlayerCombatStat;
 	
 	//payback 구독 델리게이트
 };

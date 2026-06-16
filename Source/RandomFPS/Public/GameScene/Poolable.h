@@ -21,7 +21,7 @@ class RANDOMFPS_API IPoolable
 	GENERATED_BODY()
 
 public:
-	virtual void Acquire(APlayerCharacter* NewOwner) = 0;
+	virtual void Acquire(AActor* NewOwner) = 0;
 	virtual void Release() = 0;
 	virtual bool IsActive() const = 0;
 };

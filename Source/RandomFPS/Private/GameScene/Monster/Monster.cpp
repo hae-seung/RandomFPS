@@ -1,11 +1,13 @@
 
 #include "GameScene/Monster/Monster.h"
 
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameScene/Monster/MonsterController.h"
 #include "GameScene/Monster/MonsterData.h"
 #include "GameScene/Monster/Component/MonsterAttackSystem.h"
 #include "GameScene/Monster/Component/MonsterCombatSystem.h"
+#include "UI/HealthUI.h"
 
 
 AMonster::AMonster()
@@ -17,12 +19,21 @@ AMonster::AMonster()
 
 	CombatSystem = CreateDefaultSubobject<UMonsterCombatSystem>(TEXT("MonsterCombatSystem"));
 	AttackSystem = CreateDefaultSubobject<UMonsterAttackSystem>(TEXT("MonsterAttackSystem"));
+	HealthBarComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarUI"));
+	HealthBarComp->SetupAttachment(GetRootComponent());
 }
 
 
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	UHealthUI* HealthUI = Cast<UHealthUI>(HealthBarComp->GetUserWidgetObject());
+	if(HealthUI)
+	{
+		CombatSystem->OnMonsterHealthStatChanged.AddUObject(HealthUI, &UHealthUI::UpdateHealth);
+		HealthUI->Init(HealthBarComp);
+	}
 }
 
 void AMonster::PostInitializeComponents()

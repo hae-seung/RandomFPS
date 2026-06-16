@@ -7,7 +7,11 @@
 #include "Struct/CombatStructHeader.h"
 #include "PlayerCombatSystem.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnStateChanged, const FPlayerStat&);
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerHealthStatChanged, const FPlayerHealthStat&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerCombatStatChanged, const FPlayerCombatStat&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerUtilityStatChanged, const FPlayerUtilityStat&);
+
 DECLARE_MULTICAST_DELEGATE(FOnPlayerDead);
 DECLARE_MULTICAST_DELEGATE(FOnPlayerRevive);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnReviveTimeChanged, int);
@@ -20,7 +24,10 @@ class RANDOMFPS_API UPlayerCombatSystem : public UActorComponent
 
 	
 public:
-	FOnStateChanged OnStateChanged;
+	FOnPlayerHealthStatChanged OnPlayerHealthStatChanged;
+	FOnPlayerCombatStatChanged OnPlayerCombatStatChanged;
+	FOnPlayerUtilityStatChanged OnPlayerUtilityStatChanged;
+	
 	FOnPlayerDead OnPlayerDead;
 	FOnPlayerRevive OnPlayerRevive;
 	FOnReviveTimeChanged OnReviveTimeChanged;
@@ -36,8 +43,12 @@ protected:
 
 
 private:
-	UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_Stat)
-	FPlayerStat Stat;
+	UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_HealthStat)
+	FPlayerHealthStat HealthStat;
+	UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_CombatStat)
+	FPlayerCombatStat CombatStat;
+	UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_UtilityStat)
+	FPlayerUtilityStat UtilityStat;
 	
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_RemainReviveTime)
 	int RemainReviveTime;
@@ -49,7 +60,13 @@ private:
 	void CheckReviveTime();
 	
 	UFUNCTION()
-	void OnRep_Stat();
+	void OnRep_HealthStat();
+	UFUNCTION()
+	void OnRep_CombatStat();
+	UFUNCTION()
+	void OnRep_UtilityStat();
+
+	
 	UFUNCTION()
 	void OnRep_RemainReviveTime();
 };

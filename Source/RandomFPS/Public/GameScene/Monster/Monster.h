@@ -8,6 +8,8 @@
 #include "Struct/MonsterStruct.h"
 #include "Monster.generated.h"
 
+class UHealthUI;
+class UWidgetComponent;
 class UMonsterAttackSystem;
 class AMonsterController;
 class UMonsterCombatSystem;
@@ -59,6 +61,8 @@ private:
 	UMonsterCombatSystem* CombatSystem;
 	UPROPERTY()
 	UMonsterAttackSystem* AttackSystem;
+	UPROPERTY(EditAnywhere)
+	UWidgetComponent* HealthBarComp;
 	
 	const FMonsterAttackDefinition* CurrentAttackDefinition;
 };

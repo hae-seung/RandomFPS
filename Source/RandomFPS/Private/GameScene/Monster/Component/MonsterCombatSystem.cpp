@@ -5,10 +5,12 @@
 
 #include "GameScene/Monster/MonsterData.h"
 #include "Interface/Damageable.h"
+#include "Net/UnrealNetwork.h"
 
 UMonsterCombatSystem::UMonsterCombatSystem()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 }
 
 void UMonsterCombatSystem::BeginPlay()
@@ -16,10 +18,21 @@ void UMonsterCombatSystem::BeginPlay()
 	Super::BeginPlay();
 }
 
+void UMonsterCombatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UMonsterCombatSystem, MaxHp);
+	DOREPLIFETIME(UMonsterCombatSystem, Hp);
+}
+
 void UMonsterCombatSystem::Init(UMonsterData* Data)
 {
 	Stat = Data->GetMonsterStatData();
+	
 	Hp = Stat.MaxHP;
+	MaxHp = Stat.MaxHP;
+	OnMonsterHealthStatChanged.Broadcast(Hp, MaxHp);
 }
 
 void UMonsterCombatSystem::ApplyDamage(FHitResult& HitResult)
@@ -48,4 +61,14 @@ float UMonsterCombatSystem::CalculateAttackDamage(FDamageContext& AttackContext)
 	Damage = FMath::RandRange(Damage - RandNum, Damage + RandNum);
 	
 	return  Damage;
+}
+
+void UMonsterCombatSystem::OnRep_Hp()
+{
+	OnMonsterHealthStatChanged.Broadcast(Hp, MaxHp);
+}
+
+void UMonsterCombatSystem::OnRep_MaxHp()
+{
+	OnMonsterHealthStatChanged.Broadcast(Hp, MaxHp);
 }

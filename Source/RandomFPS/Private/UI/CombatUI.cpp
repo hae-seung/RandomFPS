@@ -28,7 +28,7 @@ void UCombatUI::NativeOnInitialized()
 
 void UCombatUI::Init(UPlayerCombatSystem* CombatComponent)
 {
-	CombatComponent->OnStateChanged.AddUObject(this, &UCombatUI::UpdateStatUI);
+	CombatComponent->OnPlayerHealthStatChanged.AddUObject(this, &UCombatUI::UpdateHealthUI);
 	CombatComponent->OnReviveTimeChanged.AddUObject(this, &UCombatUI::UpdateReviveTime);
 	CombatComponent->OnPlayerDead.AddUObject(this, &UCombatUI::OpenDeadUI);
 	CombatComponent->OnPlayerRevive.AddUObject(this, &UCombatUI::CloseDeadUI);
@@ -88,9 +88,9 @@ void UCombatUI::UpdateMagAmmoTextColor(bool bIsRealBullet)
 
 #pragma region Combat
 
-void UCombatUI::UpdateStatUI(const FPlayerStat& Stat)
+void UCombatUI::UpdateHealthUI(const FPlayerHealthStat& Stat)
 {
-	const float Percent = Stat.Hp / Stat.MaxHP;
+	const float Percent = Stat.Hp / Stat.MaxHp;
 	
 	HPBar->SetPercent(Percent);
 	HealthPreview->SetPercent(Percent);

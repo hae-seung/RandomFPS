@@ -6,7 +6,7 @@
 #include "GameScene/Player/PlayerCharacter.h"
 
 
-AActor* UPool::GetActor(TSubclassOf<AActor> BP_Actor, AActor* Player)
+AActor* UPool::GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner)
 {
 	if(PoolObjects.IsEmpty())
 	{
@@ -15,7 +15,7 @@ AActor* UPool::GetActor(TSubclassOf<AActor> BP_Actor, AActor* Player)
 
 	AActor* LastActor = PoolObjects.Pop(EAllowShrinking::No);
 	IPoolable* PoolActor = Cast<IPoolable>(LastActor);
-	PoolActor->Acquire(Cast<APlayerCharacter>(Player));
+	PoolActor->Acquire(Owner);
 	return LastActor;
 }
 
