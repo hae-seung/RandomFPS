@@ -15,16 +15,26 @@ void UPoolManager::InitServerPool(const TArray<TSubclassOf<AActor>>& ServerPoolD
 		UPool* NewPool = NewObject<UPool>(this);
 		ServerPool.Add(Value, NewPool);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("ServerPool"));
 }
 
 
-AActor* UPoolManager::Server_GetActor(TSubclassOf<AActor> BP_Actor, AActor* Player)
+AActor* UPoolManager::Server_GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner)
 {
 	if(!ServerPool.Contains(BP_Actor))
-		return nullptr;
+	{
+		UPool* NewPool = NewObject<UPool>(this);
+		ServerPool.Add(BP_Actor, NewPool); 
+	}
 	
-	return ServerPool[BP_Actor]->GetActor(BP_Actor, Player);
+	return ServerPool[BP_Actor]->GetActor(BP_Actor, Owner);
+}
+
+void UPoolManager::Server_ReleaseActor(AActor* PoolingActor)
+{
+	if(!ServerPool.Contains(PoolingActor->GetClass()))
+		return;
+	
+	ServerPool[PoolingActor->GetClass()]->ReleaseActor(PoolingActor);
 }
 
 

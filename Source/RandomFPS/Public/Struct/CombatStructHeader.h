@@ -6,7 +6,7 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "CombatStructHeader.generated.h"
 
-
+#pragma region PlayerStat
 USTRUCT(BlueprintType)
 struct FPlayerHealthStat
 {
@@ -31,9 +31,15 @@ struct FPlayerCombatStat
 	float K;
 	UPROPERTY(EditAnywhere)
 	float Defense;
+	UPROPERTY(EditAnywhere)
+	float DamageRand = 0.01f;
+	UPROPERTY(EditAnywhere)
+	float CriticalDamageBonus = 2.f;
+
+	//치명타 데미지 감소
 	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f, ClampMax=1.f))
 	float CriticalDamageDefense;
-	//방어무시
+	//방어율 감소
 	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f, ClampMax=1.f))
 	float DismissDefenseRate;
 
@@ -52,10 +58,7 @@ struct FPlayerUtilityStat
 	UPROPERTY(EditAnywhere)
 	int ReviveTime;
 };
-
-
-
-
+#pragma endregion
 
 
 
@@ -63,10 +66,9 @@ USTRUCT()
 struct FPlayerDamageContext
 {
 	GENERATED_BODY()
+
+	float FlinchProb;
 	
-	const FPlayerCombatStat* PlayerCombatStat;
-	
-	//payback 구독 델리게이트
 };
 
 //때릴때의 정보
@@ -82,14 +84,9 @@ struct FDamageContext
 	float BaseDamage;
 	float FinalDamage;
 	bool bIsCritical;
+
+	FVector HitLocation;
 	
 	//플레이어가 때리는 경우 필요
-	FPlayerDamageContext PlayerContext;
-};
-
-USTRUCT()
-struct FDamageContextPayback
-{
-	GENERATED_BODY()
-	
+	FPlayerCombatStat PlayerAttackerStat;
 };

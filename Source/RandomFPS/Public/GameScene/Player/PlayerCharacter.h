@@ -8,6 +8,7 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "GameFramework/Character.h"
 #include "Interface/Damageable.h"
+#include "Interface/Killable.h"
 #include "PlayerCharacter.generated.h"
 
 class UPlayerCombatSystem;
@@ -28,7 +29,8 @@ UCLASS()
 class RANDOMFPS_API APlayerCharacter :
 public ACharacter,
 public IGenericTeamAgentInterface,
-public IDamageable
+public IDamageable,
+public IKillable
 {
 	GENERATED_BODY()
 
@@ -196,4 +198,5 @@ private:
 	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	void SetCharacterOptionDeadState();
+	virtual void ApplyDamage(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet) const override;
 };

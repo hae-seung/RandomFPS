@@ -42,6 +42,6 @@ void USemiAutoMode::Shot(TSubclassOf<ABullet> BP_Bullet,
 	
 	//3.Bullet의 ProjectileMovement설정
 	//발사 날리기
-	Bullet->Shot(ShootDir, GunActor->GetGunInstance()->GetBulletSpeed());
+	Bullet->Shot(ShootDir, GunActor->GetGunInstance()->GetBulletSpeed(), HasBullet);
 	GunActor->Fire();
 }

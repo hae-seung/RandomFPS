@@ -70,6 +70,6 @@ void UFullAutoMode::AutoShot()
 	
 	//3.Bullet의 ProjectileMovement설정
 	//발사 날리기
-	Bullet->Shot(ShootDir, CachedGunActor->GetGunInstance()->GetBulletSpeed());
+	Bullet->Shot(ShootDir, CachedGunActor->GetGunInstance()->GetBulletSpeed(), CachedHasBullet);
 	CachedGunActor->Fire();
 }

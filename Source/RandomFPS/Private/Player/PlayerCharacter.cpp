@@ -10,6 +10,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameScene/PoolManager.h"
+#include "GameScene/Monster/DamageActor.h"
 #include "Net/UnrealNetwork.h"
 #include "GameScene/Player/Components/CardManager.h"
 #include "GameScene/Player/Components/Inventory.h"
@@ -287,9 +289,19 @@ EEntityType APlayerCharacter::GetEntityType()
 
 void APlayerCharacter::TakeDamage(FDamageContext& Context) //override
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f"), Context.BaseDamage);
 	CombatSystem->TakeDamage(Context);
+
+	//플레이어는 데미지스킨 X
+	//only 체력바
+
+	//맞은 부위에 출혈 및 사운드(2D, 3D)
 }
+
+void APlayerCharacter::ApplyDamage(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet) const
+{
+	CombatSystem->ApplyDamageToTarget(Target, HitLocation, BoneName, bIsRealBullet);
+}
+
 
 //server
 void APlayerCharacter::OnReloadMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -342,7 +354,7 @@ void APlayerCharacter::SetCharacterOptionDeadState()
 	StopAnimMontage();
 	
 	bUseControllerRotationYaw = false;
-	CharacterMovementComp->DisableMovement();
+	CharacterMovementComp->SetMovementMode(MOVE_None);
 	
 	if(IsLocallyControlled())
 	{

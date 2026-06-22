@@ -24,14 +24,17 @@ public:
 	virtual void Release() override;
 	virtual bool IsActive() const override;
 
-	void Shot(const FVector& Direction, float Speed);
+	void Shot(const FVector& Direction, float Speed, bool bHasBullet);
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
 private:
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsActive);
 	bool bIsActive;
+	bool bIsRealBullet;
 	
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMeshComponent;
@@ -67,4 +70,7 @@ private:
 	void Multicast_PlayImpact(EPhysicalSurface Surface, FVector Location);
 	
 	void ClearTimer();
+
+	UFUNCTION()
+	void OnRep_bIsActive();
 };

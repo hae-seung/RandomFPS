@@ -5,12 +5,14 @@
 
 #include "Components/DecalComponent.h"
 #include "Components/SphereComponent.h"
-#include "GameScene/Player/PlayerCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameScene/PoolManager.h"
 #include "GameScene/Manager/ImpactManager/ImpactManager.h"
-#include "GameScene/Monster/Monster.h"
+#include "Interface/Damageable.h"
+#include "Interface/Killable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 class APlayerCharacter;
 
@@ -32,6 +34,13 @@ ABullet::ABullet()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 }
 
+void ABullet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABullet, bIsActive);
+}
+
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
@@ -50,7 +59,19 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp,
 	if(!HasAuthority())
 		return;
 
-	//todo : 맞은게 생물인지 무생물인지 확인 필요
+	//맞은게 생물인경우
+	if(IDamageable* Damageable = Cast<IDamageable>(OtherActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("본 네임 : %s"), *Hit.BoneName.ToString());
+
+		IKillable* Killable = Cast<IKillable>(GetOwner());
+		Killable->ApplyDamage(Damageable, Hit.Location, Hit.BoneName, bIsRealBullet);
+		
+		ClearTimer();
+		Release();
+		return;
+	}
+
 	
 	//Impact 실행
 	EPhysicalSurface Surface = SurfaceType_Default;
@@ -122,16 +143,24 @@ void ABullet::Acquire(AActor* NewOwner)
 
 	SetInstigator(Cast<APawn>(NewOwner));
 	SetOwner(NewOwner);
+
+	ProjectileMovementComponent->Activate(true);
 	
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
+
+	ProjectileMovementComponent->Activate(true);
+	ProjectileMovementComponent->SetUpdatedComponent(Collision);
+	ProjectileMovementComponent->StopMovementImmediately();
 }
 
 void ABullet::Release()
 {
 	bIsActive = false;
 
+	ProjectileMovementComponent->StopMovementImmediately();
+	
 	SetInstigator(nullptr);
 	SetOwner(nullptr);
 	
@@ -139,7 +168,10 @@ void ABullet::Release()
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	
-	ProjectileMovementComponent->StopMovementImmediately();
+	ClearTimer();
+
+	UPoolManager* PoolManager = GetWorld()->GetSubsystem<UPoolManager>();
+	PoolManager->Server_ReleaseActor(this);
 }
 
 bool ABullet::IsActive() const
@@ -147,7 +179,7 @@ bool ABullet::IsActive() const
 	return bIsActive;
 }
 
-void ABullet::Shot(const FVector& Direction, float Speed)
+void ABullet::Shot(const FVector& Direction, float Speed, bool bHasBullet)
 {
 	//5초뒤 물체에 안맞으면 풀에 반환
 	GetWorld()->GetTimerManager().SetTimer(
@@ -157,6 +189,13 @@ void ABullet::Shot(const FVector& Direction, float Speed)
 		5.0f,
 		false);
 
+	bIsRealBullet = bHasBullet;
+	ProjectileMovementComponent->UpdateComponentVelocity();
 	ProjectileMovementComponent->Velocity = Direction * Speed;
 }
 
+
+void ABullet::OnRep_bIsActive()
+{
+	SetActorHiddenInGame(!bIsActive);
+}

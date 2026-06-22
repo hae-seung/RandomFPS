@@ -10,8 +10,8 @@
 
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMonsterHealthStatChanged, float, float);
-
-
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMonsterFlinched, AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMonsterDead, bool);
 
 
 class UMonsterData;
@@ -24,13 +24,15 @@ class RANDOMFPS_API UMonsterCombatSystem : public UActorComponent
 	
 public:
 	FOnMonsterHealthStatChanged OnMonsterHealthStatChanged;
-
+	FOnMonsterFlinched OnMonsterFlinched;
+	FOnMonsterDead OnMonsterDead;
 	
 public:	
 	UMonsterCombatSystem();
 	void Init(UMonsterData* Data);
-	void ApplyDamage(FHitResult& HitResult);
-
+	void ApplyDamage(FHitResult& HitResult); //데미지를 입히는 것
+	float TakeDamage(FDamageContext& Context); //데미지를 받는 것
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -47,7 +49,9 @@ private:
 
 private:
 	float CalculateAttackDamage(FDamageContext& AttackContext);
+	float GetFinalDamage(FDamageContext& Context);
 
+	
 	UFUNCTION()
 	void OnRep_Hp();
 	UFUNCTION()

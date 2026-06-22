@@ -10,6 +10,8 @@
 #include "MonsterData.generated.h"
 
 
+class ADamageActor;
+
 UCLASS()
 class RANDOMFPS_API UMonsterData : public UDataAsset
 {
@@ -25,6 +27,8 @@ public:
 	FORCEINLINE float GetAttackRange() const { return AttackRangeRadius; }
 	FORCEINLINE UAnimMontage* GetFlinchMontage() const { return FlinchMontage; }
 	FORCEINLINE UAnimMontage* GetDeathMontage() const { return DeathMontage; }
+	FORCEINLINE UNiagaraSystem* GetBloodEffect() const { return HitBlood; }
+	FORCEINLINE TSubclassOf<ADamageActor> GetBP_DamageActor() const { return DamageActor; }
 	
 private:
 	UPROPERTY(EditAnywhere)
@@ -47,4 +51,9 @@ private:
 	UAnimMontage* FlinchMontage;
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditAnywhere)
+	UNiagaraSystem* HitBlood;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ADamageActor> DamageActor;
 };

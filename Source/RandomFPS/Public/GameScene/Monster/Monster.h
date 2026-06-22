@@ -38,6 +38,7 @@ public:
 	void EndAttack();
 
 	virtual EEntityType GetEntityType() override;
+	//쳐맞음
 	virtual void TakeDamage(FDamageContext& Context) override;
 	virtual bool GetIsDead() override;
 	
@@ -65,4 +66,16 @@ private:
 	UWidgetComponent* HealthBarComp;
 	
 	const FMonsterAttackDefinition* CurrentAttackDefinition;
+
+
+private:
+	void Server_SpawnBlood(FVector& HitLocation);
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_SpawnBlood(FVector HitLocation);
+	void SpawnBlood(FVector HitLocation);
+
+	void Server_SpawnDamageActor(FVector& HitLocation, float Damage, bool bIsCritic);
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_SpawnDamageActor(FVector HitLocation, float Damage, bool bIsCritic);
+	void SpawnDamageActor(FVector& HitLocation, float Damage, bool bIsCritic);
 };

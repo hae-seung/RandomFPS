@@ -28,7 +28,8 @@ public:
 	void CheckCanAttackTarget();
 	void SetFlinchState(AActor* Attacker);
 	void Attack();
-	
+	void SetDeadState(bool bIsDead);
+	void MonsterAttackedByPlayer(AActor* Attacker);
 
 protected:
 	AMonsterController();
@@ -70,6 +71,8 @@ private:
 	FName CanAttackKey;
 	UPROPERTY(EditAnywhere, Category="BlackBoardKey")
 	FName FlinchKey;
+	UPROPERTY(EditAnywhere, Category="BlackBoardKey")
+	FName DeadStateKey;
 
 private:
 	void SetMonsterPerception(UMonsterData* Data);

@@ -16,6 +16,7 @@ class RANDOMFPS_API UPool : public UObject
 
 public:
 	AActor* GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner);
+	void ReleaseActor(AActor* Object);
 
 private:
 	UPROPERTY()
@@ -23,4 +24,5 @@ private:
 
 private:
 	void Spawn(TSubclassOf<AActor> BP);
+	
 };

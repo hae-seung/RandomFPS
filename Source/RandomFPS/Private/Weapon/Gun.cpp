@@ -143,7 +143,7 @@ void AGun::Shot()
 		GunInstance->GunItemData->BulletItemData->BP_Bullet,
 		Controller,
 		this,
-		true);
+		bIsRealBullet);
 }
 
 void AGun::StopShot()

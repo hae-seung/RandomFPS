@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "DamageUI.generated.h"
 
+class ADamageActor;
 class UWidgetComponent;
 class UTextBlock;
 /**
@@ -17,24 +18,15 @@ class RANDOMFPS_API UDamageUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Init(UWidgetComponent* WidgetComponent);
 	void SetDamage(float DamageAmount, bool bIsCritical);
 
 private:
-	UPROPERTY()
-	APlayerController* PC;
-	UPROPERTY()
-	UWidgetComponent* DamageWidgetComponent;
+	
 	
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* DamageText;
 	UPROPERTY(meta=(BindWidgetAnim), Transient)
 	UWidgetAnimation* PrintDamageAnim;
-	
-	FVector CameraLocation;
-	FRotator CameraRotator;
-	FRotator LookAtRot;
 
-private:
-	void LookCamera();
+
 };

@@ -18,7 +18,8 @@ class RANDOMFPS_API UPoolManager : public UWorldSubsystem
 public:
 	void InitServerPool(const TArray<TSubclassOf<AActor>>& ServerPoolData);
 
-	AActor* Server_GetActor(TSubclassOf<AActor> BP_Actor, AActor* Player);
+	AActor* Server_GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner);
+	void Server_ReleaseActor(AActor* PoolingActor);
 	UNiagaraComponent* Client_PlayAttachedFX(UNiagaraSystem* FX, USceneComponent* AttachComp, const FName& SocketName);
 	UNiagaraComponent* Client_PlayLocationFX(UNiagaraSystem* FX, const FVector& Location, const FRotator& Rot);
 	

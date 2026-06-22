@@ -19,13 +19,18 @@ AActor* UPool::GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner)
 	return LastActor;
 }
 
+
 void UPool::Spawn(TSubclassOf<AActor> BP_Actor)
 {
 	FActorSpawnParameters Params;
 	Params.Owner = nullptr;
 	
 	AActor* NewActor = GetWorld()->SpawnActor<AActor>(BP_Actor, Params);
-	IPoolable* PoolActor = Cast<IPoolable>(NewActor);
-	PoolActor->Release();
 	PoolObjects.Add(NewActor);
 }
+
+void UPool::ReleaseActor(AActor* Object)
+{
+	PoolObjects.Add(Object);
+}
+

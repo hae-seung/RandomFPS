@@ -19,7 +19,6 @@ AMonsterController::AMonsterController()
 		this, &AMonsterController::TargetPerceptionUpdated);
 }
 
-
 void AMonsterController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -49,7 +48,6 @@ void AMonsterController::OnPossess(APawn* InPawn)
 		}
 	}
 }
-
 
 void AMonsterController::SetMonsterPerception(UMonsterData* Data)
 {
@@ -162,6 +160,7 @@ void AMonsterController::ChangeCurrentTarget(AActor* NewTargetActor)
 				BB->SetValueAsBool(LostTargetKey, true);
 			}
 		}
+		BB->ClearValue(TargetActorKey);
 		BB->SetValueAsObject(TargetActorKey, nullptr);
 		Targets.Remove(CurrentTarget);
 		CurrentTarget = nullptr;
@@ -259,6 +258,20 @@ void AMonsterController::CheckCanAttackTarget()
 	BB->SetValueAsBool(CanAttackKey, bCanAttack);
 }
 
+//몬스터가 맞았을때
+void AMonsterController::MonsterAttackedByPlayer(AActor* Attacker)
+{
+	if(IsValid(CurrentTarget))
+		return;
+
+	//Idle이었으면 바로 타겟 설정
+	if(GetTargetInTargets() == nullptr)
+	{
+		ChangeCurrentTarget(Attacker);
+	}
+}
+
+
 //움찔 확정 났을 때 호출됨
 void AMonsterController::SetFlinchState(AActor* Attacker) 
 {
@@ -304,6 +317,21 @@ void AMonsterController::Attack()
 	Monster->PlayMontageAndSubscribeEndDelegate(AttackMontage, EndDelegate);
 }
 
+void AMonsterController::SetDeadState(bool bIsDead)
+{
+	BB->SetValueAsBool(DeadStateKey, bIsDead);
+
+	if(bIsDead)
+	{
+		//animation
+		UAnimMontage* DeathMontage = MonsterData->GetDeathMontage();
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AMonsterController::OnDeadEnd);
+
+		Monster->PlayMontageAndSubscribeEndDelegate(DeathMontage, EndDelegate);
+	}
+}
+
 void AMonsterController::OnAttackEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	bIsAttacking = false;
@@ -317,5 +345,6 @@ void AMonsterController::OnFlinchEnd(UAnimMontage* Montage, bool bInterrupted)
 
 void AMonsterController::OnDeadEnd(UAnimMontage* Montage, bool bInterrupted)
 {
+	//풀 반환
 	
 }

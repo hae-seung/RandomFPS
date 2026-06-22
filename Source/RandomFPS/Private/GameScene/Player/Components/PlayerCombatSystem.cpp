@@ -45,6 +45,47 @@ void UPlayerCombatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UPlayerCombatSystem, RemainReviveTime);
 }
 
+void UPlayerCombatSystem::ApplyDamageToTarget(
+	IDamageable* Target,
+	FVector HitLocation,
+	FName BoneName,
+	bool bIsRealBullet)
+{
+	bool bIsCritical = BoneName == "head";
+	
+	FDamageContext Context;
+	Context.Attacker = GetOwner();
+	Context.EntityType = EEntityType::Player;
+	Context.HitLocation = HitLocation;
+	Context.bIsCritical = bIsCritical;
+
+	float Damage = CombatStat.AttackDamage;
+	if(!bIsRealBullet)
+	{
+		Damage *= 0.5f;
+	}
+	Context.BaseDamage = Damage;
+	Context.FinalDamage = CalculateAttackDamage(Damage, bIsCritical);
+	Context.PlayerAttackerStat = CombatStat;
+
+	Target->TakeDamage(Context);
+}
+
+float UPlayerCombatSystem::CalculateAttackDamage(float Damage, bool bIsCritic)
+{
+	//치명타보너스는 현재 데미지의 몇배인지
+	float FinalDamage = bIsCritic ? Damage * CombatStat.CriticalDamageBonus : Damage;
+
+	//데미지 랜덤 난수 : 기본 : 1% = 0.01
+	const float RandNum = FinalDamage * CombatStat.DamageRand;
+	FinalDamage = FMath::RandRange(FinalDamage - RandNum, FinalDamage + RandNum);
+	
+	return  FinalDamage;
+}
+
+
+
+
 //server
 void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 {
@@ -69,15 +110,16 @@ int UPlayerCombatSystem::CalculateGetDamage(FDamageContext& Context)
 	if (Context.bIsCritical)
 	{
 		float CritBonus = Context.FinalDamage - Context.BaseDamage;
-		CritBonus *= (1.f - CombatStat.CriticalDamageDefense);
+		CritBonus *= (1.f - CombatStat.CriticalDamageDefense); //치명타 데미지 감소 스탯 적용
 		TotalDamage += CritBonus;
 	}
 
 	float EffectiveDefense = CombatStat.Defense;
 
+	//상대 플레이어가 방어율 무시 스탯을 가진 경우
 	if (Context.EntityType == EEntityType::Player)
 	{
-		EffectiveDefense *= (1.f - Context.PlayerContext.PlayerCombatStat->DismissDefenseRate);
+		EffectiveDefense *= (1.f - Context.PlayerAttackerStat.DismissDefenseRate);
 	}
 
 	TotalDamage *= (CombatStat.K / (CombatStat.K + EffectiveDefense));

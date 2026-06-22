@@ -4,14 +4,6 @@
 #include "UI/DamageUI.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-
-
-void UDamageUI::Init(UWidgetComponent* WidgetComponent)
-{
-	PC = GetWorld()->GetFirstPlayerController();
-	DamageWidgetComponent = WidgetComponent;
-}
 
 void UDamageUI::SetDamage(float DamageAmount, bool bIsCritical)
 {
@@ -24,21 +16,8 @@ void UDamageUI::SetDamage(float DamageAmount, bool bIsCritical)
 	}
 	else
 	{
-		DamageText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
+		DamageText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 0.5f, 0.0f, 1.0f)));
 	}
-
-	LookCamera();
-
+	
 	PlayAnimation(PrintDamageAnim);
-}
-
-void UDamageUI::LookCamera()
-{
-	PC->GetPlayerViewPoint(CameraLocation, CameraRotator);
-
-	LookAtRot = UKismetMathLibrary::FindLookAtRotation(
-		DamageWidgetComponent->GetComponentLocation(),
-		CameraLocation);
-
-	DamageWidgetComponent->SetWorldRotation(LookAtRot);
 }

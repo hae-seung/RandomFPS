@@ -18,10 +18,13 @@ struct FMonsterStat
 	float WalkSpeed;
 	UPROPERTY(EditAnywhere)
 	float AttackDamage;
+	UPROPERTY(EditAnywhere)
+	float K;
 	
 	//%단위로. ex) 17.5% => 0.175로 작성
 	//공격 데미지 난수
-	UPROPERTY(EditAnywhere, meta=(ClampMin = 0.0f, ClampMax = 1.0f))
+	//최대 난수 +- 20%
+	UPROPERTY(EditAnywhere, meta=(ClampMin = 0.0f, ClampMax = 0.2f))
 	float RandomAttackDamageRange;
 	UPROPERTY(EditAnywhere)
 	int CriticalProbability;

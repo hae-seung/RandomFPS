@@ -26,13 +26,31 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 
 private:
 	UPROPERTY(EditAnywhere)
 	UWidgetComponent* DamageWidgetComponent;
+	UPROPERTY(EditAnywhere)
+	float LifeTime;
+	UPROPERTY()
+	FTimerHandle TimerHandle;
 	UPROPERTY()
 	UDamageUI* DamageUI;
-
+	
 	bool bIsActive = false;
+
+
+	UPROPERTY()
+	APlayerController* PC;
+
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	FRotator LookAtRot;
+
+private:
+
+	void StartReleaseTimer();
+	void RotateToLocalCamera();
 };

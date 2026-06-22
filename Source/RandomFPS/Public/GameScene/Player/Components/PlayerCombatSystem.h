@@ -8,6 +8,7 @@
 #include "PlayerCombatSystem.generated.h"
 
 
+class IDamageable;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerHealthStatChanged, const FPlayerHealthStat&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerCombatStatChanged, const FPlayerCombatStat&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerUtilityStatChanged, const FPlayerUtilityStat&);
@@ -36,6 +37,7 @@ public:
 	UPlayerCombatSystem();
 	void TakeDamage(FDamageContext& Context);
 	void SubScribeInit();
+	void ApplyDamageToTarget(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -56,6 +58,8 @@ private:
 
 private:
 	int CalculateGetDamage(FDamageContext& Context);
+	float CalculateAttackDamage(float Damage, bool bIsCritic);
+	
 	void StartReviveTimer();
 	void CheckReviveTime();
 	
@@ -69,4 +73,6 @@ private:
 	
 	UFUNCTION()
 	void OnRep_RemainReviveTime();
+
+	
 };
