@@ -34,8 +34,32 @@ void APreviewGun::Init(AMyPlayerController* Controller)
 			
 			CaptureCamera->TextureTarget = RT;
 			PreviewRenderTarget = RT;
-			
-			Controller->GetUIManager()->GetInventoryUI()->SetGunRenderTarget(RT);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				InitHandle,
+				this, &APreviewGun::WaitInitUI,
+				0.2f,
+				true);
+		}
+	}
+}
+
+void APreviewGun::WaitInitUI()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PreviewGun Wait Loop"));
+	
+	if(APlayerCharacter* APC = Cast<APlayerCharacter>(GetOwner()))
+	{
+		if(AMyPlayerController* Controller = Cast<AMyPlayerController>(APC->GetController()))
+		{
+			if(IsValid(Controller->GetUIManager()))
+			{
+				if(IsValid(Controller->GetUIManager()->GetInventoryUI()))
+				{
+					Controller->GetUIManager()->GetInventoryUI()->SetGunRenderTarget(PreviewRenderTarget);
+					GetWorld()->GetTimerManager().ClearTimer(InitHandle);
+				}
+			}
 		}
 	}
 }

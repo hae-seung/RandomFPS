@@ -50,7 +50,7 @@ private:
 private:
 	float CalculateAttackDamage(FDamageContext& AttackContext);
 	float GetFinalDamage(FDamageContext& Context);
-
+	void Dead(AActor* Attacker);
 	
 	UFUNCTION()
 	void OnRep_Hp();

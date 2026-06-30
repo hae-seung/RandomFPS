@@ -7,6 +7,8 @@
 #include "GameScene/Cards/StructHeader.h"
 #include "UIManager.generated.h"
 
+class AMyPlayerState;
+class UScoreUI;
 class UBulletItemData;
 class UCombatUI;
 class UPartsItemData;
@@ -25,6 +27,8 @@ class RANDOMFPS_API UUIManager : public UUserWidget
 {
 	GENERATED_BODY()
 
+
+	
 public:
 	UPROPERTY(EditAnywhere)
 	UPartsItemData* RailData;
@@ -40,14 +44,19 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	UButton* BulletBtn;
 	
+	
 	UFUNCTION()
 	void GiveRedDot();
 	UFUNCTION()
 	void GiveBullet();
 
+public:
+	
 	FORCEINLINE UInventoryUI* GetInventoryUI()const { return InventoryUI; }
 	UCombatUI* GetCombatUI() const { return CombatUI; }
 	void Init(APawn* Pawn);
+	void OpenScoreBoard();
+	void CloseScoreBoard();
 	
 private:
 	UPROPERTY()
@@ -56,16 +65,14 @@ private:
 	//CanvasPanel자식으로 UISet을 두어야함.
 	UPROPERTY(EditAnywhere, meta=(BindWidget))
 	UCanvasPanel* CanvasPanel;
-	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget,AllowPrivateAccess))
 	UInventoryUI* InventoryUI;
-	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget,AllowPrivateAccess))
 	UGunMenu* GunMenuUI;
-
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget,AllowPrivateAccess))
 	UCrossHairUI* CrossHairUI;
-
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	UCombatUI* CombatUI;
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	UScoreUI* ScoreUI;
 };

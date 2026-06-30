@@ -90,3 +90,17 @@ struct FDamageContext
 	//플레이어가 때리는 경우 필요
 	FPlayerCombatStat PlayerAttackerStat;
 };
+
+USTRUCT()
+struct FPlayerKDA
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int Kill;
+	UPROPERTY()
+	int Death;
+	UPROPERTY()
+	int Assist;
+};
+

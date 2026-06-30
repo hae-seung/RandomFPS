@@ -9,6 +9,8 @@
 
 
 class IDamageable;
+
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerHealthStatChanged, const FPlayerHealthStat&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerCombatStatChanged, const FPlayerCombatStat&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerUtilityStatChanged, const FPlayerUtilityStat&);
@@ -16,6 +18,8 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerUtilityStatChanged, const FPlayerUt
 DECLARE_MULTICAST_DELEGATE(FOnPlayerDead);
 DECLARE_MULTICAST_DELEGATE(FOnPlayerRevive);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnReviveTimeChanged, int);
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHitSuccess, bool);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,6 +36,8 @@ public:
 	FOnPlayerDead OnPlayerDead;
 	FOnPlayerRevive OnPlayerRevive;
 	FOnReviveTimeChanged OnReviveTimeChanged;
+
+	FOnHitSuccess OnHitSuccess;
 	
 public:	
 	UPlayerCombatSystem();
@@ -57,6 +63,8 @@ private:
 	FTimerHandle ReviveTimer;
 
 private:
+	void Dead(AActor* Attacker);
+	
 	int CalculateGetDamage(FDamageContext& Context);
 	float CalculateAttackDamage(float Damage, bool bIsCritic);
 	
@@ -74,5 +82,7 @@ private:
 	UFUNCTION()
 	void OnRep_RemainReviveTime();
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_HitSuccess(bool bIsCritical);
 	
 };

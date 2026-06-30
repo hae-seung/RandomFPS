@@ -3,7 +3,32 @@
 
 #include "UI/CrossHairUI.h"
 
-void UCrossHairUI::MoveCorssHair()
+#include "Components/Image.h"
+#include "GameScene/Player/Components/PlayerCombatSystem.h"
+
+void UCrossHairUI::Init(UPlayerCombatSystem* CombatSystem)
+{
+	HitHair->SetVisibility(ESlateVisibility::Collapsed);
+
+	CombatSystem->OnHitSuccess.AddUObject(this, &UCrossHairUI::HitSuccess);
+}
+
+
+void UCrossHairUI::MoveCrossHair()
 {
 	
+}
+
+void UCrossHairUI::HitSuccess(bool bIsCritical)
+{
+	HitHair->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	
+	if(bIsCritical)
+	{
+		PlayAnimation(CriticalHitEffectAnim);
+	}
+	else
+	{
+		PlayAnimation(HitEffectAnim);
+	}
 }

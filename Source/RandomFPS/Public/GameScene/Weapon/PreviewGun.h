@@ -33,5 +33,8 @@ private:
 	UTextureRenderTarget2D* PreviewRenderTarget;
 	TMap<EPartsType, AParts*> PartsMap;
 	
-	
+	FTimerHandle InitHandle;
+
+private:
+	void WaitInitUI();
 };

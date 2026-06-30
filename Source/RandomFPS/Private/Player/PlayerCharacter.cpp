@@ -10,8 +10,10 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameScene/PlayGameState.h"
 #include "GameScene/PoolManager.h"
 #include "GameScene/Monster/DamageActor.h"
+#include "GameScene/Player/MyPlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "GameScene/Player/Components/CardManager.h"
 #include "GameScene/Player/Components/Inventory.h"
@@ -97,6 +99,17 @@ void APlayerCharacter::BeginPlay()
 	bIsThirdPerspective = true;
 
 	CharacterMovementComp = GetCharacterMovement();
+}
+
+void APlayerCharacter::OnRep_PlayerState()
+{
+	InitPlayerState();
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	InitPlayerState();
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -397,6 +410,42 @@ bool APlayerCharacter::GetIsDead()
 	return bIsDead;
 }
 
+void APlayerCharacter::InitPlayerState()
+{
+	AMyPlayerState* MyPS = GetPlayerState<AMyPlayerState>();
+	if(MyPS)
+	{
+		//서버에서 수신해서 PlayerState가 Replicate로 각 클라에게 전파
+		CombatSystem->OnPlayerDead.AddUObject(MyPS, &AMyPlayerState::DeadPlayer);
+		KillMonsterEvent.AddUObject(MyPS, &AMyPlayerState::KillMonster);
+		KillCountPlusEvent.AddUObject(MyPS, &AMyPlayerState::KillOtherPlayer);
+		KillAssistEvent.AddUObject(MyPS, &AMyPlayerState::Assist);
+	}
+
+	APlayGameState* MyGS = GetWorld()->GetGameState<APlayGameState>();
+	if(MyGS)
+	{
+		KillPlayerEvent.AddUObject(MyGS, &APlayGameState::Server_GetPlayerKillEvent);
+	}
+}
+
+void APlayerCharacter::KillMonster()
+{
+	KillMonsterEvent.Broadcast();
+}
+
+void APlayerCharacter::KillOtherPlayer(AActor* DeadPlayer)
+{
+	KillCountPlusEvent.Broadcast();				//플레이어스테이트에 전파
+	KillPlayerEvent.Broadcast(this, DeadPlayer);//게임스테이트에 전파
+}
+
+void APlayerCharacter::GetAssist(AActor* DeadPlayer)
+{
+	//플레이어스테이트에 단순 어시+1
+	//누구를 죽였는지 KillLog
+	KillAssistEvent.Broadcast(DeadPlayer);
+}
 
 
 #pragma endregion Functions
@@ -656,6 +705,21 @@ void APlayerCharacter::ToggleInventory()
 	MyController->GetUIManager()->ToggleInventory();
 }
 
+void APlayerCharacter::OpenScoreBoard()
+{
+	if(!IsValid(MyController) || !IsValid(MyController->GetUIManager()))
+		return;
+
+	MyController->GetUIManager()->OpenScoreBoard();
+}
+
+void APlayerCharacter::CloseScoreBoard()
+{
+	if(!IsValid(MyController) || !IsValid(MyController->GetUIManager()))
+		return;
+
+	MyController->GetUIManager()->CloseScoreBoard();
+}
 
 void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
 {
@@ -683,6 +747,9 @@ void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
 	EIC->BindAction(ReloadAction, ETriggerEvent::Started, this, &APlayerCharacter::Reload);
 	
 	EIC->BindAction(InventoryAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleInventory);
+
+	EIC->BindAction(ScoreAction, ETriggerEvent::Started, this, &APlayerCharacter::OpenScoreBoard);
+	EIC->BindAction(ScoreAction, ETriggerEvent::Completed, this, &APlayerCharacter::CloseScoreBoard);
 }
 
 #pragma endregion InputFunctions

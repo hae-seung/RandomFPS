@@ -5,6 +5,7 @@
 
 #include "GameScene/Monster/MonsterData.h"
 #include "Interface/Damageable.h"
+#include "Interface/Killable.h"
 #include "Net/UnrealNetwork.h"
 
 UMonsterCombatSystem::UMonsterCombatSystem()
@@ -48,9 +49,7 @@ float UMonsterCombatSystem::TakeDamage(FDamageContext& Context)
 	if(Hp == 0)
 	{
 		//사망
-		OnMonsterDead.Broadcast(true);
-
-		//죽음 알림. 플레이어에게.
+		Dead(Context.Attacker);
 		
 		return FinalDamage;
 	}
@@ -114,6 +113,15 @@ float UMonsterCombatSystem::CalculateAttackDamage(FDamageContext& AttackContext)
 	return  Damage;
 }
 
+void UMonsterCombatSystem::Dead(AActor* Attacker)
+{
+	OnMonsterDead.Broadcast(true);
+
+	if(IKillable* Killable = Cast<IKillable>(Attacker))
+	{
+		Killable->KillMonster();
+	}
+}
 
 
 void UMonsterCombatSystem::OnRep_Hp()

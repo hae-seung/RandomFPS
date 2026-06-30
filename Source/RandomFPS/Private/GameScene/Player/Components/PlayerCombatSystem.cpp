@@ -51,7 +51,7 @@ void UPlayerCombatSystem::ApplyDamageToTarget(
 	FName BoneName,
 	bool bIsRealBullet)
 {
-	bool bIsCritical = BoneName == "head";
+	const bool bIsCritical = BoneName == "head";
 	
 	FDamageContext Context;
 	Context.Attacker = GetOwner();
@@ -69,6 +69,8 @@ void UPlayerCombatSystem::ApplyDamageToTarget(
 	Context.PlayerAttackerStat = CombatStat;
 
 	Target->TakeDamage(Context);
+	OnHitSuccess.Broadcast(bIsCritical);
+	Multicast_HitSuccess(bIsCritical);
 }
 
 float UPlayerCombatSystem::CalculateAttackDamage(float Damage, bool bIsCritic)
@@ -83,9 +85,6 @@ float UPlayerCombatSystem::CalculateAttackDamage(float Damage, bool bIsCritic)
 	return  FinalDamage;
 }
 
-
-
-
 //server
 void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 {
@@ -94,14 +93,13 @@ void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 	if(HealthStat.Hp <= 0)
 	{
 		//die
-		OnPlayerDead.Broadcast();
+		Dead(Context.Attacker);
 		StartReviveTimer();
 	}
 	
 	//UI
 	OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
-
 
 int UPlayerCombatSystem::CalculateGetDamage(FDamageContext& Context)
 {
@@ -158,6 +156,20 @@ void UPlayerCombatSystem::CheckReviveTime()
 }
 
 
+void UPlayerCombatSystem::Dead(AActor* Attacker)
+{
+	OnPlayerDead.Broadcast();
+	
+	if(IKillable* Killable = Cast<IKillable>(Attacker))
+	{
+		Killable->KillOtherPlayer(GetOwner());
+	}
+	
+	//assist
+	//반복문으로 나를 때린 사람들에게 전부 IKillable의 Assist함수 호출 this를 넘김.
+}
+
+
 void UPlayerCombatSystem::OnRep_HealthStat()
 {
 	if(HealthStat.Hp <= 0)
@@ -188,4 +200,13 @@ void UPlayerCombatSystem::OnRep_RemainReviveTime()
 	{
 		OnPlayerRevive.Broadcast();
 	}
+}
+
+
+void UPlayerCombatSystem::Multicast_HitSuccess_Implementation(bool bIsCritical)
+{
+	if(GetOwner()->HasAuthority())
+		return;
+
+	OnHitSuccess.Broadcast(bIsCritical);
 }

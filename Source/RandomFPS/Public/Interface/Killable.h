@@ -22,4 +22,7 @@ class RANDOMFPS_API IKillable
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void ApplyDamage(IDamageable* Target, FVector HitLocation,FName BoneName, bool bIsRealBullet) const = 0;
+	virtual void KillMonster() = 0;
+	virtual void KillOtherPlayer(AActor* DeadPlayer) = 0;
+	virtual void GetAssist(AActor* DeadPlayer) = 0;
 };

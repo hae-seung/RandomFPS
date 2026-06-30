@@ -5,6 +5,7 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "GameScene/Player/MyPlayerState.h"
 #include "UI/UIManager.h"
 
 
@@ -33,7 +34,7 @@ void AMyPlayerController::SetupInputComponent()
 	}
 }
 
-//서버전용
+//서버전용 한번에 모두 존재함
 void AMyPlayerController::OnPossess(APawn* InPawn)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnPossess %s"), *GetName());
@@ -50,6 +51,14 @@ void AMyPlayerController::OnRep_Pawn()
 	CreateUIManager();
 }
 
+//클라
+void AMyPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	CreateUIManager();
+}
+
+
 void AMyPlayerController::CreateUIManager()
 {
 	UE_LOG(LogTemp, Warning,
@@ -57,7 +66,12 @@ void AMyPlayerController::CreateUIManager()
 		IsLocalController(),
 		UIManager,
 		*GetNameSafe(GetPawn()));
-	if(!IsLocalController() || UIManager) return;
+
+	//Pawn이랑 State중 뭐가 먼저 도착할지 알 수 없음
+	if(!IsLocalController() || UIManager ||
+		!IsValid(GetPawn()) ||
+		!IsValid(PlayerState))
+		return;
 	
 	UIManager = CreateWidget<UUIManager>(this, BP_UIManager);
 	UIManager->AddToViewport();

@@ -25,6 +25,12 @@ class AMyPlayerController;
 class UCameraComponent;
 class USpringArmComponent;
 
+
+DECLARE_MULTICAST_DELEGATE(OnKillMonster);
+DECLARE_MULTICAST_DELEGATE_OneParam(OnKillAssist, AActor*);
+DECLARE_MULTICAST_DELEGATE(OnKillCountPlus); //UI 킬+1 용도
+DECLARE_MULTICAST_DELEGATE_TwoParams(OnKillPlayer, AActor*, AActor*);
+
 UCLASS()
 class RANDOMFPS_API APlayerCharacter :
 public ACharacter,
@@ -34,6 +40,12 @@ public IKillable
 {
 	GENERATED_BODY()
 
+public:
+	OnKillMonster KillMonsterEvent;
+	OnKillAssist KillAssistEvent;
+	OnKillPlayer KillPlayerEvent;
+	OnKillCountPlus KillCountPlusEvent;
+	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInputAction* MoveAction;
@@ -57,6 +69,8 @@ public:
 	UInputAction* ReloadAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInputAction* InventoryAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* ScoreAction;
 
 	UPROPERTY(EditAnywhere)
 	EEntityType EntityType;
@@ -77,6 +91,7 @@ public:
 	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
 	FORCEINLINE bool IsDead() const { return bIsDead; }
 	virtual bool GetIsDead() override;
+
 	
 	void RequestAddItem(UItemData* ItemData, int Amount = 1);
 	bool HasWeapon() const;
@@ -86,7 +101,10 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_StartZoom();
 	UFUNCTION(BlueprintImplementableEvent)
@@ -151,6 +169,8 @@ private:
 	void PlayReloadMontage();
 	void CheckPlayerMovement(float Delta);//?
 	void ToggleInventory();
+	void OpenScoreBoard();
+	void CloseScoreBoard();
 	
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	
@@ -187,8 +207,6 @@ private:
 	void GetLeftHandIKTransform();
 	
 	
-
-	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void MakeComponents();
 	void BindKey(UEnhancedInputComponent* EIC);
@@ -199,4 +217,8 @@ private:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	void SetCharacterOptionDeadState();
 	virtual void ApplyDamage(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet) const override;
+	void InitPlayerState();
+	virtual void KillMonster() override;
+	virtual void KillOtherPlayer(AActor* DeadPlayer) override;
+	virtual void GetAssist(AActor* DeadPlayer) override;
 };
