@@ -63,7 +63,7 @@ private:
 	FTimerHandle ReviveTimer;
 
 private:
-	void Dead(AActor* Attacker);
+	void Dead(AActor* Attacker, bool bIsCritical);
 	
 	int CalculateGetDamage(FDamageContext& Context);
 	float CalculateAttackDamage(float Damage, bool bIsCritic);

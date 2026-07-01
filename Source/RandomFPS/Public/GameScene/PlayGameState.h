@@ -10,6 +10,7 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(OnPlayerStateAdd, APlayerState*);
 DECLARE_MULTICAST_DELEGATE_OneParam(OnPlayerStateRemoved, APlayerState*)
 
+DECLARE_MULTICAST_DELEGATE_ThreeParams(OnKillLogShow, APlayerState*, APlayerState*, bool);
 
 
 UCLASS()
@@ -21,10 +22,16 @@ public:
 	OnPlayerStateAdd PlayerStateAdd;
 	OnPlayerStateRemoved PlayerStateRemoved;
 
+	OnKillLogShow KillLogShowEvent;
+
 public:
-	void Server_GetPlayerKillEvent(AActor* Killer, AActor* Victim);
+	void Server_GetPlayerKillEvent(AActor* Killer, AActor* Victim, bool bIsCriticalKill);
 	
 protected:
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
+
+private:
+	UFUNCTION(NetMulticast, Unreliable)
+	void NetMulticast_GetPlayerKillEvent(APlayerState* KillerState, APlayerState* VictimState, bool bIsCritical);
 };

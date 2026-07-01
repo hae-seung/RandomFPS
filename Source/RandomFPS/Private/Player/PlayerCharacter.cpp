@@ -434,17 +434,22 @@ void APlayerCharacter::KillMonster()
 	KillMonsterEvent.Broadcast();
 }
 
-void APlayerCharacter::KillOtherPlayer(AActor* DeadPlayer)
+void APlayerCharacter::KillOtherPlayer(AActor* DeadPlayer, bool bIsCriticalKill)
 {
-	KillCountPlusEvent.Broadcast();				//플레이어스테이트에 전파
-	KillPlayerEvent.Broadcast(this, DeadPlayer);//게임스테이트에 전파
+	KillCountPlusEvent.Broadcast();	//플레이어스테이트에 전파 Replicated로 모두 전파
+	KillPlayerEvent.Broadcast(this, DeadPlayer, bIsCriticalKill);//게임스테이트에 전파(모두에게 떠야함)
+
+	//~님을 처치하였습니다
+	//RPC_Client
 }
 
 void APlayerCharacter::GetAssist(AActor* DeadPlayer)
 {
 	//플레이어스테이트에 단순 어시+1
-	//누구를 죽였는지 KillLog
 	KillAssistEvent.Broadcast(DeadPlayer);
+
+	//당신이 ~님을 처치 하는데 도움을 주었습니다
+	//RPC_Client
 }
 
 

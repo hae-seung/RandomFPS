@@ -25,6 +25,7 @@ public:
 	OnKDAChanged KDAChanged;
 	OnMonsterKillChanged MonsterKillChanged;
 	OnLifeChanged LifeChanged;
+	
 
 
 public:

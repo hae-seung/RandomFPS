@@ -93,7 +93,7 @@ void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 	if(HealthStat.Hp <= 0)
 	{
 		//die
-		Dead(Context.Attacker);
+		Dead(Context.Attacker, Context.bIsCritical);
 		StartReviveTimer();
 	}
 	
@@ -156,13 +156,13 @@ void UPlayerCombatSystem::CheckReviveTime()
 }
 
 
-void UPlayerCombatSystem::Dead(AActor* Attacker)
+void UPlayerCombatSystem::Dead(AActor* Attacker, bool bIsCritical)
 {
 	OnPlayerDead.Broadcast();
 	
 	if(IKillable* Killable = Cast<IKillable>(Attacker))
 	{
-		Killable->KillOtherPlayer(GetOwner());
+		Killable->KillOtherPlayer(GetOwner(), bIsCritical);
 	}
 	
 	//assist

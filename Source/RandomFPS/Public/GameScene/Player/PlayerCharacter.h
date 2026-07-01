@@ -29,7 +29,7 @@ class USpringArmComponent;
 DECLARE_MULTICAST_DELEGATE(OnKillMonster);
 DECLARE_MULTICAST_DELEGATE_OneParam(OnKillAssist, AActor*);
 DECLARE_MULTICAST_DELEGATE(OnKillCountPlus); //UI 킬+1 용도
-DECLARE_MULTICAST_DELEGATE_TwoParams(OnKillPlayer, AActor*, AActor*);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(OnKillPlayer, AActor*, AActor*, bool);
 
 UCLASS()
 class RANDOMFPS_API APlayerCharacter :
@@ -219,6 +219,6 @@ private:
 	virtual void ApplyDamage(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet) const override;
 	void InitPlayerState();
 	virtual void KillMonster() override;
-	virtual void KillOtherPlayer(AActor* DeadPlayer) override;
+	virtual void KillOtherPlayer(AActor* DeadPlayer, bool bIsCriticalKill) override;
 	virtual void GetAssist(AActor* DeadPlayer) override;
 };

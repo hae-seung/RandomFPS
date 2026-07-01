@@ -23,6 +23,6 @@ class RANDOMFPS_API IKillable
 public:
 	virtual void ApplyDamage(IDamageable* Target, FVector HitLocation,FName BoneName, bool bIsRealBullet) const = 0;
 	virtual void KillMonster() = 0;
-	virtual void KillOtherPlayer(AActor* DeadPlayer) = 0;
+	virtual void KillOtherPlayer(AActor* DeadPlayer, bool bIsCriticalKill) = 0;
 	virtual void GetAssist(AActor* DeadPlayer) = 0;
 };

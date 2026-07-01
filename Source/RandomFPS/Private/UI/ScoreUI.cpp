@@ -50,7 +50,6 @@ void UScoreUI::AddNewPlayerEntry(APlayerState* PS)
 	
 	MyPS->LifeChanged.AddUObject(this, &UScoreUI::UpdateRank);
 	
-
 	RankSequence.Add(MyPS);
 	PlayerStateMap.Add(MyPS, NewEntry);
 	ScoreEntryList->AddChildToVerticalBox(NewEntry);

@@ -8,6 +8,8 @@
 #include "Struct/CombatStructHeader.h"
 #include "CombatUI.generated.h"
 
+class UKillLogEntryUI;
+class UVerticalBox;
 class UProgressBar;
 class UOverlay;
 class UImage;
@@ -53,10 +55,6 @@ private:
 	UProgressBar* HPBar;
 	UPROPERTY(meta=(BindWidget))
 	UProgressBar* HealthPreview;
-
-
-	float MaxHp;
-	
 
 private:
 	virtual void NativeOnInitialized() override;
