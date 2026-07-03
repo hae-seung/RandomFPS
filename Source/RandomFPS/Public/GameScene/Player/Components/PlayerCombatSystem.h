@@ -62,6 +62,11 @@ private:
 	int RemainReviveTime;
 	FTimerHandle ReviveTimer;
 
+	UPROPERTY()
+	TMap<AActor*, float> HitMePlayers;
+	UPROPERTY(EditAnywhere)
+	float AssistTime = 4.5f;
+
 private:
 	void Dead(AActor* Attacker, bool bIsCritical);
 	

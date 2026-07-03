@@ -11,6 +11,7 @@
 #include "UI/CrossHairUI.h"
 #include "UI/GunMenu.h"
 #include "UI/InventoryUI.h"
+#include "UI/KillLogUI.h"
 #include "UI/ScoreUI.h"
 
 
@@ -23,6 +24,7 @@ void UUIManager::Init(APawn* Pawn)
 	CombatUI->Init(APC->GetCombatComponent());
 	CrossHairUI->Init(APC->GetCombatComponent());
 	ScoreUI->FindLocalEntry(GetOwningPlayerState());
+	KillLogUI->Init(APC->KillAlarmEvent, APC->AssistAlarmEvent);
 
 	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
 	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);

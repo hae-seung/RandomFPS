@@ -7,6 +7,7 @@
 #include "GameScene/Cards/StructHeader.h"
 #include "UIManager.generated.h"
 
+class UKillLogUI;
 class AMyPlayerState;
 class UScoreUI;
 class UBulletItemData;
@@ -75,4 +76,6 @@ private:
 	UCombatUI* CombatUI;
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	UScoreUI* ScoreUI;
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	UKillLogUI* KillLogUI;
 };

@@ -383,7 +383,7 @@ void APlayerCharacter::SetCharacterOptionDeadState()
 	}
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Dead")); //되살아날땐 Pawn으로
-	GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);//되살아날땐 ECR_Block으로
+	GetMesh()->SetCollisionProfileName(TEXT("ChMeshDead"));
 }
 
 //server
@@ -402,7 +402,7 @@ void APlayerCharacter::SetCharacterOptionAliveState()
 	CharacterMovementComp->SetMovementMode(MOVE_Walking);
 	
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PawnCapsule")); //되살아날땐 Pawn으로
-	GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block); //되살아날땐 ECR_Block으로
+	GetMesh()->SetCollisionProfileName(TEXT("ChMeshAlive"));
 }
 
 bool APlayerCharacter::GetIsDead()
@@ -441,6 +441,11 @@ void APlayerCharacter::KillOtherPlayer(AActor* DeadPlayer, bool bIsCriticalKill)
 
 	//~님을 처치하였습니다
 	//RPC_Client
+	KillAlarmEvent.Broadcast(DeadPlayer);
+	if(!IsLocallyControlled())
+	{
+		Client_BroadcastKillAlarm(DeadPlayer);
+	}
 }
 
 void APlayerCharacter::GetAssist(AActor* DeadPlayer)
@@ -450,7 +455,23 @@ void APlayerCharacter::GetAssist(AActor* DeadPlayer)
 
 	//당신이 ~님을 처치 하는데 도움을 주었습니다
 	//RPC_Client
+	AssistAlarmEvent.Broadcast(DeadPlayer);
+	if(!IsLocallyControlled())
+	{
+		Client_BroadcastAssistAlarm(DeadPlayer);
+	}
 }
+
+void APlayerCharacter::Client_BroadcastKillAlarm_Implementation(AActor* Victim)
+{
+	KillAlarmEvent.Broadcast(Victim);
+}
+
+void APlayerCharacter::Client_BroadcastAssistAlarm_Implementation(AActor* DeadPlayer)
+{
+	AssistAlarmEvent.Broadcast(DeadPlayer);
+}
+
 
 
 #pragma endregion Functions

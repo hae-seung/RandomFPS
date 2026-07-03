@@ -41,7 +41,7 @@ private:
 	FLinearColor RedColor;
 	UPROPERTY(EditAnywhere)
 	FLinearColor DefaultColor;
-	
+	UPROPERTY()
 	FTimerHandle ShowTimer;
 
 private:

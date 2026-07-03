@@ -89,6 +89,11 @@ float UPlayerCombatSystem::CalculateAttackDamage(float Damage, bool bIsCritic)
 void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 {
 	const int FinalGetDamage = CalculateGetDamage(Context);
+	if(Context.EntityType == EEntityType::Player)
+	{
+		HitMePlayers.Add(Context.Attacker, GetWorld()->GetTimeSeconds());
+	}
+	
 	HealthStat.Hp = FMath::Max(0, HealthStat.Hp - FinalGetDamage);
 	if(HealthStat.Hp <= 0)
 	{
@@ -160,13 +165,36 @@ void UPlayerCombatSystem::Dead(AActor* Attacker, bool bIsCritical)
 {
 	OnPlayerDead.Broadcast();
 	
+	//날 죽인놈에게 니가 킬 했다고 알려줌
 	if(IKillable* Killable = Cast<IKillable>(Attacker))
 	{
 		Killable->KillOtherPlayer(GetOwner(), bIsCritical);
+
+		if(HitMePlayers.Contains(Attacker))
+		{
+			HitMePlayers.Remove(Attacker);
+		}
 	}
-	
+	else
+	{
+		return;
+	}
+
 	//assist
 	//반복문으로 나를 때린 사람들에게 전부 IKillable의 Assist함수 호출 this를 넘김.
+	float DeadTime = GetWorld()->GetTimeSeconds();
+	for(const auto& Pair : HitMePlayers)
+	{
+		if(DeadTime - Pair.Value <= AssistTime)
+		{
+			if(IKillable* Killable = Cast<IKillable>(Pair.Key))
+			{
+				Killable->GetAssist(GetOwner());
+			}
+		}
+	}
+
+	HitMePlayers.Reset();
 }
 
 

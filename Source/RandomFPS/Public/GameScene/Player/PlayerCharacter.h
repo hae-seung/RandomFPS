@@ -26,10 +26,14 @@ class UCameraComponent;
 class USpringArmComponent;
 
 
-DECLARE_MULTICAST_DELEGATE(OnKillMonster);
-DECLARE_MULTICAST_DELEGATE_OneParam(OnKillAssist, AActor*);
-DECLARE_MULTICAST_DELEGATE(OnKillCountPlus); //UI 킬+1 용도
-DECLARE_MULTICAST_DELEGATE_ThreeParams(OnKillPlayer, AActor*, AActor*, bool);
+DECLARE_MULTICAST_DELEGATE(FOnKillMonster);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnKillAssist, AActor*);
+DECLARE_MULTICAST_DELEGATE(FOnKillCountPlus); //UI 킬+1 용도
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnKillPlayer, AActor*, AActor*, bool);
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnKillAlarm, AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAssistAlarm, AActor*);
+
 
 UCLASS()
 class RANDOMFPS_API APlayerCharacter :
@@ -41,10 +45,14 @@ public IKillable
 	GENERATED_BODY()
 
 public:
-	OnKillMonster KillMonsterEvent;
-	OnKillAssist KillAssistEvent;
-	OnKillPlayer KillPlayerEvent;
-	OnKillCountPlus KillCountPlusEvent;
+	FOnKillMonster KillMonsterEvent;
+	FOnKillAssist KillAssistEvent;//점수판용
+	FOnKillPlayer KillPlayerEvent;//점수판 및 킬로그용
+	FOnKillCountPlus KillCountPlusEvent;
+
+	FOnKillAlarm KillAlarmEvent;//당신이 ~를 처치했습니다 -> 알람용
+	FOnAssistAlarm AssistAlarmEvent;//당신이 ~ 처치에 도움을 주었습니다 -> 알람용
+	
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -205,7 +213,11 @@ private:
 
 	
 	void GetLeftHandIKTransform();
-	
+
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastKillAlarm(AActor* Victim);
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastAssistAlarm(AActor* DeadPlayer);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void MakeComponents();

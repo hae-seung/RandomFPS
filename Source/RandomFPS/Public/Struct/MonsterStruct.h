@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Public/GameScene/EnumHeader/EnumHeader.h"
 #include "MonsterStruct.generated.h"
 
 
