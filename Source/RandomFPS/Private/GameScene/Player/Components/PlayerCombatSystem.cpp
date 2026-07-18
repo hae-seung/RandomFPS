@@ -14,34 +14,40 @@ UPlayerCombatSystem::UPlayerCombatSystem()
 	SetIsReplicatedByDefault(true);
 }
 
+void UPlayerCombatSystem::SetComponents(UPlayerStatSystem* PlayerStatSystem)
+{
+	StatSystem = PlayerStatSystem;
+}
+
+
 void UPlayerCombatSystem::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if(GetOwner()->HasAuthority())
-	{
-		HealthStat.Hp = HealthStat.MaxHp;
-	}
+	// if(GetOwner()->HasAuthority())
+	// {
+	// 	HealthStat.Hp = HealthStat.MaxHp;
+	// }
 	
 	//multi 순서문제
-	SubScribeInit();
+	//SubScribeInit();
 }
 
-void UPlayerCombatSystem::SubScribeInit()
-{
-	OnPlayerHealthStatChanged.Broadcast(HealthStat);
-	OnPlayerCombatStatChanged.Broadcast(CombatStat);
-	OnPlayerUtilityStatChanged.Broadcast(UtilityStat);
-}
+// void UPlayerCombatSystem::SubScribeInit()
+// {
+// 	// OnPlayerHealthStatChanged.Broadcast(HealthStat);
+// 	// OnPlayerCombatStatChanged.Broadcast(CombatStat);
+// 	// OnPlayerUtilityStatChanged.Broadcast(UtilityStat);
+// }
 
 
 void UPlayerCombatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UPlayerCombatSystem, HealthStat);
-	DOREPLIFETIME(UPlayerCombatSystem, CombatStat);
-	DOREPLIFETIME(UPlayerCombatSystem, UtilityStat);
+	// DOREPLIFETIME(UPlayerCombatSystem, HealthStat);
+	// DOREPLIFETIME(UPlayerCombatSystem, CombatStat);
+	// DOREPLIFETIME(UPlayerCombatSystem, UtilityStat);
 	DOREPLIFETIME(UPlayerCombatSystem, RemainReviveTime);
 }
 
@@ -59,13 +65,14 @@ void UPlayerCombatSystem::ApplyDamageToTarget(
 	Context.HitLocation = HitLocation;
 	Context.bIsCritical = bIsCritical;
 
+	const FPlayerCombatStat& CombatStat = StatSystem->GetCombatStat();
 	float Damage = CombatStat.AttackDamage;
 	if(!bIsRealBullet)
 	{
 		Damage *= 0.5f;
 	}
 	Context.BaseDamage = Damage;
-	Context.FinalDamage = CalculateAttackDamage(Damage, bIsCritical);
+	Context.FinalDamage = CalculateAttackDamage(Damage, bIsCritical, CombatStat);
 	Context.PlayerAttackerStat = CombatStat;
 
 	Target->TakeDamage(Context);
@@ -73,7 +80,7 @@ void UPlayerCombatSystem::ApplyDamageToTarget(
 	Multicast_HitSuccess(bIsCritical);
 }
 
-float UPlayerCombatSystem::CalculateAttackDamage(float Damage, bool bIsCritic)
+float UPlayerCombatSystem::CalculateAttackDamage(float Damage, bool bIsCritic, const FPlayerCombatStat& CombatStat)
 {
 	//치명타보너스는 현재 데미지의 몇배인지
 	float FinalDamage = bIsCritic ? Damage * CombatStat.CriticalDamageBonus : Damage;
@@ -93,8 +100,9 @@ void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 	{
 		HitMePlayers.Add(Context.Attacker, GetWorld()->GetTimeSeconds());
 	}
-	
-	HealthStat.Hp = FMath::Max(0, HealthStat.Hp - FinalGetDamage);
+
+	const FPlayerHealthStat& HealthStat = StatSystem->GetHealthStat();
+	StatSystem->ModifyHp(-FinalGetDamage);
 	if(HealthStat.Hp <= 0)
 	{
 		//die
@@ -103,13 +111,15 @@ void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 	}
 	
 	//UI
-	OnPlayerHealthStatChanged.Broadcast(HealthStat);
+	// OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
 
 int UPlayerCombatSystem::CalculateGetDamage(FDamageContext& Context)
 {
 	float TotalDamage = Context.BaseDamage;
 
+	const FPlayerCombatStat& CombatStat = StatSystem->GetCombatStat();
+	
 	if (Context.bIsCritical)
 	{
 		float CritBonus = Context.FinalDamage - Context.BaseDamage;
@@ -132,6 +142,7 @@ int UPlayerCombatSystem::CalculateGetDamage(FDamageContext& Context)
 
 void UPlayerCombatSystem::StartReviveTimer()
 {
+	const FPlayerUtilityStat& UtilityStat = StatSystem->GetUtilityStat();
 	RemainReviveTime = UtilityStat.ReviveTime; //replicated
 	OnReviveTimeChanged.Broadcast(RemainReviveTime);
 	
@@ -155,8 +166,9 @@ void UPlayerCombatSystem::CheckReviveTime()
 		OnPlayerRevive.Broadcast();
 		
 		//부활시 체력 회복
-		HealthStat.Hp = HealthStat.MaxHp;
-		OnPlayerHealthStatChanged.Broadcast(HealthStat);
+		StatSystem->Revive();
+		// HealthStat.Hp = HealthStat.MaxHp;
+		// OnPlayerHealthStatChanged.Broadcast(HealthStat);
 	}
 }
 
@@ -164,6 +176,7 @@ void UPlayerCombatSystem::CheckReviveTime()
 void UPlayerCombatSystem::Dead(AActor* Attacker, bool bIsCritical)
 {
 	OnPlayerDead.Broadcast();
+	Client_Dead();//클라 UI용
 	
 	//날 죽인놈에게 니가 킬 했다고 알려줌
 	if(IKillable* Killable = Cast<IKillable>(Attacker))
@@ -197,26 +210,34 @@ void UPlayerCombatSystem::Dead(AActor* Attacker, bool bIsCritical)
 	HitMePlayers.Reset();
 }
 
-
-void UPlayerCombatSystem::OnRep_HealthStat()
+void UPlayerCombatSystem::Client_Dead_Implementation()
 {
-	if(HealthStat.Hp <= 0)
-	{
-		OnPlayerDead.Broadcast();
-	}
-
-	OnPlayerHealthStatChanged.Broadcast(HealthStat);
-}
-
-void UPlayerCombatSystem::OnRep_CombatStat()
-{
+	if(GetOwner()->HasAuthority())
+		return;
 	
+	OnPlayerDead.Broadcast();
 }
 
-void UPlayerCombatSystem::OnRep_UtilityStat()
-{
-	
-}
+
+// void UPlayerCombatSystem::OnRep_HealthStat()
+// {
+// 	if(HealthStat.Hp <= 0)
+// 	{
+// 		OnPlayerDead.Broadcast();
+// 	}
+//
+// 	OnPlayerHealthStatChanged.Broadcast(HealthStat);
+// }
+//
+// void UPlayerCombatSystem::OnRep_CombatStat()
+// {
+// 	
+// }
+//
+// void UPlayerCombatSystem::OnRep_UtilityStat()
+// {
+// 	
+// }
 
 
 

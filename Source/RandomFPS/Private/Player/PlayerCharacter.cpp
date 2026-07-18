@@ -18,6 +18,7 @@
 #include "GameScene/Player/Components/CardManager.h"
 #include "GameScene/Player/Components/Inventory.h"
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
+#include "GameScene/Player/Components/PlayerStatSystem.h"
 #include "GameScene/Player/Components/PlayerWeapon.h"
 #include "GameScene/Player/ItemData/GunItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
@@ -88,6 +89,7 @@ void APlayerCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	
 	Inventory->SetComponents(PlayerWeapon);
+	CombatSystem->SetComponents(StatSystem);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -101,10 +103,10 @@ void APlayerCharacter::BeginPlay()
 	CharacterMovementComp = GetCharacterMovement();
 }
 
-void APlayerCharacter::OnRep_PlayerState()
-{
-	InitPlayerState();
-}
+// void APlayerCharacter::OnRep_PlayerState()
+// {
+// 	InitPlayerState();
+// }
 
 void APlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -158,6 +160,8 @@ void APlayerCharacter::MakeComponents()
 	CombatSystem = CreateDefaultSubobject<UPlayerCombatSystem>(TEXT("CombatSystem"));
 	CombatSystem->OnPlayerDead.AddUObject(this, &APlayerCharacter::Dead);
 	CombatSystem->OnPlayerRevive.AddUObject(this, &APlayerCharacter::Revive);
+
+	StatSystem = CreateDefaultSubobject<UPlayerStatSystem>(TEXT("StatSystem"));
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)
@@ -199,6 +203,24 @@ void APlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uin
 	}
 }
 
+void APlayerCharacter::InitPlayerState()
+{
+	AMyPlayerState* MyPS = GetPlayerState<AMyPlayerState>();
+	if(MyPS)
+	{
+		//서버가 델리게이트를 실행하여 PlayerState가 Replicate로 각 클라에게 전파
+		CombatSystem->OnPlayerDead.AddUObject(MyPS, &AMyPlayerState::DeadPlayer);
+		KillMonsterEvent.AddUObject(MyPS, &AMyPlayerState::KillMonster);
+		KillCountPlusEvent.AddUObject(MyPS, &AMyPlayerState::KillOtherPlayer);
+		KillAssistEvent.AddUObject(MyPS, &AMyPlayerState::Assist);
+	}
+
+	APlayGameState* MyGS = GetWorld()->GetGameState<APlayGameState>();
+	if(MyGS)
+	{
+		KillPlayerEvent.AddUObject(MyGS, &APlayGameState::Server_GetPlayerKillEvent);
+	}
+}
 #pragma endregion Init
 
 
@@ -410,24 +432,6 @@ bool APlayerCharacter::GetIsDead()
 	return bIsDead;
 }
 
-void APlayerCharacter::InitPlayerState()
-{
-	AMyPlayerState* MyPS = GetPlayerState<AMyPlayerState>();
-	if(MyPS)
-	{
-		//서버에서 수신해서 PlayerState가 Replicate로 각 클라에게 전파
-		CombatSystem->OnPlayerDead.AddUObject(MyPS, &AMyPlayerState::DeadPlayer);
-		KillMonsterEvent.AddUObject(MyPS, &AMyPlayerState::KillMonster);
-		KillCountPlusEvent.AddUObject(MyPS, &AMyPlayerState::KillOtherPlayer);
-		KillAssistEvent.AddUObject(MyPS, &AMyPlayerState::Assist);
-	}
-
-	APlayGameState* MyGS = GetWorld()->GetGameState<APlayGameState>();
-	if(MyGS)
-	{
-		KillPlayerEvent.AddUObject(MyGS, &APlayGameState::Server_GetPlayerKillEvent);
-	}
-}
 
 void APlayerCharacter::KillMonster()
 {

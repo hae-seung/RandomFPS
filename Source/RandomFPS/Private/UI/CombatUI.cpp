@@ -26,14 +26,14 @@ void UCombatUI::NativeOnInitialized()
 }
 
 
-void UCombatUI::Init(UPlayerCombatSystem* CombatComponent)
+void UCombatUI::Init(UPlayerCombatSystem* CombatComponent, UPlayerStatSystem* StatSystem)
 {
-	CombatComponent->OnPlayerHealthStatChanged.AddUObject(this, &UCombatUI::UpdateHealthUI);
+	StatSystem->OnPlayerHealthStatChanged.AddUObject(this, &UCombatUI::UpdateHealthUI);
 	CombatComponent->OnReviveTimeChanged.AddUObject(this, &UCombatUI::UpdateReviveTime);
 	CombatComponent->OnPlayerDead.AddUObject(this, &UCombatUI::OpenDeadUI);
 	CombatComponent->OnPlayerRevive.AddUObject(this, &UCombatUI::CloseDeadUI);
 
-	CombatComponent->SubScribeInit();
+	StatSystem->InitDelegates();
 }
 
 

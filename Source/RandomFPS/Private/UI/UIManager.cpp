@@ -21,7 +21,7 @@ void UUIManager::Init(APawn* Pawn)
 	
 	InventoryUI->Init();
 	GunMenuUI->Init(InventoryUI);
-	CombatUI->Init(APC->GetCombatComponent());
+	CombatUI->Init(APC->GetCombatComponent(), APC->GetStatComponent());
 	CrossHairUI->Init(APC->GetCombatComponent());
 	ScoreUI->FindLocalEntry(GetOwningPlayerState());
 	KillLogUI->Init(APC->KillAlarmEvent, APC->AssistAlarmEvent);

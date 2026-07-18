@@ -11,6 +11,7 @@
 #include "Interface/Killable.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerStatSystem;
 class UPlayerCombatSystem;
 class URailPartsData;
 class UItemData;
@@ -94,12 +95,13 @@ public:
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FORCEINLINE UPlayerCombatSystem* GetCombatComponent() const { return CombatSystem; }
+	FORCEINLINE UPlayerStatSystem* GetStatComponent() const { return StatSystem; }
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
 	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
 	FORCEINLINE bool IsDead() const { return bIsDead; }
 	virtual bool GetIsDead() override;
-
+	
 	
 	void RequestAddItem(UItemData* ItemData, int Amount = 1);
 	bool HasWeapon() const;
@@ -110,8 +112,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
-	virtual void OnRep_PlayerState() override;
-
+	// virtual void OnRep_PlayerState() override;
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_StartZoom();
@@ -138,6 +139,8 @@ private:
 	UInventory* Inventory;
 	UPROPERTY(EditAnywhere)
 	UPlayerCombatSystem* CombatSystem;
+	UPROPERTY(EditAnywhere)
+	UPlayerStatSystem* StatSystem;
 
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
 	bool bIsDead;

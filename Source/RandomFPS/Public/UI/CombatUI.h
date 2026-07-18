@@ -8,6 +8,7 @@
 #include "Struct/CombatStructHeader.h"
 #include "CombatUI.generated.h"
 
+class UPlayerStatSystem;
 class UKillLogEntryUI;
 class UVerticalBox;
 class UProgressBar;
@@ -25,7 +26,7 @@ class RANDOMFPS_API UCombatUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Init(UPlayerCombatSystem* CombatComponent);
+	void Init(UPlayerCombatSystem* CombatComponent, UPlayerStatSystem* StatSystem);
 
 	void EquipGun();
 	
