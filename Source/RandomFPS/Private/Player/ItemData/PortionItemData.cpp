@@ -11,3 +11,18 @@ UItemInstance* UPortionItemData::CreateItem(UObject* Outer)
 	NewItem->Init(this);
 	return NewItem;
 }
+
+const TArray<FStatModifier>& UPortionItemData::GetStatModifiers() const
+{
+	return StatModifiers;
+}
+
+float UPortionItemData::GetNeedTime()
+{
+	return WaitTime;
+}
+
+UAnimMontage* UPortionItemData::GetMontage()
+{
+	return UsingMontage;
+}

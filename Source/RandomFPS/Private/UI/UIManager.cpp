@@ -6,10 +6,12 @@
 #include "Components/Button.h"
 #include "GameScene/Player/PlayerCharacter.h"
 #include "GameScene/Player/ItemData/BulletItemData.h"
+#include "GameScene/Player/ItemData/PortionItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
 #include "UI/CombatUI.h"
 #include "UI/CrossHairUI.h"
 #include "UI/GunMenu.h"
+#include "UI/InteractorUI.h"
 #include "UI/InventoryUI.h"
 #include "UI/KillLogUI.h"
 #include "UI/ScoreUI.h"
@@ -25,9 +27,12 @@ void UUIManager::Init(APawn* Pawn)
 	CrossHairUI->Init(APC->GetCombatComponent());
 	ScoreUI->FindLocalEntry(GetOwningPlayerState());
 	KillLogUI->Init(APC->KillAlarmEvent, APC->AssistAlarmEvent);
+	InteractorUI->Init(APC->GetInteractSystem());
 
+	
 	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
 	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);
+	PortionBtn->OnClicked.AddDynamic(this,&UUIManager::GivePortion);
 }
 
 void UUIManager::GiveRedDot()
@@ -47,6 +52,16 @@ void UUIManager::GiveBullet()
 		APC->RequestAddItem(BulletService.BulletItemData, BulletService.Amount);
 	}
 }
+
+void UUIManager::GivePortion()
+{
+	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
+	if(APC)
+	{
+		APC->RequestAddItem(PortionData, 1);
+	}
+}
+
 
 
 void UUIManager::ToggleInventory()

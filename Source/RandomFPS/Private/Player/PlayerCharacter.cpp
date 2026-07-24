@@ -18,6 +18,7 @@
 #include "GameScene/Player/Components/CardManager.h"
 #include "GameScene/Player/Components/Inventory.h"
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
+#include "GameScene/Player/Components/PlayerInteractSystem.h"
 #include "GameScene/Player/Components/PlayerStatSystem.h"
 #include "GameScene/Player/Components/PlayerWeapon.h"
 #include "GameScene/Player/ItemData/GunItemData.h"
@@ -88,7 +89,7 @@ void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	Inventory->SetComponents(PlayerWeapon);
+	Inventory->SetComponents(PlayerWeapon, InteractSystem, StatSystem);
 	CombatSystem->SetComponents(StatSystem);
 }
 
@@ -162,6 +163,8 @@ void APlayerCharacter::MakeComponents()
 	CombatSystem->OnPlayerRevive.AddUObject(this, &APlayerCharacter::Revive);
 
 	StatSystem = CreateDefaultSubobject<UPlayerStatSystem>(TEXT("StatSystem"));
+
+	InteractSystem = CreateDefaultSubobject<UPlayerInteractSystem>(TEXT("InteractSystem"));
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)

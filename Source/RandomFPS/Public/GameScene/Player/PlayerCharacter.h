@@ -9,8 +9,10 @@
 #include "GameFramework/Character.h"
 #include "Interface/Damageable.h"
 #include "Interface/Killable.h"
+#include "Item/Interactor.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerInteractSystem;
 class UPlayerStatSystem;
 class UPlayerCombatSystem;
 class URailPartsData;
@@ -35,7 +37,6 @@ DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnKillPlayer, AActor*, AActor*, bool);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnKillAlarm, AActor*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAssistAlarm, AActor*);
 
-
 UCLASS()
 class RANDOMFPS_API APlayerCharacter :
 public ACharacter,
@@ -53,7 +54,6 @@ public:
 
 	FOnKillAlarm KillAlarmEvent;//당신이 ~를 처치했습니다 -> 알람용
 	FOnAssistAlarm AssistAlarmEvent;//당신이 ~ 처치에 도움을 주었습니다 -> 알람용
-	
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -94,11 +94,14 @@ public:
 	APlayerCharacter();
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	FORCEINLINE UPlayerCombatSystem* GetCombatComponent() const { return CombatSystem; }
 	FORCEINLINE UPlayerStatSystem* GetStatComponent() const { return StatSystem; }
+	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
+	FORCEINLINE UPlayerInteractSystem* GetInteractSystem() const { return InteractSystem; }
+
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
-	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
 	FORCEINLINE bool IsDead() const { return bIsDead; }
 	virtual bool GetIsDead() override;
 	
@@ -141,6 +144,8 @@ private:
 	UPlayerCombatSystem* CombatSystem;
 	UPROPERTY(EditAnywhere)
 	UPlayerStatSystem* StatSystem;
+	UPROPERTY(EditAnywhere)
+	UPlayerInteractSystem* InteractSystem;
 
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
 	bool bIsDead;
@@ -233,6 +238,8 @@ private:
 	void SetCharacterOptionDeadState();
 	virtual void ApplyDamage(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet) const override;
 	void InitPlayerState();
+
+	
 	virtual void KillMonster() override;
 	virtual void KillOtherPlayer(AActor* DeadPlayer, bool bIsCriticalKill) override;
 	virtual void GetAssist(AActor* DeadPlayer) override;

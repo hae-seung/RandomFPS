@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameScene/Cards/StructHeader.h"
 #include "Struct/CombatStructHeader.h"
 #include "PlayerStatSystem.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerHealthStatChanged, const FPlayerHealthStat&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerCombatStatChanged, const FPlayerCombatStat&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerUtilityStatChanged, const FPlayerUtilityStat&);
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerEnergyChanged, int);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -22,6 +25,8 @@ public:
 	FOnPlayerCombatStatChanged OnPlayerCombatStatChanged;
 	FOnPlayerUtilityStatChanged OnPlayerUtilityStatChanged;
 
+	FOnPlayerEnergyChanged OnPlayerEnergyChanged;
+
 	
 public:	
 	UPlayerStatSystem();
@@ -33,10 +38,12 @@ public:
 	void Revive();
 	void ModifyHp(float Delta);
 	
+	void ApplyPortion(const FStatModifier& Modifier);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	
-
+	
 
 
 private:
@@ -47,13 +54,28 @@ private:
 	UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_UtilityStat)
 	FPlayerUtilityStat UtilityStat;
 
-
+	//Energy는 특수 스탯
+	FTimerHandle EnergyTimer;
+	UPROPERTY(EditAnywhere)
+	FDrinkStat DrinkStats[10];
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_EnergyIndex)
+	int EnergyIndex;
+	UPROPERTY(EditAnywhere)
+	float DrinkApplyWaitTime = 30.f;
+	
 private:
-
 	UFUNCTION()
 	void OnRep_HealthStat();
 	UFUNCTION()
 	void OnRep_CombatStat();
 	UFUNCTION()
 	void OnRep_UtilityStat();
+	UFUNCTION()
+	void OnRep_EnergyIndex();
+
+	void EnergyTick();
+	void HandleEnergy(float Value);
+	void HandleHp(float Value);
+	void HandleMaxHp(float Value);
+	void HandleWalkSpeed(float Value);
 };

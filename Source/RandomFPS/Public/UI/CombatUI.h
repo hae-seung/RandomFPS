@@ -33,10 +33,7 @@ public:
 	void BindTotalAmmoDelegate(FOnTotalAmmoChanged& OnTotalAmmoChanged);
 	void BindMagAmmoDelegate(FOnMagAmmoChanged& OnMagAmmoChanged);
 	void BindMagAmmoTypeDelegate(FOnMagAmmoTypeChanged& OnMagAmmoTypeChanged);
-	
-	
-	
-	
+
 private:
 	UPROPERTY(meta=(BindWidget))
 	UHorizontalBox* BulletSet;
@@ -53,9 +50,18 @@ private:
 	UTextBlock* ReviveTimeText;
 
 	UPROPERTY(meta=(BindWidget))
+	UProgressBar* EnergyBar;
+	UPROPERTY(meta=(BindWidget))
 	UProgressBar* HPBar;
 	UPROPERTY(meta=(BindWidget))
 	UProgressBar* HealthPreview;
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor DefaultColor;
+	UPROPERTY(EditAnywhere)
+	FLinearColor OrangeColor;
+	UPROPERTY(EditAnywhere)
+	FLinearColor RedColor;
 
 private:
 	virtual void NativeOnInitialized() override;
@@ -65,6 +71,8 @@ private:
 	void UpdateMagAmmoTextColor(bool bIsRealBullet);
 	
 	void UpdateHealthUI(const FPlayerHealthStat& Stat);
+	void UpdateEnergyUI(int EnergyIndex);
+	
 	void UpdateReviveTime(int ReviveRemainTime);
 	void OpenDeadUI();
 	void CloseDeadUI();

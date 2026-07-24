@@ -10,6 +10,8 @@
 #include "Inventory.generated.h"
 
 
+class UPlayerInteractSystem;
+class UItemUseTask;
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnItemAdd, FName, int);
 
 class UPartsItem;
@@ -20,6 +22,7 @@ class UItemData;
 class UInventoryUI;
 class UUIManager;
 class AMyPlayerController;
+class UPlayerStatSystem;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RANDOMFPS_API UInventory : public UActorComponent
@@ -27,15 +30,20 @@ class RANDOMFPS_API UInventory : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	FOnItemAdd OnItemAdd;
+	
+public:
 	UPROPERTY(Replicated)
 	FInventoryList InventoryList;
 
-	FOnItemAdd OnItemAdd;
 	
 public:	
 	UInventory();
 
-	void SetComponents(UPlayerWeapon* Weapon);
+	void SetComponents(
+		UPlayerWeapon* Weapon,
+		UPlayerInteractSystem* InteractSystem,
+		UPlayerStatSystem* StatSystem);
 	
 	void RequestInitInventory(UInventoryUI* MyInventoryUI);
 	void RequestSwapItems(int From, int To);
@@ -66,20 +74,27 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
+	virtual void InitializeComponent() override;
 
 private:
 	UPROPERTY(EditAnywhere)
 	int32 SlotSize;
-
-	//로컬만 보유중. 리모트는 null;
+	
+	UPROPERTY()
 	UInventoryUI* InventoryUI;
-	//서버 클라 모두 보유
+	UPROPERTY()
 	UPlayerWeapon* PlayerWeapon;
+	UPROPERTY()
+	UItemUseTask* ItemUseTask;
+
+	
 	
 private:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 
+	void UseItemComplete(int SlotIndex);
+	
 	UFUNCTION(Server, Reliable)
 	void Server_InitInventory();
 	void InitInventory();
@@ -103,4 +118,6 @@ private:
 	void EquipParts(UPartsItem* PartsItem, int SlotIndex);
 	UFUNCTION(Client, Reliable)
 	void Client_UpdatePartsSlot(EPartsType PartsType, UTexture2D* Icon = nullptr);
+
+	
 };

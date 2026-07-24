@@ -4,11 +4,14 @@
 #include "GameScene/Player/Components/Inventory.h"
 
 #include "Engine/ActorChannel.h"
+#include "GameScene/Player/PlayerCharacter.h"
 #include "GameScene/Player/Components/PlayerWeapon.h"
+#include "GameScene/Player/Item/ItemUseTask.h"
 #include "GameScene/Player/ItemData/PartsItemData.h"
 #include "GameScene/Player/ItemInstance/GunItem.h"
 #include "GameScene/Player/ItemInstance/ItemInstance.h"
 #include "GameScene/Player/ItemInstance/PartsItem/RailPartsItem.h"
+#include "Interface/Useable.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/InventoryUI.h"
 
@@ -17,18 +20,29 @@ UInventory::UInventory()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
+	bWantsInitializeComponent = true;
+}
+
+void UInventory::InitializeComponent()
+{
+	ItemUseTask = NewObject<UItemUseTask>(this);
+	ItemUseTask->OnUseItemComplete.BindUObject(this, &UInventory::UseItemComplete);
+}
+
+void UInventory::SetComponents(
+	UPlayerWeapon* Weapon,
+	UPlayerInteractSystem* InteractSystem,
+	UPlayerStatSystem* StatSystem)
+{
+	PlayerWeapon = Weapon;
+	ItemUseTask->Init(InteractSystem, StatSystem);
+	
 }
 
 void UInventory::BeginPlay()
 {
 	Super::BeginPlay();
 }	
-
-void UInventory::SetComponents(UPlayerWeapon* Weapon)
-{
-	PlayerWeapon = Weapon;
-}
-
 
 bool UInventory::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
@@ -50,7 +64,6 @@ UItemInstance* UInventory::GetItemFromSlotIndex(int SlotIndex)
 {
 	return InventoryList.Items[SlotIndex].ItemInstance;
 }
-
 
 void UInventory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -78,7 +91,6 @@ void UInventory::RequestInitInventory(UInventoryUI* MyInventoryUI)
 	}
 }
 
-
 void UInventory::Server_InitInventory_Implementation()
 {
 	InitInventory();
@@ -95,7 +107,6 @@ void UInventory::InitInventory()
 		InventoryList.MarkItemDirty(NewItem);
 	}
 }
-
 
 void UInventory::OnRep_AddItem(int Index)
 {
@@ -220,12 +231,10 @@ void UInventory::UpdateSlot(int Index)
 	}
 }
 
-
 void UInventory::OnRep_ItemInstanceStateChanged(UItemInstance* Item)
 {
-	//?
+	//필요없는듯..?
 }
-
 
 void UInventory::RequestSwapItems(int From, int To)
 {
@@ -243,7 +252,6 @@ void UInventory::RequestSwapItems(int From, int To)
 		Server_SwapItems(From, To);
 	}
 }
-
 
 void UInventory::Server_SwapItems_Implementation(int From, int To)
 {
@@ -278,7 +286,7 @@ void UInventory::RequestHandleItem(int SlotIndex)
 void UInventory::HandleItem(int SlotIndex)
 {
 	UItemInstance* InventoryItem = InventoryList.Items[SlotIndex].ItemInstance;
-	if(InventoryItem == nullptr)
+	if(!IsValid(InventoryItem))
 		return;
 
 	if(UGunItem* GunItem = Cast<UGunItem>(InventoryItem))
@@ -286,15 +294,19 @@ void UInventory::HandleItem(int SlotIndex)
 		EquipGun(GunItem, SlotIndex);
 		return;
 	}
-
-	//todo: 파츠, 소모아이템 
+	
 	if(UPartsItem* PartsItem = Cast<UPartsItem>(InventoryItem))
 	{
 		EquipParts(PartsItem, SlotIndex);
 		return;
 	}
 
-	
+	//UsableItem
+	if(IUseable* Usable = Cast<IUseable>(InventoryItem))
+	{
+		ItemUseTask->RegisterItem(InventoryItem, SlotIndex);
+		return;
+	}
 }
 
 void UInventory::Server_HandleItem_Implementation(int SlotIndex)
@@ -329,7 +341,6 @@ void UInventory::Client_UpdateGunSlot_Implementation(UGunItem* CurrentGun)
 {
 	InventoryUI->UpdateGunSlot(CurrentGun);
 }
-
 
 //Server
 void UInventory::EquipParts(UPartsItem* PartsItem, int SlotIndex)
@@ -451,3 +462,21 @@ void UInventory::RemoveItemFromId(FName ItemId, int Amount)
 		UpdateSlot(i);
 	}
 }
+
+void UInventory::UseItemComplete(int SlotIndex)
+{
+	FInventoryItem& InventoryItem = InventoryList.Items[SlotIndex];
+	
+	UItemInstance* ItemInstance = InventoryItem.ItemInstance;
+	if(IsValid(ItemInstance))
+	{
+		if(ItemInstance->ItemAmount == 0)
+		{
+			InventoryItem.ItemInstance = nullptr;
+			InventoryList.MarkItemDirty(InventoryItem);
+		}
+
+		UpdateSlot(SlotIndex);
+	}
+}
+

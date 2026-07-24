@@ -14,7 +14,6 @@
 void UCombatUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
 	
 	TotalAmmoText->SetText(FText::AsNumber(0));
 	MagAmmoText->SetText(FText::AsNumber(0));
@@ -28,11 +27,13 @@ void UCombatUI::NativeOnInitialized()
 
 void UCombatUI::Init(UPlayerCombatSystem* CombatComponent, UPlayerStatSystem* StatSystem)
 {
-	StatSystem->OnPlayerHealthStatChanged.AddUObject(this, &UCombatUI::UpdateHealthUI);
 	CombatComponent->OnReviveTimeChanged.AddUObject(this, &UCombatUI::UpdateReviveTime);
 	CombatComponent->OnPlayerDead.AddUObject(this, &UCombatUI::OpenDeadUI);
 	CombatComponent->OnPlayerRevive.AddUObject(this, &UCombatUI::CloseDeadUI);
 
+	StatSystem->OnPlayerHealthStatChanged.AddUObject(this, &UCombatUI::UpdateHealthUI);
+	StatSystem->OnPlayerEnergyChanged.AddUObject(this, &UCombatUI::UpdateEnergyUI);
+	
 	StatSystem->InitDelegates();
 }
 
@@ -88,14 +89,6 @@ void UCombatUI::UpdateMagAmmoTextColor(bool bIsRealBullet)
 
 #pragma region Combat
 
-void UCombatUI::UpdateHealthUI(const FPlayerHealthStat& Stat)
-{
-	const float Percent = Stat.Hp / Stat.MaxHp;
-	
-	HPBar->SetPercent(Percent);
-	HealthPreview->SetPercent(Percent);
-}
-
 void UCombatUI::UpdateReviveTime(int ReviveRemainTime)
 {
 	ReviveTimeText->SetText(FText::AsNumber(ReviveRemainTime));
@@ -112,5 +105,37 @@ void UCombatUI::CloseDeadUI()
 	DeathBackGround->SetVisibility(ESlateVisibility::Collapsed);
 	ReviveInfo->SetVisibility(ESlateVisibility::Collapsed);
 }
+
+#pragma endregion
+
+
+#pragma region Stat
+
+void UCombatUI::UpdateHealthUI(const FPlayerHealthStat& Stat)
+{
+	const float Percent = Stat.Hp / Stat.MaxHp;
+	
+	HPBar->SetPercent(Percent);
+	HealthPreview->SetPercent(Percent);
+
+	if(Percent > 0.5f)
+	{
+		HPBar->SetFillColorAndOpacity(DefaultColor);
+	}
+	else if(Percent > 0.25f && Percent <= 0.5f)
+	{
+		HPBar->SetFillColorAndOpacity(OrangeColor);
+	}
+	else
+	{
+		HPBar->SetFillColorAndOpacity(RedColor);
+	}
+}
+
+void UCombatUI::UpdateEnergyUI(int EnergyIndex)
+{
+	EnergyBar->SetPercent(EnergyIndex / 10.f);
+}
+
 
 #pragma endregion

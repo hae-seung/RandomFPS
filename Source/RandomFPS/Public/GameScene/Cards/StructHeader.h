@@ -87,3 +87,16 @@ struct FAISightPerceptionInfo
 	UPROPERTY(EditAnywhere)
 	float SightAngle = 70.f;
 };
+
+
+
+USTRUCT(BlueprintType)
+struct FStatModifier
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	EStat Stat;
+	UPROPERTY(EditAnywhere)
+	float Value;
+};

@@ -46,7 +46,6 @@ protected:
 	//★네트워크 채널에 등록되기 위한 필수조건
 	virtual bool IsSupportedForNetworking() const override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	
 private:
 	UFUNCTION()

@@ -6,6 +6,19 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "CombatStructHeader.generated.h"
 
+USTRUCT(BlueprintType)
+struct FDrinkStat
+{
+	GENERATED_BODY()
+
+	//%단위로 작성
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.0f, ClampMax = 100.0f))
+	float RecoveryPercent;
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.0f, ClampMax = 10.0f))
+	float WalkSpeedAddPercent;
+};
+
+
 #pragma region PlayerStat
 USTRUCT(BlueprintType)
 struct FPlayerHealthStat
@@ -48,7 +61,7 @@ struct FPlayerCombatStat
 	int MonsterFlinchProbability;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FPlayerUtilityStat
 {
 	GENERATED_BODY()

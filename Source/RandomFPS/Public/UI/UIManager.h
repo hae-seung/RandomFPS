@@ -7,6 +7,8 @@
 #include "GameScene/Cards/StructHeader.h"
 #include "UIManager.generated.h"
 
+class UInteractorUI;
+class UPortionItemData;
 class UKillLogUI;
 class AMyPlayerState;
 class UScoreUI;
@@ -35,6 +37,8 @@ public:
 	UPartsItemData* RailData;
 	UPROPERTY(EditAnywhere)
 	FBulletService BulletService;
+	UPROPERTY(EditAnywhere)
+	UPortionItemData* PortionData;
 	
 	
 public:
@@ -44,12 +48,15 @@ public:
 	UButton* RedDotBtn;
 	UPROPERTY(meta=(BindWidget))
 	UButton* BulletBtn;
-	
+	UPROPERTY(meta=(BindWidget))
+	UButton* PortionBtn;
 	
 	UFUNCTION()
 	void GiveRedDot();
 	UFUNCTION()
 	void GiveBullet();
+	UFUNCTION()
+	void GivePortion();
 
 public:
 	
@@ -78,4 +85,6 @@ private:
 	UScoreUI* ScoreUI;
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	UKillLogUI* KillLogUI;
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	UInteractorUI* InteractorUI;
 };

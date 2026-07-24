@@ -39,11 +39,13 @@ enum class ECardTrigger : uint8
 	OnMove
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum class EStat : uint8
 {
 	MaxHp,
-	Hp
+	Hp,
+	Energy,
+	WalkSpeed
 };
 
 UENUM()
