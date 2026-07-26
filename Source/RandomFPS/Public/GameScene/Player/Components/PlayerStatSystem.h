@@ -62,6 +62,10 @@ private:
 	int EnergyIndex;
 	UPROPERTY(EditAnywhere)
 	float DrinkApplyWaitTime = 30.f;
+
+	float OriginWalkSpeed;
+	UPROPERTY()
+	APlayerCharacter* APC;
 	
 private:
 	UFUNCTION()
@@ -78,4 +82,5 @@ private:
 	void HandleHp(float Value);
 	void HandleMaxHp(float Value);
 	void HandleWalkSpeed(float Value);
+	void ApplyEnergyWalkSpeed();
 };

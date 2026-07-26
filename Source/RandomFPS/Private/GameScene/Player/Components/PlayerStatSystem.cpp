@@ -3,12 +3,15 @@
 
 #include "GameScene/Player/Components/PlayerStatSystem.h"
 
+#include "GameScene/Player/PlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 UPlayerStatSystem::UPlayerStatSystem()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
+	
+	EnergyIndex = -1;
 }
 
 void UPlayerStatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -26,13 +29,18 @@ void UPlayerStatSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 void UPlayerStatSystem::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	OriginWalkSpeed = UtilityStat.WalkSpeed;
+	
 	if(GetOwner()->HasAuthority())
 	{
 		HealthStat.Hp = HealthStat.MaxHp;
 	}
-
+	
 	InitDelegates();
+
+	APC = Cast<APlayerCharacter>(GetOwner());
+	APC->SetPlayerSpeed(UtilityStat.WalkSpeed);
 }
 
 void UPlayerStatSystem::InitDelegates() const
@@ -64,21 +72,26 @@ void UPlayerStatSystem::ApplyPortion(const FStatModifier& Modifier)
 	{
 	case EStat::Energy:
 		HandleEnergy(Modifier.Value);
+		break;
 	case EStat::Hp:
 		HandleHp(Modifier.Value);
+		break;
 	case EStat::MaxHp:
 		HandleMaxHp(Modifier.Value);
+		break;
 	case EStat::WalkSpeed:
 		HandleWalkSpeed(Modifier.Value);
+		break;
 	}
 }
 
 void UPlayerStatSystem::HandleEnergy(float Value)
 {
 	const int OriginIndex = EnergyIndex;
-	EnergyIndex = FMath::Clamp(EnergyIndex + Value, 0, 10);
+	EnergyIndex = FMath::Clamp(EnergyIndex + Value, -1, 9);
+	ApplyEnergyWalkSpeed();
 	
-	if(OriginIndex == 0)
+	if(OriginIndex < 0)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			EnergyTimer,
@@ -99,13 +112,15 @@ void UPlayerStatSystem::HandleHp(float Value)
 
 void UPlayerStatSystem::HandleMaxHp(float Value)
 {
-	
+	HealthStat.MaxHp += Value;
+	OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
 
 void UPlayerStatSystem::HandleWalkSpeed(float Value)
 {
 	UtilityStat.WalkSpeed = FMath::Max(UtilityStat.WalkSpeed + Value, 100.f);
 	OnPlayerUtilityStatChanged.Broadcast(UtilityStat);
+	APC->SetPlayerSpeed(UtilityStat.WalkSpeed);
 }
 
 void UPlayerStatSystem::EnergyTick()
@@ -114,23 +129,30 @@ void UPlayerStatSystem::EnergyTick()
 	const float HealValue = HealthStat.MaxHp * (DrinkStats[EnergyIndex].RecoveryPercent * 0.01f);
 	HandleHp(HealValue);
 
-	const float SpeedValue = UtilityStat.WalkSpeed * (DrinkStats[EnergyIndex].WalkSpeedAddPercent * 0.01f);
-	HandleWalkSpeed(SpeedValue);
-
 	
 	EnergyIndex--;
-	if(EnergyIndex > 0)
+	OnPlayerEnergyChanged.Broadcast(EnergyIndex);
+	
+	if(EnergyIndex >= 0)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			EnergyTimer,
 			this, &UPlayerStatSystem::EnergyTick,
 			DrinkApplyWaitTime,
 			false);
-	}
 
-	OnPlayerEnergyChanged.Broadcast(EnergyIndex);
+		ApplyEnergyWalkSpeed();
+	}
 }
 
+void UPlayerStatSystem::ApplyEnergyWalkSpeed()
+{
+	//드링크의 이동속도 %는 기본 걷기 속도에서 계산되어야 한다.
+	const float TargetSpeed =
+		OriginWalkSpeed + (OriginWalkSpeed * (DrinkStats[EnergyIndex].WalkSpeedAddPercent * 0.01f));
+	
+	HandleWalkSpeed(TargetSpeed - UtilityStat.WalkSpeed);
+}
 
 
 

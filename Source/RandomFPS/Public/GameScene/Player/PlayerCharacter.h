@@ -111,6 +111,8 @@ public:
 
 	virtual EEntityType GetEntityType() override;
 	virtual void TakeDamage(FDamageContext& Context) override;
+
+	void SetPlayerSpeed(float NewWalkSpeed);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -155,6 +157,7 @@ private:
 	bool bIsAiming;
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsReloading) 
 	bool bIsReloading; //애니메이션 모션에 동기화
+	
 	bool bCanSprint;
 	bool bIsSprint;
 	

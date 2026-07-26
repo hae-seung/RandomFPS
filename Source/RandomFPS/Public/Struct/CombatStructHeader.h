@@ -40,23 +40,23 @@ struct FPlayerCombatStat
 	float AttackDamage;
 	
 	//방어력상수
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(ClampMin=1.f))
 	float K;
 	UPROPERTY(EditAnywhere)
 	float Defense;
 	UPROPERTY(EditAnywhere)
 	float DamageRand = 0.01f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere) //1배 1.5배.. 2배
 	float CriticalDamageBonus = 2.f;
 
-	//치명타 데미지 감소
+	//치명타 데미지 감소 %를 소수점으로 작성
 	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f, ClampMax=1.f))
 	float CriticalDamageDefense;
-	//방어율 감소
+	//방어율 감소 %를 소수점으로 작성
 	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f, ClampMax=1.f))
 	float DismissDefenseRate;
 
-	//몬스터 기절확률
+	//몬스터 기절확률 %로 작성
 	UPROPERTY(EditAnywhere)
 	int MonsterFlinchProbability;
 };

@@ -134,7 +134,7 @@ void UCombatUI::UpdateHealthUI(const FPlayerHealthStat& Stat)
 
 void UCombatUI::UpdateEnergyUI(int EnergyIndex)
 {
-	EnergyBar->SetPercent(EnergyIndex / 10.f);
+	EnergyBar->SetPercent((EnergyIndex + 1) * 0.1f);
 }
 
 

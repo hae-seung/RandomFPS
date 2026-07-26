@@ -7,6 +7,7 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "InventoryUI.generated.h"
 
+class UStatUI;
 class URailPartsData;
 class UButton;
 class UPartsItem;
@@ -20,16 +21,16 @@ class UTooltipUI;
 class UWrapBox;
 class UInventorySlot;
 class UInventory;
-/**
- * 
- */
+class UPlayerStatSystem;
+
+
 UCLASS()
 class RANDOMFPS_API UInventoryUI : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	void Init();
+	void Init(UInventory* PlayerInventory, UPlayerStatSystem* StatSystem);
 	void UpdateUI(int Index);
 	bool CheckInit() const;
 	void Toggle();
@@ -44,9 +45,6 @@ public:
 	void SetGunRenderTarget(UTextureRenderTarget2D* RT);
 
 private:
-	UInventory* Inventory;
-	TArray<UInventorySlot*> InventorySlots;
-
 	UPROPERTY(meta=(BindWidget))
 	UBorder* InventoryBorder;
 	UPROPERTY(meta=(BindWidget))
@@ -57,8 +55,16 @@ private:
 	UDragSlot* DragSlot;
 
 	UPROPERTY(meta=(BindWidget))
+	UStatUI* StatUI;
+	UPROPERTY(meta=(BindWidget))
 	UGunSlotUI* GunSlotUI;
-	
+
+
+private:
+	UPROPERTY()
+	UInventory* Inventory;
+	UPROPERTY()
+	TArray<UInventorySlot*> InventorySlots;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UInventorySlot> BP_InventorySlot;
 
@@ -67,16 +73,12 @@ private:
 	
 private:
 	void SetToolTipPos(FVector2D ToolTipScreenPos);
-
 	void BindSlotEvents(UInventorySlot* NewSlot);
 	
-#pragma region BindSlotEvents
+
 	void OpenToolTip(FVector2D ScreenPos, UItemInstance* Item);
 	void HandleSlotItem(int32 SlotIndex);
 	void CloseToolTip();
 	void SwapItems(int From, int To);
-#pragma endregion
-
-
 	
 };

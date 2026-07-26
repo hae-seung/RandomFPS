@@ -4,16 +4,13 @@
 #include "UI/InventoryUI.h"
 
 #include "Components/Border.h"
-#include "Components/Button.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/WrapBox.h"
 #include "GameScene/Player/MyPlayerController.h"
-#include "GameScene/Player/PlayerCharacter.h"
 #include "GameScene/Player/Components/Inventory.h"
-#include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
-#include "GameScene/Player/ItemInstance/PartsItem.h"
 #include "Public/UI/InventorySlot.h"
 #include "UI/GunSlotUI.h"
+#include "UI/StatUI.h"
 #include "UI/TooltipUI.h"
 
 void UInventoryUI::Toggle()
@@ -34,31 +31,23 @@ void UInventoryUI::Toggle()
 }
 
 
-void UInventoryUI::Init()
+void UInventoryUI::Init(UInventory* PlayerInventory, UPlayerStatSystem* StatSystem)
 {
 	SetVisibility(ESlateVisibility::Collapsed);
 
 	GunSlotUI->Init(this);
+	StatUI->Init(StatSystem);
 	
-	APlayerCharacter* Character = GetOwningPlayer()->GetPawn<APlayerCharacter>();
-	if(Character)
-	{
-		Inventory = Character->GetInventory();
-		if(!Inventory) return;
+	Inventory = PlayerInventory;
 
-		//로컬
-		Inventory->RequestInitInventory(this);
-	}
+	//로컬
+	Inventory->RequestInitInventory(this);
 }
-
-
-
 
 bool UInventoryUI::CheckInit() const
 {
 	return InventorySlots.Num() >= 1;
 }
-
 
 void UInventoryUI::UpdateUI(int Index)
 {
@@ -78,7 +67,6 @@ void UInventoryUI::UpdateUI(int Index)
 		InventorySlots[Index]->UpdateSlot(Item);
 	}
 }
-
 
 void UInventoryUI::OpenToolTip(FVector2D ScreenPos, UItemInstance* Item)
 {

@@ -479,6 +479,11 @@ void APlayerCharacter::Client_BroadcastAssistAlarm_Implementation(AActor* DeadPl
 	AssistAlarmEvent.Broadcast(DeadPlayer);
 }
 
+void APlayerCharacter::SetPlayerSpeed(float NewWalkSpeed)
+{
+	WalkSpeed = NewWalkSpeed;
+	SprintSpeed = WalkSpeed + 250.f;
+}
 
 
 #pragma endregion Functions

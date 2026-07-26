@@ -21,7 +21,7 @@ void UUIManager::Init(APawn* Pawn)
 {
 	APlayerCharacter* APC = Cast<APlayerCharacter>(Pawn);
 	
-	InventoryUI->Init();
+	InventoryUI->Init(APC->GetInventory(), APC->GetStatComponent());
 	GunMenuUI->Init(InventoryUI);
 	CombatUI->Init(APC->GetCombatComponent(), APC->GetStatComponent());
 	CrossHairUI->Init(APC->GetCombatComponent());

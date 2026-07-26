@@ -35,7 +35,8 @@ private:
 	UButton* ShotgunBtn;
 	UPROPERTY(meta=(AllowPrivateAccess, BindWidget))
 	UButton* SniperBtn;
-	
+
+	UPROPERTY()
 	UInventoryUI* InventoryUI;
 
 
