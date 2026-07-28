@@ -16,14 +16,13 @@
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
 #include "GameScene/Player/ItemInstance/GunItem.h"
 #include "GameScene/Player/ItemInstance/PartsItem.h"
+#include "GameScene/Weapon/Bullet.h"
 #include "GameScene/Weapon/Parts.h"
 #include "GameScene/Weapon/ScopeParts.h"
 #include "GameScene/Weapon/FireMode/FireMode.h"
 #include "GameScene/Weapon/FireMode/HitScanModeData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/CombatUI.h"
-#include "UI/UIManager.h"
 
 
 AGun::AGun()
@@ -58,15 +57,14 @@ void AGun::OnRep_Owner()
 	APC = Cast<APlayerCharacter>(GetOwner());
 	SoundManager = GetWorld()->GetSubsystem<USoundManager>();
 	Controller = Cast<AMyPlayerController>(APC->GetController());
-	
+
 	TryInit();
 }
 
 void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AGun, GunInstance);
+	
 	DOREPLIFETIME(AGun, FireSystemIndex);
 	
 	DOREPLIFETIME(AGun, Rail);
@@ -107,40 +105,11 @@ void AGun::ZoomQuick(bool bZoomState)
 //Server
 void AGun::Shot()
 {
-	if(!IsValid(CurrentFireSystem))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("NoCurrentSystem"));
+	if(!IsValid(GunInstance) || !IsValid(BP_Bullet) || MagAmmo <= 0)
 		return;
-	}
-
-	if(!IsValid(GunInstance))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("NoGunInstance"));
-		return;
-	}
 	
-	if(!IsValid(GunInstance->GunItemData))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("NoGunItemData"));
-		return;
-	}
-
-	if(!IsValid(GunInstance->GunItemData->BulletItemData))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("NoBPBUllet"));
-		return;
-	}
-	if(!IsValid(Controller))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("NoController"));
-		return;
-	}
-	
-	//todo : 현재 mag에 장전된 current_bp_bullet 넘겨줘야함
-	//todo : 장전중이거나 mag가 비어있으면 return;
-	//임시 shot
 	CurrentFireSystem->Shot(
-		GunInstance->GunItemData->BulletItemData->BP_Bullet,
+		BP_Bullet,
 		Controller,
 		this,
 		bIsRealBullet);
@@ -285,11 +254,14 @@ UGunItem* AGun::GetGunInstance() const
 	return GunInstance;
 }
 
-//server
 void AGun::SetGunInstance(UGunItem* NewGunInstance)
 {
+	if(!IsValid(NewGunInstance))
+		return;
+	
 	GunInstance = NewGunInstance;
 	CurrentFireSystem = GunInstance->GetFireSystem(FireSystemIndex);
+	BP_Bullet = GunInstance->GunItemData->BulletItemData->BP_Bullet;
 	
 	if(IsValid(APC))
 	{
@@ -298,11 +270,6 @@ void AGun::SetGunInstance(UGunItem* NewGunInstance)
 		Inventory->OnItemAdd.AddUObject(this, &AGun::OnMagItemAdd);
 		TotalAmmo = Inventory->GetItemTotalAmount(GunInstance->GunItemData->BulletItemData);
 		
-		if(APC->IsLocallyControlled())
-		{
-			BindCombatUI();
-		}
-
 		//sfx
 		PlayEquipGunSound();
 	}
@@ -320,15 +287,15 @@ void AGun::TryInit()
 	//SetGunState();
 	SetGunAnimLayer();
 	
-	if(APC->IsLocallyControlled())
-	{
-		Controller = Cast<AMyPlayerController>(APC->GetController());
-		BindCombatUI();
-	}
-	
 	PlayEquipGunSound();
 }
 
+void AGun::InitDelegate()
+{
+	OnTotalAmmoChanged.ExecuteIfBound(TotalAmmo);
+	OnMagAmmoChanged.ExecuteIfBound(MagAmmo);
+	OnMagAmmoTypeChanged.ExecuteIfBound(bIsRealBullet);
+}
 
 void AGun::EquipParts(AParts* PartsActor, UPartsItem* PartsItem)
 {
@@ -404,11 +371,6 @@ void AGun::SetGunAnimLayer()
 	}
 }
 
-void AGun::OnRep_GunInstance()
-{
-	TryInit();
-}
-
 void AGun::OnRep_CurCameraSocketName()
 {
 	ChangeCameraPos(CurCameraSocketName);
@@ -463,18 +425,6 @@ void AGun::ChangeCameraPos(FName SocketName)
 	}
 }
 
-void AGun::BindCombatUI()
-{
-	Controller->GetUIManager()->GetCombatUI()->EquipGun();
-	Controller->GetUIManager()->GetCombatUI()->BindTotalAmmoDelegate(OnTotalAmmoChanged);
-	Controller->GetUIManager()->GetCombatUI()->BindMagAmmoDelegate(OnMagAmmoChanged);
-	Controller->GetUIManager()->GetCombatUI()->BindMagAmmoTypeDelegate(OnMagAmmoTypeChanged);
-
-	OnTotalAmmoChanged.ExecuteIfBound(TotalAmmo);
-	OnMagAmmoChanged.ExecuteIfBound(MagAmmo);
-	OnMagAmmoTypeChanged.ExecuteIfBound(bIsRealBullet);
-}
-
 void AGun::OnMagItemAdd(FName ItemId, int Amount)
 {
 	if(!IsValid(GunInstance))
@@ -486,8 +436,6 @@ void AGun::OnMagItemAdd(FName ItemId, int Amount)
 		OnTotalAmmoChanged.ExecuteIfBound(TotalAmmo);
 	}
 }
-
-
 
 
 

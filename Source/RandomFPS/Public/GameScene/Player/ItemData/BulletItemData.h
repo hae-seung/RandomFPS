@@ -19,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABullet> BP_Bullet;
 	
-
+	
 	
 public:
 	virtual UItemInstance* CreateItem(UObject* Outer) override;

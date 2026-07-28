@@ -7,6 +7,7 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "PlayerWeapon.generated.h"
 
+class ABullet;
 class AMyPlayerController;
 class APlayerCharacter;
 class APreviewGun;
@@ -16,11 +17,21 @@ class UGunItem;
 class UCharacterLinkedAnimLayer;
 class UCameraComponent;
 
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquipGunActor, AGun*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnChangeGunInstance, UGunItem*);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RANDOMFPS_API UPlayerWeapon : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	FOnEquipGunActor OnEquipGunActor;
+	FOnChangeGunInstance OnChangeGunInstance;
+
+	
 public:
 	UPROPERTY(Replicated)
 	bool bHasWeapon;
@@ -35,7 +46,7 @@ public:
 	
 
 	void UnEquipGun();
-	bool EquipGun(UGunItem* GunInstance);
+	bool EquipGun(UGunItem* NewGunInstance);
 	void ZoomShort(bool bZoomState);
 	FTransform GetLeftHandIKTransform();
 
@@ -54,8 +65,11 @@ protected:
 private:
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_GunActor)
 	AGun* GunActor;
-
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_GunInstance)
+	UGunItem* GunInstance;
+	
 	//오직 클라이언트 로컬에만 존재
+	UPROPERTY()
 	APreviewGun* PreviewGun;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<APreviewGun> BP_PreviewGun;
@@ -82,4 +96,6 @@ private:
 	void Client_UnEquipParts(EPartsType PartsType);
 	UFUNCTION()
 	void OnRep_GunActor();
+	UFUNCTION()
+	void OnRep_GunInstance();
 };

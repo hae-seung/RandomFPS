@@ -9,6 +9,7 @@
 
 #include "Gun.generated.h"
 
+class ABullet;
 class UHitScanModeData;
 class UNiagaraSystem;
 class APlayerCharacter;
@@ -37,6 +38,7 @@ public:
 	
 public:	
 	AGun();
+	void InitDelegate();
 	
 	UGunItem* GetGunInstance() const;
 
@@ -65,9 +67,12 @@ public:
 	UAnimMontage* GetReloadMontage();
 	
 protected:
-	UPROPERTY(Replicated, ReplicatedUsing=OnRep_GunInstance)
+	//Weapon으로부터 Replicate된 포인터를 저장
+	UPROPERTY()
 	UGunItem* GunInstance;
-
+	UPROPERTY()
+	TSubclassOf<ABullet> BP_Bullet;
+	
 	//FireSystemIndex가 변할때만 수정.(only Server)
 	UPROPERTY()
 	TObjectPtr<UFireMode> CurrentFireSystem;
@@ -122,16 +127,12 @@ private:
 	
 	void SetGunState();
 	void SetGunAnimLayer();
-
-	
 	
 	void ChangeCameraPos(FName SocketName);
-	void BindCombatUI();
+	
 	UFUNCTION()
 	void OnMagItemAdd(FName ItemId, int Amount);
 	
-	UFUNCTION()
-	void OnRep_GunInstance();
 	UFUNCTION()
 	void OnRep_CurCameraSocketName();
 	UFUNCTION()

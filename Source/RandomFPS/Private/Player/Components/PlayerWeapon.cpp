@@ -25,7 +25,6 @@ UPlayerWeapon::UPlayerWeapon()
 	SetIsReplicatedByDefault(true);
 }
 
-
 void UPlayerWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -46,6 +45,7 @@ void UPlayerWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(UPlayerWeapon, GunActor);
+	DOREPLIFETIME(UPlayerWeapon, GunInstance);
 	DOREPLIFETIME(UPlayerWeapon, bHasWeapon);
 }
 
@@ -62,7 +62,6 @@ void UPlayerWeapon::SpawnPreviewGun(APlayerCharacter* LocalPlayer)
 	PreviewGun->Init(Cast<AMyPlayerController>(LocalPlayer->GetController()));
 }
 
-//local
 void UPlayerWeapon::ZoomShort(bool bZoomState)
 {
 	if(IsValid(GunActor))
@@ -100,8 +99,6 @@ void UPlayerWeapon::Reload()
 	GunActor->Reload();
 }
 
-
-
 FTransform UPlayerWeapon::GetLeftHandIKTransform()
 {
 	if(!GunActor)
@@ -132,9 +129,10 @@ UPartsItem* UPlayerWeapon::GetCurrentEquipParts(EPartsType PartsType)
 	return Gun->GetCurrentEquipParts(PartsType);
 }
 
-//server
-bool UPlayerWeapon::EquipGun(UGunItem* GunInstance)
+bool UPlayerWeapon::EquipGun(UGunItem* NewGunInstance)
 {
+	GunInstance = NewGunInstance;
+	
 	//액터 소환 후 Instance할당
 	TSubclassOf<AGun> BP_NewGun = GunInstance->GunItemData->BP_Gun;
 	if(BP_NewGun == nullptr)
@@ -156,16 +154,15 @@ bool UPlayerWeapon::EquipGun(UGunItem* GunInstance)
 		APC->GetMesh(),
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		SocketName);
-
+	
 	GunActor->SetGunInstance(GunInstance);
 
 	bHasWeapon = true;
-	
-	if(APC->IsLocallyControlled())
-	{
-		UpdatePreviewGun();
-	}
-	
+	UpdatePreviewGun();
+
+	OnEquipGunActor.Broadcast(GunActor);
+	OnChangeGunInstance.Broadcast(GunInstance);
+
 	
 	return true;
 }
@@ -179,7 +176,6 @@ void UPlayerWeapon::UnEquipGun()
 		bHasWeapon = false;
 	}
 }
-
 
 bool UPlayerWeapon::EquipParts(UPartsItem* PartsItem)
 {
@@ -245,7 +241,20 @@ void UPlayerWeapon::OnRep_GunActor()
 			UpdatePreviewGun();
 		}
 	}
+	
+	OnEquipGunActor.Broadcast(GunActor);
+	GunActor->SetGunInstance(GunInstance);
 }
+
+void UPlayerWeapon::OnRep_GunInstance()
+{
+	OnChangeGunInstance.Broadcast(GunInstance);
+	if(IsValid(GunActor))
+	{
+		GunActor->SetGunInstance(GunInstance);
+	}
+}
+
 
 
 void UPlayerWeapon::UpdatePreviewGun()

@@ -8,6 +8,7 @@
 #include "Struct/CombatStructHeader.h"
 #include "CombatUI.generated.h"
 
+class UPlayerWeapon;
 class UPlayerStatSystem;
 class UKillLogEntryUI;
 class UVerticalBox;
@@ -26,13 +27,12 @@ class RANDOMFPS_API UCombatUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Init(UPlayerCombatSystem* CombatComponent, UPlayerStatSystem* StatSystem);
+	void Init(
+		UPlayerCombatSystem* CombatComponent,
+		UPlayerStatSystem* StatSystem,
+		UPlayerWeapon* WeaponComponent);
 
-	void EquipGun();
-	
-	void BindTotalAmmoDelegate(FOnTotalAmmoChanged& OnTotalAmmoChanged);
-	void BindMagAmmoDelegate(FOnMagAmmoChanged& OnMagAmmoChanged);
-	void BindMagAmmoTypeDelegate(FOnMagAmmoTypeChanged& OnMagAmmoTypeChanged);
+
 
 private:
 	UPROPERTY(meta=(BindWidget))
@@ -76,4 +76,7 @@ private:
 	void UpdateReviveTime(int ReviveRemainTime);
 	void OpenDeadUI();
 	void CloseDeadUI();
+
+	void ChangeNewGunInstance(UGunItem* GunInstance);
+	void BindNewGunActorDelegates(AGun* GunActor);
 };

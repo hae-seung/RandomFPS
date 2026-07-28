@@ -99,7 +99,9 @@ public:
 	FORCEINLINE UPlayerStatSystem* GetStatComponent() const { return StatSystem; }
 	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
 	FORCEINLINE UPlayerInteractSystem* GetInteractSystem() const { return InteractSystem; }
+	FORCEINLINE UPlayerWeapon* GetWeaponSystem() const { return PlayerWeapon; }
 
+	
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
 	FORCEINLINE bool IsDead() const { return bIsDead; }

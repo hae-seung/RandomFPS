@@ -20,7 +20,7 @@ void UHitScanMode::Shot(
 	AGun* GunActor,
 	bool HasBullet)
 {
-	if(IsShooting || !bInit ||GunActor->GetMagAmmo() <= 0)
+	if(IsShooting || !bInit)
 		return;
 
 	IsShooting = true;

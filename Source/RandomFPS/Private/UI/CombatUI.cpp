@@ -9,6 +9,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
+#include "GameScene/Player/Components/PlayerWeapon.h"
 
 
 void UCombatUI::NativeOnInitialized()
@@ -25,7 +26,10 @@ void UCombatUI::NativeOnInitialized()
 }
 
 
-void UCombatUI::Init(UPlayerCombatSystem* CombatComponent, UPlayerStatSystem* StatSystem)
+void UCombatUI::Init(
+	UPlayerCombatSystem* CombatComponent,
+	UPlayerStatSystem* StatSystem,
+	UPlayerWeapon* WeaponComponent)
 {
 	CombatComponent->OnReviveTimeChanged.AddUObject(this, &UCombatUI::UpdateReviveTime);
 	CombatComponent->OnPlayerDead.AddUObject(this, &UCombatUI::OpenDeadUI);
@@ -33,30 +37,18 @@ void UCombatUI::Init(UPlayerCombatSystem* CombatComponent, UPlayerStatSystem* St
 
 	StatSystem->OnPlayerHealthStatChanged.AddUObject(this, &UCombatUI::UpdateHealthUI);
 	StatSystem->OnPlayerEnergyChanged.AddUObject(this, &UCombatUI::UpdateEnergyUI);
-	
 	StatSystem->InitDelegates();
+
+	//바인드는 총이 교체되는 최초 1회만 실행됨
+	WeaponComponent->OnEquipGunActor.AddUObject(this, &UCombatUI::BindNewGunActorDelegates);
+	WeaponComponent->OnChangeGunInstance.AddUObject(this, &UCombatUI::ChangeNewGunInstance);
 }
 
 
 #pragma region Gun
-void UCombatUI::EquipGun()
+void UCombatUI::ChangeNewGunInstance(UGunItem* GunInstance)
 {
 	BulletSet->SetVisibility(ESlateVisibility::Visible);
-}
-
-void UCombatUI::BindTotalAmmoDelegate(FOnTotalAmmoChanged& OnTotalAmmoChanged)
-{
-	OnTotalAmmoChanged.BindUObject(this, &UCombatUI::UpdateTotalAmmoText);
-}
-
-void UCombatUI::BindMagAmmoDelegate(FOnMagAmmoChanged& OnMagAmmoChanged)
-{
-	OnMagAmmoChanged.BindUObject(this, &UCombatUI::UpdateMagAmmoText);
-}
-
-void UCombatUI::BindMagAmmoTypeDelegate(FOnMagAmmoTypeChanged& OnMagAmmoTypeChanged)
-{
-	OnMagAmmoTypeChanged.BindUObject(this, &UCombatUI::UpdateMagAmmoTextColor);
 }
 
 void UCombatUI::UpdateTotalAmmoText(int TotalAmmo)
@@ -82,6 +74,17 @@ void UCombatUI::UpdateMagAmmoTextColor(bool bIsRealBullet)
 	MagAmmoText->SetColorAndOpacity(
 		bIsRealBullet ? FLinearColor::White : FLinearColor::Red);
 }
+
+
+void UCombatUI::BindNewGunActorDelegates(AGun* GunActor)
+{
+	GunActor->OnMagAmmoChanged.BindUObject(this, &UCombatUI::UpdateMagAmmoText);
+	GunActor->OnTotalAmmoChanged.BindUObject(this, &UCombatUI::UpdateTotalAmmoText);
+	GunActor->OnMagAmmoTypeChanged.BindUObject(this, &UCombatUI::UpdateMagAmmoTextColor);
+
+	GunActor->InitDelegate();
+}
+
 
 
 #pragma endregion
