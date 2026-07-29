@@ -36,7 +36,6 @@ public:
 	UPROPERTY(Replicated)
 	bool bHasWeapon;
 	
-	
 public:	
 	UPlayerWeapon();
 	UGunItem* GetCurrentEquipGun();
@@ -49,6 +48,11 @@ public:
 	bool EquipGun(UGunItem* NewGunInstance);
 	void ZoomShort(bool bZoomState);
 	FTransform GetLeftHandIKTransform();
+
+	/////////////////
+	void LevelUpGun();
+	void AwakeGun();
+	//////////////////
 
 	UFUNCTION(Server, Reliable)
 	void Server_Shot();

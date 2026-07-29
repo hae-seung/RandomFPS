@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameScene/Cards/StructHeader.h"
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "GameScene/Player/ItemData/ItemData.h"
+
 #include "GunItemData.generated.h"
 
 
+class UReinforceData;
 class UBulletItemData;
 class UNiagaraSystem;
 class ABullet;
@@ -37,10 +40,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	int32 MaxMagAmount;
 	UPROPERTY(EditAnywhere)
-	int32 BulletSpeed;
-	UPROPERTY(EditAnywhere)
 	int32 NormalTrueDamage;
-
+	UPROPERTY(EditAnywhere)
+	UReinforceData* ReinforceData;
+	
+	/* 각성시 필요
+	UPROPERTY(EditAnywhere, Instanced)
+	TArray<UReinforceData*> AwakeData;*/
 	
 	//fx
 	UPROPERTY(EditAnywhere)

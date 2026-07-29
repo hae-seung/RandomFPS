@@ -8,6 +8,7 @@
 #include "Components/WrapBox.h"
 #include "GameScene/Player/MyPlayerController.h"
 #include "GameScene/Player/Components/Inventory.h"
+#include "GameScene/Player/Components/PlayerWeapon.h"
 #include "Public/UI/InventorySlot.h"
 #include "UI/GunSlotUI.h"
 #include "UI/StatUI.h"
@@ -31,12 +32,15 @@ void UInventoryUI::Toggle()
 }
 
 
-void UInventoryUI::Init(UInventory* PlayerInventory, UPlayerStatSystem* StatSystem)
+void UInventoryUI::Init(
+	UInventory* PlayerInventory, 
+	UPlayerStatSystem* StatSystem,
+	UPlayerWeapon* PlayerWeapon)
 {
 	SetVisibility(ESlateVisibility::Collapsed);
 
 	GunSlotUI->Init(this);
-	StatUI->Init(StatSystem);
+	StatUI->Init(StatSystem, PlayerWeapon);
 	
 	Inventory = PlayerInventory;
 

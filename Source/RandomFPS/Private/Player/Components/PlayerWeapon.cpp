@@ -110,6 +110,7 @@ FTransform UPlayerWeapon::GetLeftHandIKTransform()
 	return LeftHandSocketWorld;
 }
 
+
 UGunItem* UPlayerWeapon::GetCurrentEquipGun()
 {
 	if(GunActor == nullptr)
@@ -275,4 +276,40 @@ void UPlayerWeapon::Client_UpdateParts_Implementation(UPartsItem* PartsItem)
 void UPlayerWeapon::Client_UnEquipParts_Implementation(EPartsType PartsType)
 {
 	PreviewGun->UnEquipParts(PartsType);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void UPlayerWeapon::LevelUpGun()
+{
+	if(!IsValid(GunInstance))
+		return;
+
+	GunInstance->LevelUp();
+}
+
+void UPlayerWeapon::AwakeGun()
+{
+	if(!IsValid(GunInstance))
+		return;
+
+	GunInstance->AwakeGun();
 }

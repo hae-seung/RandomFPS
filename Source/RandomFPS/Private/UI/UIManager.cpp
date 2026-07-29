@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Components/Button.h"
 #include "GameScene/Player/PlayerCharacter.h"
+#include "GameScene/Player/Components/PlayerWeapon.h"
 #include "GameScene/Player/ItemData/BulletItemData.h"
 #include "GameScene/Player/ItemData/PortionItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
@@ -21,7 +22,7 @@ void UUIManager::Init(APawn* Pawn)
 {
 	APlayerCharacter* APC = Cast<APlayerCharacter>(Pawn);
 	
-	InventoryUI->Init(APC->GetInventory(), APC->GetStatComponent());
+	InventoryUI->Init(APC->GetInventory(), APC->GetStatComponent(), APC->GetWeaponSystem());
 	GunMenuUI->Init(InventoryUI);
 	CombatUI->Init(APC->GetCombatComponent(), APC->GetStatComponent(), APC->GetWeaponSystem());
 	CrossHairUI->Init(APC->GetCombatComponent());
@@ -33,6 +34,8 @@ void UUIManager::Init(APawn* Pawn)
 	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
 	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);
 	PortionBtn->OnClicked.AddDynamic(this,&UUIManager::GivePortion);
+	LevelUpBtn->OnClicked.AddDynamic(this, &UUIManager::LevelUpGun);
+	AwakeBtn->OnClicked.AddDynamic(this, &UUIManager::AwakeGun);
 }
 
 void UUIManager::GiveRedDot()
@@ -61,6 +64,27 @@ void UUIManager::GivePortion()
 		APC->RequestAddItem(PortionData, 1);
 	}
 }
+
+void UUIManager::LevelUpGun()
+{
+	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
+	if(APC)
+	{
+		APC->GetWeaponSystem()->LevelUpGun();
+	}
+}
+
+void UUIManager::AwakeGun()
+{
+	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
+	if(APC)
+	{
+		APC->GetWeaponSystem()->AwakeGun();
+	}
+}
+
+
+
 
 
 

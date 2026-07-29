@@ -43,10 +43,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	UMaterial* BaseMat;
 
+	UPROPERTY()
 	UInventoryUI* InventoryUI;
+	UPROPERTY()
 	UPartsSlotUI* CurrentHighlightPartsSlotUI;
 
-	
+	UPROPERTY()
 	TMap<EPartsType, UPartsSlotUI*> PartsSlotMap;
 
 private:

@@ -8,6 +8,8 @@
 #include "GameScene/Player/ItemInstance/PartsItem.h"
 #include "GameScene/Player/ItemInstance/PartsItem/MagazinePartsItem.h"
 #include "GameScene/Weapon/FireMode/FireData.h"
+#include "GameScene/Weapon/GunAbility/GunAbilityModifier.h"
+#include "GameScene/Weapon/GunAbility/ReinforceData.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -26,7 +28,7 @@ void UGunItem::Init(UItemData* Data)
 		FireModes.Add(Value->GetFireMode(this));
 	}
 
-	BulletSpeed = GunItemData->BulletSpeed;
+	ApplyGunAbility();
 	MaxMagAmmo = GunItemData->MaxMagAmount;
 }
 
@@ -42,12 +44,48 @@ void UGunItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UGunItem, GunItemData);
 	DOREPLIFETIME(UGunItem, PartsSet);
+	DOREPLIFETIME(UGunItem, GunLevel);
+	DOREPLIFETIME(UGunItem, bAwake);
 }
 
-int UGunItem::GetBulletSpeed() const
+float UGunItem::GetBulletSpeed() const
 {
-	//임시
-	return BulletSpeed;
+	return GunAbility.BulletSpeed;
+}
+
+int UGunItem::GetGunLevel()
+{
+	return GunLevel;
+}
+
+const FGunAbilityWrapper* UGunItem::GetAbilityWrapper()
+{
+	return GunItemData->ReinforceData->GetAbility(GunLevel);
+}
+
+bool UGunItem::IsAwake()
+{
+	return bAwake;
+}
+
+void UGunItem::LevelUp()
+{
+	if(GunLevel >= 5)
+		return;
+
+	GunLevel++;
+	OnGunLevelChanged.Broadcast(GunLevel);
+	ApplyGunAbility();
+}
+
+void UGunItem::AwakeGun()
+{
+	if(GunLevel < 5)
+		return;
+
+	bAwake = true;
+	OnGunAwake.Broadcast();
+	ApplyAwakeGunAbility();
 }
 
 bool UGunItem::CheckPartsType(EPartsType PartsType) const
@@ -151,4 +189,32 @@ void UGunItem::ModifyMaxMagAmount(bool bPlus)
 			MaxMagAmmo -= AdditiveMaxMagAmmo;
 		}
 	}
+}
+
+void UGunItem::ApplyGunAbility()
+{
+	const FGunAbilityWrapper* CurrentLevelWrapper = GetAbilityWrapper();
+	if(!CurrentLevelWrapper)
+		return;
+	
+	for(auto Modifier : CurrentLevelWrapper->GunAbilityModifiers)
+	{
+		Modifier->ApplyGunAbility(&GunAbility);
+	}
+}
+
+void UGunItem::ApplyAwakeGunAbility()
+{
+	UE_LOG(LogTemp, Warning, TEXT("총 각성!!"));
+}
+
+
+void UGunItem::OnRep_GunLevel()
+{
+	OnGunLevelChanged.Broadcast(GunLevel);
+}
+
+void UGunItem::OnRep_bAwake()
+{
+	OnGunAwake.Broadcast();
 }

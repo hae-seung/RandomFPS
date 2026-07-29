@@ -6,6 +6,7 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "StructHeader.generated.h"
 
+class UGunAbilityModifier;
 class UBulletItemData;
 class APlayerCharacter;
 class UHitScanModeData;
@@ -89,7 +90,6 @@ struct FAISightPerceptionInfo
 };
 
 
-
 USTRUCT(BlueprintType)
 struct FStatModifier
 {
@@ -99,4 +99,27 @@ struct FStatModifier
 	EStat Stat;
 	UPROPERTY(EditAnywhere)
 	float Value;
+};
+
+
+USTRUCT(BlueprintType)
+struct FGunAbility
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	float ShotInterval;
+	UPROPERTY(EditAnywhere)
+	float BulletSpeed;
+	UPROPERTY(EditAnywhere)
+	bool bCanHeadShot;
+};
+
+USTRUCT(BlueprintType)
+struct FGunAbilityWrapper
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Instanced)
+	TArray<TObjectPtr<UGunAbilityModifier>> GunAbilityModifiers;
 };

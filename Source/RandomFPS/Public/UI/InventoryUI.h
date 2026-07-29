@@ -7,6 +7,7 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "InventoryUI.generated.h"
 
+class UPlayerWeapon;
 class UStatUI;
 class URailPartsData;
 class UButton;
@@ -30,7 +31,10 @@ class RANDOMFPS_API UInventoryUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Init(UInventory* PlayerInventory, UPlayerStatSystem* StatSystem);
+	void Init(
+		UInventory* PlayerInventory,
+		UPlayerStatSystem* StatSystem,
+		UPlayerWeapon* PlayerWeapon);
 	void UpdateUI(int Index);
 	bool CheckInit() const;
 	void Toggle();

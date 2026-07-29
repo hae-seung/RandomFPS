@@ -50,6 +50,10 @@ public:
 	UButton* BulletBtn;
 	UPROPERTY(meta=(BindWidget))
 	UButton* PortionBtn;
+	UPROPERTY(meta=(BindWidget))
+	UButton* LevelUpBtn;
+	UPROPERTY(meta=(BindWidget))
+	UButton* AwakeBtn;
 	
 	UFUNCTION()
 	void GiveRedDot();
@@ -57,6 +61,10 @@ public:
 	void GiveBullet();
 	UFUNCTION()
 	void GivePortion();
+	UFUNCTION()
+	void LevelUpGun();
+	UFUNCTION()
+	void AwakeGun();
 
 public:
 	
