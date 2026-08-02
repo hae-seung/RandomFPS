@@ -113,6 +113,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	InitPlayerState();
+	
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -165,6 +166,9 @@ void APlayerCharacter::MakeComponents()
 	StatSystem = CreateDefaultSubobject<UPlayerStatSystem>(TEXT("StatSystem"));
 
 	InteractSystem = CreateDefaultSubobject<UPlayerInteractSystem>(TEXT("InteractSystem"));
+
+	InteractCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("InteractCapsule"));
+	InteractCapsule->SetupAttachment(RootComponent);
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)
@@ -485,6 +489,25 @@ void APlayerCharacter::SetPlayerSpeed(float NewWalkSpeed)
 	SprintSpeed = WalkSpeed + 250.f;
 }
 
+void APlayerCharacter::ChangeCameraViewTarget(AActor* Target, float BlendTime)
+{
+	if(!IsLocallyControlled() || !IsValid(MyController))
+		return;
+	
+	MyController->HiddenActors.Add(this);
+	MyController->SetViewTargetWithBlend(Target, BlendTime);
+
+	//시점 전환
+	if(Target != this)
+	{
+		MyController->SetInputModeUI();	
+	}
+	else //시점 다시 돌리기
+	{
+		MyController->SetInputModeGame();
+	}
+}
+
 
 #pragma endregion Functions
 
@@ -759,6 +782,16 @@ void APlayerCharacter::CloseScoreBoard()
 	MyController->GetUIManager()->CloseScoreBoard();
 }
 
+void APlayerCharacter::TryInteract()
+{
+	if(!IsValid(InteractSystem))
+		return;
+
+	InteractSystem->InputInteract();
+}
+
+
+
 void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
 {
 	EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
@@ -788,6 +821,8 @@ void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
 
 	EIC->BindAction(ScoreAction, ETriggerEvent::Started, this, &APlayerCharacter::OpenScoreBoard);
 	EIC->BindAction(ScoreAction, ETriggerEvent::Completed, this, &APlayerCharacter::CloseScoreBoard);
+
+	EIC->BindAction(InteractAction, ETriggerEvent::Started, this, &APlayerCharacter::TryInteract);
 }
 
 #pragma endregion InputFunctions

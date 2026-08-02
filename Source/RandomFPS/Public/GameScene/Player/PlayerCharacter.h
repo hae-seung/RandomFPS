@@ -80,6 +80,8 @@ public:
 	UInputAction* InventoryAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInputAction* ScoreAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* InteractAction;
 
 	UPROPERTY(EditAnywhere)
 	EEntityType EntityType;
@@ -100,7 +102,7 @@ public:
 	FORCEINLINE UInventory* GetInventory() const{ return Inventory; }
 	FORCEINLINE UPlayerInteractSystem* GetInteractSystem() const { return InteractSystem; }
 	FORCEINLINE UPlayerWeapon* GetWeaponSystem() const { return PlayerWeapon; }
-
+	FORCEINLINE UCapsuleComponent* GetInteractCapsule() const { return InteractCapsule; }
 	
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
@@ -115,6 +117,7 @@ public:
 	virtual void TakeDamage(FDamageContext& Context) override;
 
 	void SetPlayerSpeed(float NewWalkSpeed);
+	void ChangeCameraViewTarget(AActor* Target, float BlendTime);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -150,6 +153,8 @@ private:
 	UPlayerStatSystem* StatSystem;
 	UPROPERTY(EditAnywhere)
 	UPlayerInteractSystem* InteractSystem;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UCapsuleComponent* InteractCapsule;
 
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
 	bool bIsDead;
@@ -192,6 +197,7 @@ private:
 	void ToggleInventory();
 	void OpenScoreBoard();
 	void CloseScoreBoard();
+	void TryInteract();
 	
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	

@@ -18,8 +18,8 @@ class RANDOMFPS_API UCrossHairUI : public UUserWidget
 
 public:
 	void Init(UPlayerCombatSystem* CombatSystem);
-	
 	void MoveCrossHair();
+	void Toggle(bool bOpen);
 	
 private:
 	UPROPERTY(EditAnywhere,meta=(BindWidget, AllowPrivateAccess))

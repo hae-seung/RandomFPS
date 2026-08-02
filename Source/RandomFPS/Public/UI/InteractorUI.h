@@ -43,7 +43,7 @@ private:
 
 private:
 	void Show();
-	void Hide();
+	void Hide(bool bSuccess);
 
 	void UpdateInteractUI(float EndTime, float InteractTotalTime, UTexture2D* Icon);
 	void UpdateProgressTick();

@@ -86,8 +86,6 @@ void UUIManager::AwakeGun()
 
 
 
-
-
 void UUIManager::ToggleInventory()
 {
 	InventoryUI->Toggle();
@@ -101,5 +99,10 @@ void UUIManager::OpenScoreBoard()
 void UUIManager::CloseScoreBoard()
 {
 	ScoreUI->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UUIManager::ToggleCombatUI(bool bOpen)
+{
+	CrossHairUI->Toggle(bOpen);
 }
 

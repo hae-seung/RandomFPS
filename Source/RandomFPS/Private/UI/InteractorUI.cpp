@@ -16,7 +16,7 @@ void UInteractorUI::NativeOnInitialized()
 	ProgressMID = ProgressBarImage->GetDynamicMaterial();
 	check(ProgressMID);
 
-	Hide();
+	Hide(true);
 }
 
 void UInteractorUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -43,7 +43,7 @@ void UInteractorUI::Show()
 }
 
 
-void UInteractorUI::Hide()
+void UInteractorUI::Hide(bool bSuccess)
 {
 	SetVisibility(ESlateVisibility::Collapsed);
 	bInteracting = false;

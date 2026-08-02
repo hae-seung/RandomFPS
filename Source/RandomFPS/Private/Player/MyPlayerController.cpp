@@ -82,8 +82,11 @@ void AMyPlayerController::SetInputModeUI()
 {
 	if(!IsLocalController()) return;
 
+	UIManager->ToggleCombatUI(false);
+	
 	FInputModeGameAndUI InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
 	bShowMouseCursor = true;
 	
 	SetInputMode(InputMode);
@@ -94,11 +97,11 @@ void AMyPlayerController::SetInputModeUI()
 void AMyPlayerController::SetInputModeGame()
 {
 	if(!IsLocalController()) return;
+
+	UIManager->ToggleCombatUI(true);
 	
 	FInputModeGameOnly InputMode;
-	
 	SetInputMode(InputMode);
-	
 	bShowMouseCursor = false;
 
 	SubSystem->AddMappingContext(IMC_Mouse, 1);

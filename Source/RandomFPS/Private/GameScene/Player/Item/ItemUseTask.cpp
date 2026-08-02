@@ -9,10 +9,14 @@
 #include "GameScene/Player/ItemInstance/ItemInstance.h"
 #include "Interface/Useable.h"
 
-void UItemUseTask::Init(UPlayerInteractSystem* UserInteractSystem, UPlayerStatSystem* PlayerStatSystem)
+void UItemUseTask::Init(
+	UPlayerInteractSystem* UserInteractSystem,
+	UPlayerStatSystem* PlayerStatSystem)
 {
 	InteractSystem = UserInteractSystem;
 	StatSystem = PlayerStatSystem;
+
+	InteractSystem->OnInteractEnd.AddUObject(this, &UItemUseTask::EndUseItem);
 }
 
 
@@ -36,17 +40,11 @@ void UItemUseTask::StartUseItem(UItemInstance* Item)
 	if(const float WaitTime = UsableItem->GetNeedTime())
 	{
 		BookedItem = Item;
-		GetWorld()->GetTimerManager().SetTimer(
-			TimerHandle,
-			this, &UItemUseTask::RealUseItem,
-			WaitTime,
-			false);
 		
-		//캐릭터에게 알리기 => UI띄움
+		//캐릭터에게 알리기 => UI띄워줄거임
 		float EndTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds() + WaitTime;
 		UAnimMontage* PlayMontage = UsableItem->GetUsingMontage();
 		UTexture2D* Icon = Item->ItemData->GetItemIcon();
-		
 		InteractSystem->StartInteract(PlayMontage, EndTime, WaitTime, Icon);
 	}
 	else
@@ -55,19 +53,19 @@ void UItemUseTask::StartUseItem(UItemInstance* Item)
 	}
 }
 
-void UItemUseTask::StopUseItem()
+void UItemUseTask::EndUseItem(bool bSuccess)
 {
-	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-
-	//player 행동 강제 중지 시키기
-	InteractSystem->StopInteractMontage();
+	if(!IsValid(BookedItem))
+		return;
+	
+	if(bSuccess)
+	{
+		RealUseItem();
+	}
 }
 
 void UItemUseTask::RealUseItem()
 {
-	//player 몽타주 End섹션 넘기기
-	InteractSystem->SetMontageJumpEnd();
-	
 	IUseable* Usable = Cast<IUseable>(BookedItem);
 	Usable->Use(StatSystem);
 
@@ -76,4 +74,6 @@ void UItemUseTask::RealUseItem()
 	{
 		OnUseItemComplete.ExecuteIfBound(Index);
 	}
+
+	BookedItem = nullptr;
 }

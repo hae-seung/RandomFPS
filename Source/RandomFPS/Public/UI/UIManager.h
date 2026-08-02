@@ -42,7 +42,7 @@ public:
 	
 	
 public:
-	void ToggleInventory();
+	
 
 	UPROPERTY(meta=(BindWidget))
 	UButton* RedDotBtn;
@@ -67,12 +67,13 @@ public:
 	void AwakeGun();
 
 public:
-	
+	void ToggleInventory();
 	FORCEINLINE UInventoryUI* GetInventoryUI()const { return InventoryUI; }
 	UCombatUI* GetCombatUI() const { return CombatUI; }
 	void Init(APawn* Pawn);
 	void OpenScoreBoard();
 	void CloseScoreBoard();
+	void ToggleCombatUI(bool bOpen);
 	
 private:
 	UPROPERTY()

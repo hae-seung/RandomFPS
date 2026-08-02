@@ -26,13 +26,11 @@ public:
 		UPlayerStatSystem* PlayerStatSystem);
 	
 	void RegisterItem(UItemInstance* UsableItem, int idx);
-	void StopUseItem();
 	void StartUseItem(UItemInstance* Item);
-
+	void EndUseItem(bool bSuccess);
 	
 private:
 	int Index = -1;
-	FTimerHandle TimerHandle;
 	
 	UPROPERTY()
 	UPlayerInteractSystem* InteractSystem;

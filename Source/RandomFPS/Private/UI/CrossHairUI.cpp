@@ -19,6 +19,18 @@ void UCrossHairUI::MoveCrossHair()
 	
 }
 
+void UCrossHairUI::Toggle(bool bOpen)
+{
+	if(bOpen)
+	{
+		SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 void UCrossHairUI::HitSuccess(bool bIsCritical)
 {
 	HitHair->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
