@@ -21,9 +21,9 @@ class RANDOMFPS_API AShop : public AInteractableUIObject
 
 public:
 	virtual void BeginPlay() override;
-	virtual void Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSystem) override;
+	virtual void Interact(APlayerCharacter* APC) override;
 	virtual void OpenUI(APlayerCharacter* APC) override;
-	virtual void StopInteract() override;
+	virtual void StopInteract(APlayerCharacter* APC) override;
 
 	
 	void CloseShopUI();

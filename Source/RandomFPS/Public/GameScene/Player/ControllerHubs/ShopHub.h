@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameScene/Player/PlayerCharacter.h"
 #include "Struct/ShopStruct.h"
 #include "ShopHub.generated.h"
 
@@ -30,7 +31,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_BuyItem(FShopBuyContext BuyContext, AShop* ShopActor, APlayerCharacter* APC);
 	UFUNCTION(Server, Reliable)
-	void Server_CloseShopUI(AShop* ShopActor);
+	void Server_CloseShopUI(AShop* ShopActor, APlayerCharacter* APC);
 	
 protected:
 	virtual void BeginPlay() override;

@@ -40,14 +40,13 @@ void AInteractableObject::SetInteractState(bool bState)
 	}
 }
 
-void AInteractableObject::Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSystem)
+void AInteractableObject::Interact(APlayerCharacter* APC)
 {
-	Server_APC = APC;
-	Server_PlayerInteractSystem = InteractSystem;
+	//empty space
 }
 
 
-void AInteractableObject::StopInteract()
+void AInteractableObject::StopInteract(APlayerCharacter* APC)
 {
-	Server_PlayerInteractSystem->StopInteractMontage();
+	//empty space
 }

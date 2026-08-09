@@ -34,10 +34,8 @@ void AShop::BeginPlay()
 }
 
 //server
-void AShop::Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSystem)
+void AShop::Interact(APlayerCharacter* APC)
 {
-	Super::Interact(APC, InteractSystem);
-	
 	AController* Controller = APC->GetController();
 	
 	if(!PlayerShops.Find(APC))
@@ -58,10 +56,11 @@ void AShop::Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSyste
 }
 
 //server
-void AShop::StopInteract()
+void AShop::StopInteract(APlayerCharacter* APC)
 {
-	Super::StopInteract();
-	Server_APC->ToggleCharacterMoveState(true);
+	UPlayerInteractSystem* InteractSystem = APC->GetInteractSystem();
+	InteractSystem->StopInteractMontage();
+	APC->ToggleCharacterMoveState(true);
 }
 
 
@@ -98,7 +97,7 @@ void AShop::CloseShopUI()
 	Client_APC->ChangeCameraViewTarget(Client_APC, CameraBlendTime);
 	Client_APC->ChangeWidgetInteraction();
 
-	ClientShopHub->Server_CloseShopUI(this);
+	ClientShopHub->Server_CloseShopUI(this, Client_APC);
 }
 
 

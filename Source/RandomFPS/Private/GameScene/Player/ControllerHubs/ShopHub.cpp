@@ -11,9 +11,9 @@ UShopHub::UShopHub()
 	SetIsReplicatedByDefault(true);
 }
 
-void UShopHub::Server_CloseShopUI_Implementation(AShop* ShopActor)
+void UShopHub::Server_CloseShopUI_Implementation(AShop* ShopActor, APlayerCharacter* APC)
 {
-	ShopActor->StopInteract();
+	ShopActor->StopInteract(APC);
 }
 
 void UShopHub::BeginPlay()

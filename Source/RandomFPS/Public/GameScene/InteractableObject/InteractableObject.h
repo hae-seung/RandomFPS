@@ -25,8 +25,8 @@ public AActor, public IInteractable
 public:	
 	AInteractableObject();
 	virtual void SetInteractState(bool bState) override;
-	virtual void Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSystem) override;
-	virtual void StopInteract() override;
+	virtual void Interact(APlayerCharacter* APC) override;
+	virtual void StopInteract(APlayerCharacter* APC) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
@@ -34,12 +34,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* StaticMeshComp;
 
-protected:
-	UPROPERTY()
-	APlayerCharacter* Server_APC;
-	UPROPERTY()
-	UPlayerInteractSystem* Server_PlayerInteractSystem;
-	
 protected:
 	virtual void BeginPlay() override;
 

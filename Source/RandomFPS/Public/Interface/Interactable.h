@@ -25,6 +25,6 @@ class RANDOMFPS_API IInteractable
 
 public:
 	virtual void SetInteractState(bool bState) = 0;
-	virtual void Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSystem) = 0;
-	virtual void StopInteract() = 0;
+	virtual void Interact(APlayerCharacter* APC) = 0;
+	virtual void StopInteract(APlayerCharacter* APC) = 0;
 };

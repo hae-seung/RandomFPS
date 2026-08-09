@@ -60,7 +60,7 @@ void UPlayerInteractSystem::Server_InputInteract_Implementation(AActor* NearObje
 			bIsInteracting = true;
 			if(IInteractable* Interactable = Cast<IInteractable>(NearObject))
 			{
-				Interactable->Interact(Cast<APlayerCharacter>(GetOwner()), this);
+				Interactable->Interact(Cast<APlayerCharacter>(GetOwner()));
 			}
 		}
 	}
