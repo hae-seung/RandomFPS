@@ -3,10 +3,9 @@
 
 #include "GameScene/InteractableObject/InteractableObject.h"
 
-#include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
-#include "GameScene/Player/PlayerCharacter.h"
+#include "GameScene/Player/Components/PlayerInteractSystem.h"
+#include "UI/InteractionUI.h"
 
 AInteractableObject::AInteractableObject()
 {
@@ -16,11 +15,8 @@ AInteractableObject::AInteractableObject()
 	DefaultRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(DefaultRoot);
 
-	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
-	InteractWidget->SetupAttachment(RootComponent);
-
-	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-	BoxCollision->SetupAttachment(RootComponent);
+	InteractInfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
+	InteractInfoWidget->SetupAttachment(RootComponent);
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMeshComp->SetupAttachment(RootComponent);
@@ -29,33 +25,29 @@ AInteractableObject::AInteractableObject()
 void AInteractableObject::BeginPlay()
 {
 	Super::BeginPlay();
-
-	InteractCam = FindComponentByClass<UCameraComponent>();
+	InteractionUI = Cast<UInteractionUI>(InteractInfoWidget->GetUserWidgetObject());
 }
 
 void AInteractableObject::SetInteractState(bool bState)
 {
 	if(bState)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("사용가능"));
+		InteractionUI->Show(InteractMsg);
 	}
 	else
 	{
-		UE_LOG(LogTemp,Warning,TEXT("불가능"));
+		InteractionUI->Hide();
 	}
 }
 
-void AInteractableObject::Interact(APlayerCharacter* APC)
+void AInteractableObject::Interact(APlayerCharacter* APC, UPlayerInteractSystem* InteractSystem)
 {
-	PlayerCharacter = APC;
+	Server_APC = APC;
+	Server_PlayerInteractSystem = InteractSystem;
 }
+
 
 void AInteractableObject::StopInteract()
 {
-	
-}
-
-UCameraComponent* AInteractableObject::GetCamera()
-{
-	return InteractCam;
+	Server_PlayerInteractSystem->StopInteractMontage();
 }

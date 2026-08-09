@@ -55,6 +55,9 @@ void UItemUseTask::StartUseItem(UItemInstance* Item)
 
 void UItemUseTask::EndUseItem(bool bSuccess)
 {
+	/*아이템 사용으로 인한 상호작용중이 아닌 다른 행위의 종료로 인한
+	상호작용 종료신호를 받아도 해당 함수가 실행됨.
+	따라서 BookedItem은 아이템 사용중이 아닐땐 nullptr로 두기*/
 	if(!IsValid(BookedItem))
 		return;
 	
@@ -75,5 +78,6 @@ void UItemUseTask::RealUseItem()
 		OnUseItemComplete.ExecuteIfBound(Index);
 	}
 
+	//사용 끝
 	BookedItem = nullptr;
 }

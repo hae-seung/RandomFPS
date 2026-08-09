@@ -81,3 +81,12 @@ enum class EEntityType : uint8
 	Monster,
 	Boss
 };
+
+UENUM(BlueprintType)
+enum class EShopCategoryType : uint8
+{
+	Parts,
+	Bullet,
+	Portion,
+	Card
+};

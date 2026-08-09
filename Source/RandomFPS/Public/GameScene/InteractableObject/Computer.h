@@ -19,4 +19,12 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	UWidgetComponent* ShopWidget;
+
+private:
+	
 };

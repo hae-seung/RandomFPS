@@ -8,6 +8,7 @@
 #include "GameScene/Player/MyPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameScene/PlayGameState.h"
@@ -20,6 +21,7 @@
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
 #include "GameScene/Player/Components/PlayerInteractSystem.h"
 #include "GameScene/Player/Components/PlayerStatSystem.h"
+#include "GameScene/Player/Components/PlayerWalletSystem.h"
 #include "GameScene/Player/Components/PlayerWeapon.h"
 #include "GameScene/Player/ItemData/GunItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
@@ -119,6 +121,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
 	
 	if(Controller)
 	{
@@ -169,6 +172,14 @@ void APlayerCharacter::MakeComponents()
 
 	InteractCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("InteractCapsule"));
 	InteractCapsule->SetupAttachment(RootComponent);
+
+	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
+	WidgetInteractionComponent->SetupAttachment(RootComponent);
+	WidgetInteractionComponent->Deactivate();
+	WidgetInteractionComponent->InteractionDistance = 500.f;
+	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::Mouse;
+
+	PlayerWalletSystem = CreateDefaultSubobject<UPlayerWalletSystem>(TEXT("WalletSystem"));
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)
@@ -396,7 +407,7 @@ void APlayerCharacter::SetCharacterOptionDeadState()
 	StopAnimMontage();
 	
 	bUseControllerRotationYaw = false;
-	CharacterMovementComp->SetMovementMode(MOVE_None);
+	ToggleCharacterMoveState(false);
 	
 	if(IsLocallyControlled())
 	{
@@ -428,7 +439,7 @@ void APlayerCharacter::Revive()
 void APlayerCharacter::SetCharacterOptionAliveState()
 {
 	bUseControllerRotationYaw = true;
-	CharacterMovementComp->SetMovementMode(MOVE_Walking);
+	ToggleCharacterMoveState(true);
 	
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PawnCapsule")); //되살아날땐 Pawn으로
 	GetMesh()->SetCollisionProfileName(TEXT("ChMeshAlive"));
@@ -494,17 +505,52 @@ void APlayerCharacter::ChangeCameraViewTarget(AActor* Target, float BlendTime)
 	if(!IsLocallyControlled() || !IsValid(MyController))
 		return;
 	
-	MyController->HiddenActors.Add(this);
 	MyController->SetViewTargetWithBlend(Target, BlendTime);
 
 	//시점 전환
 	if(Target != this)
 	{
-		MyController->SetInputModeUI();	
+		MyController->SetInputModeUI();
+		MyController->HiddenActors.Add(this);
 	}
 	else //시점 다시 돌리기
 	{
 		MyController->SetInputModeGame();
+		MyController->HiddenActors.Remove(this);
+	}
+}
+
+void APlayerCharacter::ChangeWidgetInteraction(UCameraComponent* TargetCamera)
+{
+	if(!IsLocallyControlled())
+		return;
+	
+	
+	if(IsValid(TargetCamera))
+	{
+		WidgetInteractionComponent->AttachToComponent(
+			TargetCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		WidgetInteractionComponent->Activate();
+		MyController->ChangeWidgetInteractionMode(true);
+	}
+	else
+	{
+		WidgetInteractionComponent->AttachToComponent(
+			RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		WidgetInteractionComponent->Deactivate();
+		MyController->ChangeWidgetInteractionMode(false);
+	}
+}
+
+void APlayerCharacter::ToggleCharacterMoveState(bool bState)
+{
+	if(bState)
+	{
+		CharacterMovementComp->SetMovementMode(MOVE_Walking);
+	}
+	else
+	{
+		CharacterMovementComp->SetMovementMode(MOVE_None);
 	}
 }
 
@@ -790,6 +836,20 @@ void APlayerCharacter::TryInteract()
 	InteractSystem->InputInteract();
 }
 
+void APlayerCharacter::ShotUIRay()
+{
+	if(!IsValid(WidgetInteractionComponent) || !IsLocallyControlled())
+		return;
+	WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
+}
+
+void APlayerCharacter::StopUIRay()
+{
+	if(!IsValid(WidgetInteractionComponent) || !IsLocallyControlled())
+		return;
+	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
+}
+
 
 
 void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
@@ -823,6 +883,9 @@ void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
 	EIC->BindAction(ScoreAction, ETriggerEvent::Completed, this, &APlayerCharacter::CloseScoreBoard);
 
 	EIC->BindAction(InteractAction, ETriggerEvent::Started, this, &APlayerCharacter::TryInteract);
+
+	EIC->BindAction(UIRayShot, ETriggerEvent::Started, this, &APlayerCharacter::ShotUIRay);
+	EIC->BindAction(UIRayShot, ETriggerEvent::Completed, this, &APlayerCharacter::StopUIRay);
 }
 
 #pragma endregion InputFunctions

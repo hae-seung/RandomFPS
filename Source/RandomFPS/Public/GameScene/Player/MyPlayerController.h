@@ -9,6 +9,7 @@
 
 #include "MyPlayerController.generated.h"
 
+class UShopHub;
 class UEnhancedInputLocalPlayerSubsystem;
 class APlayerCharacter;
 class UUIManager;
@@ -25,14 +26,20 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputMappingContext* IMC_Main;
 	UPROPERTY(EditAnywhere)
-	UInputMappingContext* IMC_Mouse;
-
+	UInputMappingContext* IMC_Mouse_Weapon;
+	UPROPERTY(EditAnywhere)
+	UInputMappingContext* IMC_Mouse_RayCast;
+	
 public:
+	AMyPlayerController();
 	FORCEINLINE UUIManager* GetUIManager() const { return UIManager; }
+	FORCEINLINE UShopHub* GetShopHub() const { return ShopHub; }
 
 	//UI를 켤 때와 끌 때
 	void SetInputModeUI();
 	void SetInputModeGame();
+	void ToggleCombatUI(bool bState);
+	void ChangeWidgetInteractionMode(bool bState);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -51,8 +58,9 @@ private:
 	UPROPERTY()
 	UUIManager* UIManager;
 
-
-
+	UPROPERTY()
+	UShopHub* ShopHub;
+	
 	
 	
 private:

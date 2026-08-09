@@ -46,9 +46,9 @@ private:
 	FTimerHandle InteractTimer;
 
 	UPROPERTY()
-	TSet<AInteractableObject*> InteractableObjectsSet;
+	TSet<AActor*> InteractableObjectsSet;
 	UPROPERTY()
-	AInteractableObject* CurNearInteractableObject;
+	AActor* CurNearInteractableObject;
 	
 
 private:
@@ -56,8 +56,9 @@ private:
 	void SetInteractEndTime(float EndTime, float WaitTime, UTexture2D* Icon);
 	void StopMontage();
 	void JumpMontageEnd();
-	AInteractableObject* FindNearestObject();
+	AActor* FindNearestObject();
 	void UpdateNearestObject();
+	bool IsPlayingMontage();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayInteractMontage(UAnimMontage* Montage);
@@ -87,8 +88,6 @@ private:
 	
 	UFUNCTION()
 	void OnRep_bIsInteracting();
-	UFUNCTION(Server,UnReliable)
-	void Server_InputInteract(AInteractableObject* NearObject);
-	UFUNCTION(Client,Reliable)
-	void Client_ChangeCameraViewTarget(AInteractableObject* NearObject);
+	UFUNCTION(Server,Reliable)
+	void Server_InputInteract(AActor* NearObject);
 };

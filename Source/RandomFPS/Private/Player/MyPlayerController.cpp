@@ -6,8 +6,13 @@
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 #include "GameScene/Player/MyPlayerState.h"
+#include "GameScene/Player/ControllerHubs/ShopHub.h"
 #include "UI/UIManager.h"
 
+AMyPlayerController::AMyPlayerController()
+{
+	ShopHub = CreateDefaultSubobject<UShopHub>(TEXT("ShopHub"));
+}
 
 
 void AMyPlayerController::BeginPlay()
@@ -28,8 +33,8 @@ void AMyPlayerController::SetupInputComponent()
 			if(IMC_Main)
 				SubSystem->AddMappingContext(IMC_Main, 0);
 
-			if(IMC_Mouse)
-				SubSystem->AddMappingContext(IMC_Mouse, 1);
+			if(IMC_Mouse_Weapon)
+				SubSystem->AddMappingContext(IMC_Mouse_Weapon, 1);
 		}
 	}
 }
@@ -37,7 +42,6 @@ void AMyPlayerController::SetupInputComponent()
 //서버전용 한번에 모두 존재함
 void AMyPlayerController::OnPossess(APawn* InPawn)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnPossess %s"), *GetName());
 	Super::OnPossess(InPawn);
 	CreateUIManager();
 }
@@ -45,8 +49,6 @@ void AMyPlayerController::OnPossess(APawn* InPawn)
 //클라
 void AMyPlayerController::OnRep_Pawn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_Pawn %s"), *GetName());
-
 	Super::OnRep_Pawn();
 	CreateUIManager();
 }
@@ -61,12 +63,6 @@ void AMyPlayerController::OnRep_PlayerState()
 
 void AMyPlayerController::CreateUIManager()
 {
-	UE_LOG(LogTemp, Warning,
-		TEXT("CreateUIManager Local=%d UIManager=%p Pawn=%s"),
-		IsLocalController(),
-		UIManager,
-		*GetNameSafe(GetPawn()));
-
 	//Pawn이랑 State중 뭐가 먼저 도착할지 알 수 없음
 	if(!IsLocalController() || UIManager ||
 		!IsValid(GetPawn()) ||
@@ -82,31 +78,52 @@ void AMyPlayerController::SetInputModeUI()
 {
 	if(!IsLocalController()) return;
 
-	UIManager->ToggleCombatUI(false);
+	ToggleCombatUI(false);
 	
 	FInputModeGameAndUI InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	
+	//마우스 꾹 누르면 마우스 포인터 사라지는 상황 막아줌
 	InputMode.SetHideCursorDuringCapture(false);
 	bShowMouseCursor = true;
+
+	//마우스를 꾹 누른채로 회전 되는 상황 막아줌
+	SetIgnoreLookInput(true);
 	
 	SetInputMode(InputMode);
 
-	SubSystem->RemoveMappingContext(IMC_Mouse);
+	SubSystem->RemoveMappingContext(IMC_Mouse_Weapon);
 }
 
 void AMyPlayerController::SetInputModeGame()
 {
 	if(!IsLocalController()) return;
 
-	UIManager->ToggleCombatUI(true);
+	ToggleCombatUI(true);
 	
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
 	bShowMouseCursor = false;
-
-	SubSystem->AddMappingContext(IMC_Mouse, 1);
+	
+	SetIgnoreLookInput(false);
+	SubSystem->AddMappingContext(IMC_Mouse_Weapon, 1);
 }
 
+void AMyPlayerController::ToggleCombatUI(bool bState)
+{
+	UIManager->ToggleCombatUI(bState);
+}
 
+void AMyPlayerController::ChangeWidgetInteractionMode(bool bState)
+{
+	if(bState)
+	{
+		SubSystem->AddMappingContext(IMC_Mouse_RayCast, 1);
+	}
+	else
+	{
+		SubSystem->RemoveMappingContext(IMC_Mouse_RayCast);
+	}
+}
 
 

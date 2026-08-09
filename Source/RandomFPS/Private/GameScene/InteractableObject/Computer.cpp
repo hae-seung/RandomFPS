@@ -3,7 +3,6 @@
 
 #include "GameScene/InteractableObject/Computer.h"
 
-#include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 
 
@@ -11,6 +10,9 @@
 AComputer::AComputer()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	ShopWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ShopWidget"));
+	ShopWidget->SetupAttachment(RootComponent);
 }
 
 void AComputer::BeginPlay()

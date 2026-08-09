@@ -12,6 +12,8 @@
 #include "Item/Interactor.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerWalletSystem;
+class UWidgetInteractionComponent;
 class UPlayerInteractSystem;
 class UPlayerStatSystem;
 class UPlayerCombatSystem;
@@ -82,7 +84,10 @@ public:
 	UInputAction* ScoreAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInputAction* InteractAction;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* UIRayShot;
+	
+	
 	UPROPERTY(EditAnywhere)
 	EEntityType EntityType;
 	
@@ -103,6 +108,9 @@ public:
 	FORCEINLINE UPlayerInteractSystem* GetInteractSystem() const { return InteractSystem; }
 	FORCEINLINE UPlayerWeapon* GetWeaponSystem() const { return PlayerWeapon; }
 	FORCEINLINE UCapsuleComponent* GetInteractCapsule() const { return InteractCapsule; }
+	FORCEINLINE AMyPlayerController* GetMyController() const { return MyController; }
+	FORCEINLINE UPlayerWalletSystem* GetWalletSystem() const { return PlayerWalletSystem; }
+
 	
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
@@ -118,6 +126,8 @@ public:
 
 	void SetPlayerSpeed(float NewWalkSpeed);
 	void ChangeCameraViewTarget(AActor* Target, float BlendTime);
+	void ToggleCharacterMoveState(bool bState);
+	void ChangeWidgetInteraction(UCameraComponent* TargetCamera = nullptr);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -155,7 +165,13 @@ private:
 	UPlayerInteractSystem* InteractSystem;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	UCapsuleComponent* InteractCapsule;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UWidgetInteractionComponent* WidgetInteractionComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UPlayerWalletSystem* PlayerWalletSystem;
 
+
+	
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
 	bool bIsDead;
 	bool bIsThirdPerspective;
@@ -198,6 +214,8 @@ private:
 	void OpenScoreBoard();
 	void CloseScoreBoard();
 	void TryInteract();
+	void ShotUIRay();
+	void StopUIRay();
 	
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	
