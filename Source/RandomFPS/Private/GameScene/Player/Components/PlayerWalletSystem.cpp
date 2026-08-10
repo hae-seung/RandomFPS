@@ -34,6 +34,11 @@ void UPlayerWalletSystem::SpendMoney(int OutAmount)
 	Money -= OutAmount;
 }
 
+void UPlayerWalletSystem::AcquireMoney(int InAmount)
+{
+	Money += InAmount;
+}
+
 void UPlayerWalletSystem::OnRep_Money()
 {
 	

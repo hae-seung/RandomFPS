@@ -26,12 +26,18 @@ public:
 	void Client_BuyError(AShop* ShopActor);
 	UFUNCTION(Client, Reliable)
 	void Client_BuySuccess(AShop* ShopActor, FShopBuyContextFeedback BuyContextFeedback);
-	
+	UFUNCTION(Client, Reliable)
+	void Client_SellError(AShop* ShopActor);
+	UFUNCTION(Client, Reliable)
+	void Client_SellSuccess(AShop* ShopActor, FShopSellContextFeedback SellContextFeedback);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_BuyItem(FShopBuyContext BuyContext, AShop* ShopActor, APlayerCharacter* APC);
 	UFUNCTION(Server, Reliable)
 	void Server_CloseShopUI(AShop* ShopActor, APlayerCharacter* APC);
+	UFUNCTION(Server, Reliable)
+	void Server_SellItem(AShop* ShopActor, APlayerCharacter* APC, FShopSellContext SellContext);
+
 	
 protected:
 	virtual void BeginPlay() override;

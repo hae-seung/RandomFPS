@@ -16,6 +16,7 @@ void UShopHub::Server_CloseShopUI_Implementation(AShop* ShopActor, APlayerCharac
 	ShopActor->StopInteract(APC);
 }
 
+
 void UShopHub::BeginPlay()
 {
 	Super::BeginPlay();
@@ -42,4 +43,19 @@ void UShopHub::Server_BuyItem_Implementation(FShopBuyContext BuyContext, AShop* 
 {
 	UE_LOG(LogTemp,Warning, TEXT("Server BuyItem 수신"));
 	ShopActor->BuyItemConfirm(BuyContext, APC, this);
+}
+
+void UShopHub::Server_SellItem_Implementation(AShop* ShopActor, APlayerCharacter* APC, FShopSellContext SellContext)
+{
+	ShopActor->SellItemConfirm(SellContext, APC, this);
+}
+
+void UShopHub::Client_SellError_Implementation(AShop* ShopActor)
+{
+	ShopActor->FailToSell();
+}
+
+void UShopHub::Client_SellSuccess_Implementation(AShop* ShopActor, FShopSellContextFeedback SellContextFeedback)
+{
+	ShopActor->SellSuccess(SellContextFeedback);
 }

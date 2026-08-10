@@ -39,6 +39,7 @@ public:
 	
 public:	
 	UInventory();
+	int GetInventoryMaxSize();
 
 	void SetComponents(
 		UPlayerWeapon* Weapon,
@@ -51,7 +52,6 @@ public:
 	void RequestHandleItem(int SlotIndex);
 	
 	
-	
 	void OnRep_AddItem(int Index);
 	void UpdateSlot(int Index);
 
@@ -59,6 +59,8 @@ public:
 	int AddItem(UItemInstance* Item, int Amount);
 	int GetItemTotalAmount(UItemData* ItemId);
 	void RemoveItemFromId(FName ItemId, int Amount = 1);
+	UItemInstance* GetItemInstanceFromIndex(int Index);
+	void RemoveItemFromIndex(int Index, int Amount = 1);
 	
 	//ActorComponent가 단독으로 호출은 불가하지만 Actor에서 여기로 호출은 가능함.
 	//=> 엔진이 미리 구현해두었음. 이런경우를 생각해서

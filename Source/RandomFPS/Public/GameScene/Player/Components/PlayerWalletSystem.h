@@ -18,6 +18,7 @@ public:
 	UPlayerWalletSystem();
 	int GetMoney() const;
 	void SpendMoney(int OutAmount);
+	void AcquireMoney(int InAmount);
 	
 protected:
 	virtual void BeginPlay() override;

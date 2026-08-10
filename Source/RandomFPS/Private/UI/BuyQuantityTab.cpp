@@ -13,13 +13,6 @@ void UBuyQuantityTab::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	AmountMinus1Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
-	AmountMinus5Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
-	AmountMinus10Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
-	AmountPlus1Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
-	AmountPlus5Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
-	AmountPlus10Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
-
 	BuyBtn->OnReleased.AddDynamic(this ,&UBuyQuantityTab::ConfirmBuy);
 	CancelBtn->OnReleased.AddDynamic(this, &UBuyQuantityTab::Close);
 
@@ -36,6 +29,13 @@ void UBuyQuantityTab::InitFirstOpen(UPlayerWalletSystem* InWalletSystem)
 	AmountPlus1Btn->InitFirstOpen();
 	AmountPlus5Btn->InitFirstOpen();
 	AmountPlus10Btn->InitFirstOpen();
+
+	AmountMinus1Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
+	AmountMinus5Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
+	AmountMinus10Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
+	AmountPlus1Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
+	AmountPlus5Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
+	AmountPlus10Btn->OnCustomButtonReleased.AddUObject(this, &UBuyQuantityTab::ChangeSelectAmount);
 }
 
 void UBuyQuantityTab::Open()
@@ -120,6 +120,8 @@ void UBuyQuantityTab::ConfirmBuy()
 		ItemCategory,
 		CurItem->ItemData->GetItemId(),
 		CurSelectAmount};
+
+	bIsSyncComplete = false;
 	
 	OnBuyConfirm.ExecuteIfBound(BuyContext);
 

@@ -16,8 +16,12 @@ class RANDOMFPS_API UShopData : public UDataAsset
 
 public:
 	const FShopState& GetShopData() const;
+	const TArray<FShopSellEntry>& GetShopSellData() const;
 	
 private:
 	UPROPERTY(EditAnywhere)
 	FShopState ShopData;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FShopSellEntry> ShopSellData;
 };

@@ -32,15 +32,24 @@ void UShopUI::FirstOpenInit(AShop* ShopObject, APlayerCharacter* InAPC)
 	BuyTabUI->FirstOpenInit(ShopObject->GetClientShopState(), this);
 	BuyQuantityTab->InitFirstOpen(APC->GetWalletSystem());
 	BuyQuantityTab->OnBuyConfirm.BindUObject(ShopObject, &AShop::RequestBuyItem);
-	
-	BuyBtn->SetIsEnabled(false);
+
+	SellTabUI->FirstOpenInit(APC->GetInventory(), ShopObject->GetSellableItemMap());
+	SellTabUI->OnSellConfirm.BindUObject(ShopObject, &AShop::RequestSellItem);
 }
 
 void UShopUI::Open()
 {
 	Super::Open();
 
+
+	//상점을 열면 구매화면이 기본적으로 뜸
+	BuyBtn->SetIsEnabled(false);
+	SellBtn->SetIsEnabled(true);
+	
+	BuyTabUI->Open();
+	SellTabUI->Close();
 	BuyQuantityTab->Close();
+	
 	UserMoneyText->SetText(FText::Format(
 		FText::FromString(TEXT("{0}원")),
 		APC->GetWalletSystem()->GetMoney()));
@@ -91,4 +100,21 @@ void UShopUI::BuySuccess(const FShopBuyContextFeedback& BuyContextFeedback)
 	UserMoneyText->SetText(FText::Format(
 		FText::FromString(TEXT("{0}원")),
 		BuyContextFeedback.RemainPlayerMoney));
+}
+
+void UShopUI::FailToSell()
+{
+	//일단 서버로부터 응답을 받긴했음
+	SellTabUI->SetSyncState(true);
+}
+
+void UShopUI::SellSuccess(const FShopSellContextFeedback& SellContextFeedback)
+{
+	SellTabUI->SetSyncState(true);
+
+	SellTabUI->UpdateSellTabByFeedback(SellContextFeedback);
+
+	UserMoneyText->SetText(FText::Format(
+			FText::FromString(TEXT("{0}원")),
+			SellContextFeedback.RemainPlayerMoney));
 }

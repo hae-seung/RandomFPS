@@ -26,8 +26,13 @@ public:
 	virtual void Open() override;
 	void FirstOpenInit(AShop* ShopObject, APlayerCharacter* APC);
 	void OpenBuyQuantityTab(const FShopItemEntry* ShopItemEntry, EShopCategoryType InItemCategory);
+
+	//구매탭에서는 싱크가 맞기전까지 구매확정 버튼만 못누름. 나머지는 계속 가능함
 	void FailToBuy();
 	void BuySuccess(const FShopBuyContextFeedback& BuyContextFeedback);
+	//판매탭에서는 싱크가 맞기전까지 판매확정 버튼 및 다른 판매가능 품목에 접근도 못함.
+	void FailToSell();
+	void SellSuccess(const FShopSellContextFeedback& SellContextFeedback);
 	
 protected:
 	virtual void NativeOnInitialized() override;
@@ -41,11 +46,11 @@ private:
 	UButton* SellBtn;
 	UPROPERTY(meta=(BindWidget))
 	UButton* CloseBtn;
-	UPROPERTY(meta=(BindWidget))
+	UPROPERTY(BlueprintReadOnly,meta=(BindWidget, AllowPrivateAccess))
 	UShopBuyTabUI* BuyTabUI;
-	UPROPERTY(meta=(BindWidget))
+	UPROPERTY(BlueprintReadOnly,meta=(BindWidget, AllowPrivateAccess))
 	UShopSellTabUI* SellTabUI;
-	UPROPERTY(meta=(BindWidget))
+	UPROPERTY(BlueprintReadOnly,meta=(BindWidget, AllowPrivateAccess))
 	UBuyQuantityTab* BuyQuantityTab;
 
 

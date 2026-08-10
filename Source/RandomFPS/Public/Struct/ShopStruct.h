@@ -74,3 +74,40 @@ struct FShopBuyContextFeedback
 	UPROPERTY()
 	int RemainPlayerMoney;
 };
+
+USTRUCT()
+struct FShopSellEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	UItemData* ItemData;
+	UPROPERTY(EditAnywhere)
+	int PerPrice;
+};
+
+USTRUCT()
+struct FShopSellContext
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName ItemID;
+	UPROPERTY()
+	int InventoryIndex;
+	UPROPERTY()
+	int SellAmount;
+};
+
+USTRUCT()
+struct FShopSellContextFeedback
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName ItemID;
+	UPROPERTY()
+	int RemainPlayerMoney;
+	UPROPERTY()
+	int ItemRemainStock;
+};

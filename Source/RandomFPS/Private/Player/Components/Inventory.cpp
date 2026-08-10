@@ -65,6 +65,11 @@ UItemInstance* UInventory::GetItemFromSlotIndex(int SlotIndex)
 	return InventoryList.Items[SlotIndex].ItemInstance;
 }
 
+int UInventory::GetInventoryMaxSize()
+{
+	return SlotSize;
+}
+
 void UInventory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -462,6 +467,29 @@ void UInventory::RemoveItemFromId(FName ItemId, int Amount)
 		UpdateSlot(i);
 	}
 }
+
+void UInventory::RemoveItemFromIndex(int Index, int Amount)
+{
+	UItemInstance* ItemInstance = InventoryList.Items[Index].ItemInstance;
+	if(IsValid(ItemInstance))
+	{
+		ItemInstance->SetAmount(ItemInstance->ItemAmount - Amount);
+
+		if(ItemInstance->ItemAmount <= 0)
+		{
+			InventoryList.Items[Index].ItemInstance = nullptr;
+			InventoryList.MarkItemDirty(InventoryList.Items[Index]);
+		}
+
+		UpdateSlot(Index);
+	}
+}
+
+UItemInstance* UInventory::GetItemInstanceFromIndex(int Index)
+{
+	return InventoryList.Items[Index].ItemInstance;
+}
+
 
 void UInventory::UseItemComplete(int SlotIndex)
 {

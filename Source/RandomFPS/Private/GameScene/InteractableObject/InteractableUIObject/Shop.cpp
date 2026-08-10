@@ -31,7 +31,18 @@ void AShop::BeginPlay()
 	Super::BeginPlay();
 
 	ShopUI = Cast<UShopUI>(WorldInteractionUI);
+	
 }
+
+void AShop::InitSellEntryData()
+{
+	const TArray<FShopSellEntry>& ShopSellEntries = ShopData->GetShopSellData();
+	for(const FShopSellEntry& Entry : ShopSellEntries)
+	{
+		SellableItems.Add(Entry.ItemData->GetItemId(), Entry);
+	}
+}
+
 
 //server
 void AShop::Interact(APlayerCharacter* APC)
@@ -41,6 +52,12 @@ void AShop::Interact(APlayerCharacter* APC)
 	if(!PlayerShops.Find(APC))
 	{
 		PlayerShops.Add(APC, ShopData->GetShopData());
+	}
+
+	if(!bIsServerInit)
+	{
+		InitSellEntryData();
+		bIsServerInit = true;
 	}
 	
 	if(const AMyPlayerController* AMC = Cast<AMyPlayerController>(Controller))
@@ -67,10 +84,12 @@ void AShop::StopInteract(APlayerCharacter* APC)
 //client
 void AShop::OpenUI(APlayerCharacter* APC)
 {
-	if(!bIsInit)
+	//클라의 Init상태
+	if(!bIsClientInit)
 	{
 		//클라전용을 위해 데이터로부터 복사
 		ClientShop = ShopData->GetShopData();
+		InitSellEntryData();
 		ShopUI->FirstOpenInit(this, APC);
 
 		//클라이언트 월드에서 각자 상점 통신채널인 ShopHub를 캐싱
@@ -81,7 +100,7 @@ void AShop::OpenUI(APlayerCharacter* APC)
 		}
 		
 		Client_APC = APC;
-		bIsInit = true;
+		bIsClientInit = true;
 	}
 	
 	Super::OpenUI(APC);
@@ -104,6 +123,11 @@ void AShop::CloseShopUI()
 FShopState& AShop::GetClientShopState()
 {
 	return ClientShop;
+}
+
+const TMap<FName, FShopSellEntry>& AShop::GetSellableItemMap()
+{
+	return SellableItems;
 }
 
 //client -> server
@@ -212,4 +236,79 @@ void AShop::FailToBuy()
 void AShop::BuySuccess(const FShopBuyContextFeedback& BuyContextFeedback)
 {
 	ShopUI->BuySuccess(BuyContextFeedback);
+}
+
+
+//client
+const TArray<FShopSellEntry>& AShop::GetShopSellData() const
+{
+	return ShopData->GetShopSellData();
+}
+
+//client
+void AShop::RequestSellItem(const FShopSellContext& SellContext)
+{
+	ClientShopHub->Server_SellItem(this, Client_APC, SellContext);
+}
+
+//server
+void AShop::SellItemConfirm(
+	const FShopSellContext& SellContext, APlayerCharacter* APC, UShopHub* ShopHub)
+{
+	if(!APC)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("NO APC"));
+		ShopHub->Client_SellError(this);
+		return;
+	}
+
+	UInventory* PlayerInventory = APC->GetInventory();
+	if(!PlayerInventory)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("NO Inventory"));
+		ShopHub->Client_SellError(this);
+		return;
+	}
+
+	UItemInstance* ItemInstance = PlayerInventory->GetItemInstanceFromIndex(SellContext.InventoryIndex);
+	if(!IsValid(ItemInstance))
+	{
+		UE_LOG(LogTemp,Warning,TEXT("NO Item"));
+		ShopHub->Client_SellError(this);
+		return;
+	}
+
+	if(ItemInstance->ItemAmount < SellContext.SellAmount)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("NO Amount"));
+		ShopHub->Client_SellError(this);
+		return;
+	}
+
+	int PerPrice = 1;
+	const FShopSellEntry* Entry = SellableItems.Find(ItemInstance->GetItemId());
+	if(Entry)
+	{
+		PerPrice = Entry->PerPrice;
+	}
+	
+	PlayerInventory->RemoveItemFromIndex(SellContext.InventoryIndex, SellContext.SellAmount);
+	const int TotalSellMoney = PerPrice * SellContext.SellAmount;
+	APC->GetWalletSystem()->AcquireMoney(TotalSellMoney);
+	ShopHub->Client_SellSuccess(this, FShopSellContextFeedback{
+		SellContext.ItemID,
+		APC->GetWalletSystem()->GetMoney(),
+	ItemInstance->ItemAmount});
+}
+
+void AShop::FailToSell()
+{
+	UE_LOG(LogTemp,Warning, TEXT("Sell Fail"));
+	ShopUI->FailToSell();
+}
+
+void AShop::SellSuccess(const FShopSellContextFeedback& SellContextFeedback)
+{
+	UE_LOG(LogTemp,Warning, TEXT("Sell Success"));
+	ShopUI->SellSuccess(SellContextFeedback);
 }

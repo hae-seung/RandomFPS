@@ -7,3 +7,8 @@ const FShopState& UShopData::GetShopData() const
 {
 	return ShopData;
 }
+
+const TArray<FShopSellEntry>& UShopData::GetShopSellData() const
+{
+	return ShopSellData;
+}
