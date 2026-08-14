@@ -16,8 +16,11 @@ class RANDOMFPS_API UReinforceData : public UDataAsset
 
 public:
 	const FGunAbilityWrapper* GetAbility(int Level);
+	const TArray<TObjectPtr<UGunAbilityModifier>>* GetAwakeAbility();
 
 private:
 	UPROPERTY(EditAnywhere)
 	TArray<FGunAbilityWrapper> AbilityWrappers;
+	UPROPERTY(EditAnywhere, Instanced)
+	TArray<TObjectPtr<UGunAbilityModifier>> AwakeAbilityWrapper;
 };

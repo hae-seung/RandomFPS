@@ -122,4 +122,8 @@ struct FGunAbilityWrapper
 
 	UPROPERTY(EditAnywhere, Instanced)
 	TArray<TObjectPtr<UGunAbilityModifier>> GunAbilityModifiers;
+	UPROPERTY(EditAnywhere)
+	int NextUpgradeNeedMoney;
+	UPROPERTY(EditAnywhere)
+	int NextUpgradeProb;
 };

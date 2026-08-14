@@ -9,6 +9,7 @@
 
 #include "MyPlayerController.generated.h"
 
+class UReinforceShopHub;
 class UShopHub;
 class UEnhancedInputLocalPlayerSubsystem;
 class APlayerCharacter;
@@ -34,7 +35,10 @@ public:
 	AMyPlayerController();
 	FORCEINLINE UUIManager* GetUIManager() const { return UIManager; }
 	FORCEINLINE UShopHub* GetShopHub() const { return ShopHub; }
+	FORCEINLINE UReinforceShopHub* GetReinforceShopHub() const { return ReinforceShopHub;}
 
+
+	
 	//UI를 켤 때와 끌 때
 	void SetInputModeUI();
 	void SetInputModeGame();
@@ -60,7 +64,8 @@ private:
 
 	UPROPERTY()
 	UShopHub* ShopHub;
-	
+	UPROPERTY()
+	UReinforceShopHub* ReinforceShopHub;
 	
 	
 private:

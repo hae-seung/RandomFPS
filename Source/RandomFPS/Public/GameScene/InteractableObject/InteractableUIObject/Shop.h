@@ -23,7 +23,6 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Interact(APlayerCharacter* APC) override;
 	virtual void OpenUI(APlayerCharacter* APC) override;
-	virtual void StopInteract(APlayerCharacter* APC) override;
 
 	
 	void CloseShopUI();
@@ -52,10 +51,6 @@ protected:
 private:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* BoxCollision;
-	UPROPERTY(EditAnywhere)
-	float CameraBlendTime;
-	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* CameraComponent;
 	UPROPERTY(EditAnywhere)
 	UShopData* ShopData;
 

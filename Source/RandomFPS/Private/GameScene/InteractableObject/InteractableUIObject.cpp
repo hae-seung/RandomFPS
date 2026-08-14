@@ -3,6 +3,7 @@
 
 #include "GameScene/InteractableObject/InteractableUIObject.h"
 
+#include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "UI/WorldInteractionUI.h"
 
@@ -12,6 +13,9 @@ AInteractableUIObject::AInteractableUIObject()
 	WorldInteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WorldInteractionUI"));
 	WorldInteractionWidget->SetupAttachment(RootComponent);
 	WorldInteractionWidget->SetWidgetSpace(EWidgetSpace::World);
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	CameraComponent->SetupAttachment(StaticMeshComp);
 }
 
 void AInteractableUIObject::BeginPlay()
@@ -20,8 +24,7 @@ void AInteractableUIObject::BeginPlay()
 	
 	WorldInteractionUI =
 		Cast<UWorldInteractionUI>(
-			WorldInteractionWidget->GetUserWidgetObject()
-		);
+			WorldInteractionWidget->GetUserWidgetObject());
 }
 
 void AInteractableUIObject::OpenUI(APlayerCharacter* APC)

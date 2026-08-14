@@ -98,7 +98,7 @@ void APlayerCharacter::PostInitializeComponents()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("beginCharacter"));
+
 	bIsSprint = false;
 	bIsAiming = false;
 	bIsThirdPerspective = true;
@@ -145,6 +145,11 @@ bool APlayerCharacter::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bu
 	if(Inventory)
 	{
 		bWrote |= Inventory->ReplicateSubobjects(Channel, Bunch, RepFlags);
+	}
+
+	if(PlayerWeapon)
+	{
+		bWrote |= PlayerWeapon->ReplicateSubobjects(Channel, Bunch, RepFlags);
 	}
 
 	return bWrote;

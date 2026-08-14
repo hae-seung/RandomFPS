@@ -17,6 +17,7 @@ class RANDOMFPS_API UGunAbilityDescriptionUI : public UUserWidget
 
 public:
 	void SetText(FText Description);
+	void SetTextSize(float FontSize);
 	
 private:
 	UPROPERTY(meta=(BindWidget))

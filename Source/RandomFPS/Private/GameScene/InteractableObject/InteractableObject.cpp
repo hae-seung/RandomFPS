@@ -4,6 +4,7 @@
 #include "GameScene/InteractableObject/InteractableObject.h"
 
 #include "Components/WidgetComponent.h"
+#include "GameScene/Player/PlayerCharacter.h"
 #include "GameScene/Player/Components/PlayerInteractSystem.h"
 #include "UI/InteractionUI.h"
 
@@ -17,6 +18,7 @@ AInteractableObject::AInteractableObject()
 
 	InteractInfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
 	InteractInfoWidget->SetupAttachment(RootComponent);
+	InteractInfoWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMeshComp->SetupAttachment(RootComponent);
@@ -48,5 +50,8 @@ void AInteractableObject::Interact(APlayerCharacter* APC)
 
 void AInteractableObject::StopInteract(APlayerCharacter* APC)
 {
-	//empty space
+	//상호작용을 하는게 단발성 이벤트가 아닌 지속성인 경우에 실행되어야 하는 함수
+	UPlayerInteractSystem* InteractSystem = APC->GetInteractSystem();
+	InteractSystem->StopInteractMontage();
+	APC->ToggleCharacterMoveState(true);
 }

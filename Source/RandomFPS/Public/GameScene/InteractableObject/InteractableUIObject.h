@@ -23,8 +23,11 @@ protected:
 	UWidgetComponent* WorldInteractionWidget;
 	UPROPERTY()
 	UWorldInteractionUI* WorldInteractionUI;
+
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UWorldInteractionUI> WB_WorldInteractionUI;
+	float CameraBlendTime;
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* CameraComponent;
 	
 protected:
 	AInteractableUIObject();

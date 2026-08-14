@@ -62,6 +62,8 @@ public:
 	void Reload();
 	bool CanReload();
 
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
 protected:
 	virtual void BeginPlay() override;
 	

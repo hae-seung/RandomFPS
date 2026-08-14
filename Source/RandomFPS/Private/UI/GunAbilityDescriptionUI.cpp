@@ -9,3 +9,11 @@ void UGunAbilityDescriptionUI::SetText(FText Description)
 {
 	DescriptionText->SetText(Description);
 }
+
+void UGunAbilityDescriptionUI::SetTextSize(float FontSize)
+{
+	FSlateFontInfo FontInfo = DescriptionText->GetFont();
+	FontInfo.Size = 24;
+
+	DescriptionText->SetFont(FontInfo);
+}

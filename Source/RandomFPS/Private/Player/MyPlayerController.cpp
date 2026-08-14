@@ -6,12 +6,14 @@
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 #include "GameScene/Player/MyPlayerState.h"
+#include "GameScene/Player/ControllerHubs/ReinforceShopHub.h"
 #include "GameScene/Player/ControllerHubs/ShopHub.h"
 #include "UI/UIManager.h"
 
 AMyPlayerController::AMyPlayerController()
 {
 	ShopHub = CreateDefaultSubobject<UShopHub>(TEXT("ShopHub"));
+	ReinforceShopHub = CreateDefaultSubobject<UReinforceShopHub>(TEXT("ReinforceShopHub"));
 }
 
 

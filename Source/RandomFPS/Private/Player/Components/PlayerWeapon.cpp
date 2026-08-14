@@ -4,6 +4,7 @@
 #include "GameScene/Player/Components/PlayerWeapon.h"
 
 #include "Camera/CameraComponent.h"
+#include "Engine/ActorChannel.h"
 #include "GameScene/Player/MyPlayerController.h"
 #include "GameScene/Player/AnimInstance/CharacterLinkedAnimLayer.h"
 #include "GameScene/Player/PlayerCharacter.h"
@@ -38,6 +39,25 @@ void UPlayerWeapon::BeginPlay()
 			SpawnPreviewGun(APC);
 		}
 	}
+}
+
+bool UPlayerWeapon::ReplicateSubobjects(
+	UActorChannel* Channel,
+	FOutBunch* Bunch,
+	FReplicationFlags* RepFlags)
+{
+	bool bWrote = Super::ReplicateSubobjects(
+		Channel, Bunch, RepFlags);
+
+	if (GunInstance)
+	{
+		bWrote |= Channel->ReplicateSubobject(
+			GunInstance,
+			*Bunch,
+			*RepFlags);
+	}
+
+	return bWrote;
 }
 
 void UPlayerWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

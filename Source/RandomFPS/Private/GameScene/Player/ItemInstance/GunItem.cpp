@@ -58,10 +58,16 @@ int UGunItem::GetGunLevel()
 	return GunLevel;
 }
 
-const FGunAbilityWrapper* UGunItem::GetAbilityWrapper()
+const FGunAbilityWrapper* UGunItem::GetAbilityWrapper(int InGunLevel)
 {
-	return GunItemData->ReinforceData->GetAbility(GunLevel);
+	return GunItemData->ReinforceData->GetAbility(InGunLevel);
 }
+
+const TArray<TObjectPtr<UGunAbilityModifier>>* UGunItem::GetAwakeAbility()
+{
+	return GunItemData->ReinforceData->GetAwakeAbility();
+}
+
 
 bool UGunItem::IsAwake()
 {
@@ -71,16 +77,20 @@ bool UGunItem::IsAwake()
 void UGunItem::LevelUp()
 {
 	if(GunLevel >= 5)
+	{
+		AwakeGun();
 		return;
+	}
 
 	GunLevel++;
+	
 	OnGunLevelChanged.Broadcast(GunLevel);
+
 	ApplyGunAbility();
 }
-
 void UGunItem::AwakeGun()
 {
-	if(GunLevel < 5)
+	if(GunLevel < 5 || bAwake)
 		return;
 
 	bAwake = true;
@@ -193,7 +203,9 @@ void UGunItem::ModifyMaxMagAmount(bool bPlus)
 
 void UGunItem::ApplyGunAbility()
 {
-	const FGunAbilityWrapper* CurrentLevelWrapper = GetAbilityWrapper();
+	//todo : 이전레벨의 모든 능력치 삭제
+	
+	const FGunAbilityWrapper* CurrentLevelWrapper = GetAbilityWrapper(GunLevel);
 	if(!CurrentLevelWrapper)
 		return;
 	
@@ -213,7 +225,6 @@ void UGunItem::OnRep_GunLevel()
 {
 	OnGunLevelChanged.Broadcast(GunLevel);
 }
-
 void UGunItem::OnRep_bAwake()
 {
 	OnGunAwake.Broadcast();

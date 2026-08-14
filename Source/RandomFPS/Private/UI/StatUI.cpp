@@ -97,16 +97,19 @@ void UStatUI::UpdateUtilityStat(const FPlayerUtilityStat& UtilityStat)
 void UStatUI::ChangeGunInstance(UGunItem* GunItem)
 {
 	CurrentGun = GunItem;
-
+	
 	CurrentGun->OnGunLevelChanged.AddUObject(this, &UStatUI::UpdateGunAbility);
 	CurrentGun->OnGunLevelChanged.AddUObject(this, &UStatUI::UpdateGunStar);
 	CurrentGun->OnGunAwake.AddUObject(this, &UStatUI::UpdateAwakeStar);
+	CurrentGun->OnGunAwake.AddUObject(this, &UStatUI::UpdateGunAwakeAbility);
+
 	
 	UpdateGunAbility(CurrentGun->GetGunLevel());
 
 	//일단 바뀐 총의 상태로 업데이트
 	if(CurrentGun->IsAwake())
 	{
+		UpdateGunAwakeAbility();
 		UpdateAwakeStar();
 	}
 	else
@@ -122,7 +125,7 @@ void UStatUI::ChangeGunInstance(UGunItem* GunItem)
 
 void UStatUI::UpdateGunAbility(int Level)
 {
-	const FGunAbilityWrapper* Wrapper = CurrentGun->GetAbilityWrapper();
+	const FGunAbilityWrapper* Wrapper = CurrentGun->GetAbilityWrapper(Level);
 	if(!Wrapper)
 		return;
 	
@@ -177,6 +180,31 @@ void UStatUI::UpdateGunAbility(int Level)
 		}
 	}
 }
+
+void UStatUI::UpdateGunAwakeAbility()
+{
+	const TArray<TObjectPtr<UGunAbilityModifier>>* AwakeAbility = CurrentGun->GetAwakeAbility();
+	if(!AwakeAbility)
+		return;
+	
+	const int32 AwakeAbilityCount = AwakeAbility->Num();
+
+	for(int i = 0; i < AwakeAbilityCount; i++)
+	{
+		UGunAbilityDescriptionUI* NewDescriptionUI =
+			CreateWidget<UGunAbilityDescriptionUI>(this, BP_DescriptionUI);
+
+		NewDescriptionUI->SetVisibility(ESlateVisibility::Visible);
+		NewDescriptionUI->SetText((*AwakeAbility)[i]->GetAbilityDescription());
+		UVerticalBoxSlot* BoxSlot = DescriptionListBox->AddChildToVerticalBox(NewDescriptionUI);
+
+		if(i < AwakeAbilityCount - 1)
+		{
+			BoxSlot->SetPadding(FMargin(0.f,10.f,0.f,0.f));
+		}
+	}
+}
+
 
 void UStatUI::UpdateGunStar(int Level)
 {

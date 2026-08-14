@@ -40,7 +40,8 @@ public:
 	
 	float GetBulletSpeed() const;
 	int GetGunLevel();
-	const FGunAbilityWrapper* GetAbilityWrapper();
+	const FGunAbilityWrapper* GetAbilityWrapper(int InGunLevel);
+	const TArray<TObjectPtr<UGunAbilityModifier>>* GetAwakeAbility();
 	bool IsAwake();
 	void LevelUp();
 	void AwakeGun();

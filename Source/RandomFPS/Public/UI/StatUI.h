@@ -92,4 +92,5 @@ private:
 	void UpdateGunAbility(int Level);
 	void UpdateGunStar(int Level);
 	void UpdateAwakeStar();
+	void UpdateGunAwakeAbility();
 };

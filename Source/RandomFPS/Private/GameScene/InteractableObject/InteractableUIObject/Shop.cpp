@@ -3,12 +3,10 @@
 
 #include "GameScene/InteractableObject/InteractableUIObject/Shop.h"
 
-#include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameScene/Player/MyPlayerController.h"
 #include "GameScene/Player/PlayerCharacter.h"
 #include "GameScene/Player/Components/Inventory.h"
-#include "GameScene/Player/Components/PlayerInteractSystem.h"
 #include "GameScene/Player/Components/PlayerWalletSystem.h"
 #include "GameScene/Player/ControllerHubs/ShopHub.h"
 #include "GameScene/Player/ItemData/ItemData.h"
@@ -21,9 +19,6 @@ AShop::AShop()
 	
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
 	BoxCollision->SetupAttachment(RootComponent);
-
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	CameraComponent->SetupAttachment(StaticMeshComp);
 }
 
 void AShop::BeginPlay()
@@ -31,7 +26,6 @@ void AShop::BeginPlay()
 	Super::BeginPlay();
 
 	ShopUI = Cast<UShopUI>(WorldInteractionUI);
-	
 }
 
 void AShop::InitSellEntryData()
@@ -71,15 +65,6 @@ void AShop::Interact(APlayerCharacter* APC)
 	
 	APC->ToggleCharacterMoveState(false);
 }
-
-//server
-void AShop::StopInteract(APlayerCharacter* APC)
-{
-	UPlayerInteractSystem* InteractSystem = APC->GetInteractSystem();
-	InteractSystem->StopInteractMontage();
-	APC->ToggleCharacterMoveState(true);
-}
-
 
 //client
 void AShop::OpenUI(APlayerCharacter* APC)

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "ReinforceStarUI.generated.h"
 
+class USizeBox;
 class UImage;
 /**
  * 
@@ -20,9 +21,12 @@ public:
 	void SetReinforce();
 	void SetEmpty();
 	void AwakeStar();
-
+	void SetStarSize(float X, float Y);
 	
 private:
+	UPROPERTY(meta=(BindWidget))
+	USizeBox* StarSize;
+	
 	UPROPERTY(meta=(BindWidget))
 	UImage* StarImage;
 
