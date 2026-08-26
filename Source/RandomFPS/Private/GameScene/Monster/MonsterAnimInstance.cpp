@@ -21,4 +21,5 @@ void UMonsterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 		return;
 
 	Speed = Monster->GetVelocity().Size2D();
+	Dead = Monster->GetIsDead();
 }

@@ -7,6 +7,7 @@
 #include "GameScene/Cards/StructHeader.h"
 #include "UIManager.generated.h"
 
+class URoundUI;
 class UInteractorUI;
 class UPortionItemData;
 class UKillLogUI;
@@ -96,4 +97,6 @@ private:
 	UKillLogUI* KillLogUI;
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	UInteractorUI* InteractorUI;
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	URoundUI* RoundUI;
 };

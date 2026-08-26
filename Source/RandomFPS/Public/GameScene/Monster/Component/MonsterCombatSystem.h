@@ -32,6 +32,11 @@ public:
 	void Init(UMonsterData* Data);
 	void ApplyDamage(FHitResult& HitResult); //데미지를 입히는 것
 	float TakeDamage(FDamageContext& Context); //데미지를 받는 것
+	void SetMonsterSpawnStat(int CurSpawnRound);
+
+
+
+
 	
 protected:
 	virtual void BeginPlay() override;

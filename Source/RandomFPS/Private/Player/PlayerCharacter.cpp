@@ -201,6 +201,7 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(APlayerCharacter, AimPitch);
 	DOREPLIFETIME(APlayerCharacter, bIsAiming);
 	DOREPLIFETIME(APlayerCharacter, bIsDead);
+	DOREPLIFETIME(APlayerCharacter, bCanShot);
 }
 
 void APlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -456,8 +457,9 @@ bool APlayerCharacter::GetIsDead()
 }
 
 
-void APlayerCharacter::KillMonster()
+void APlayerCharacter::KillMonster(int MonsterGold)
 {
+	PlayerWalletSystem->AcquireMoney(MonsterGold);
 	KillMonsterEvent.Broadcast();
 }
 
@@ -559,6 +561,11 @@ void APlayerCharacter::ToggleCharacterMoveState(bool bState)
 	}
 }
 
+//server
+void APlayerCharacter::SetPlayerCanShot(bool bState)
+{
+	bCanShot = bState;
+}
 
 #pragma endregion Functions
 
@@ -747,7 +754,7 @@ void APlayerCharacter::Server_ChangeZoomState_Implementation(bool IsZoom)
 
 void APlayerCharacter::Shot()
 {
-	if(!PlayerWeapon || bIsReloading || bIsDead)
+	if(!PlayerWeapon || bIsReloading || bIsDead || !bCanShot)
 		return;
 
 	//총을 쐇다 라는 신호만 주면됨.

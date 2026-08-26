@@ -9,6 +9,7 @@
 #include "PlayerCombatSystem.generated.h"
 
 
+class APlayGameState;
 class IDamageable;
 
 
@@ -57,6 +58,9 @@ private:
 	// FPlayerCombatStat CombatStat;
 	// UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_UtilityStat)
 	// FPlayerUtilityStat UtilityStat;
+
+	UPROPERTY()
+	APlayGameState* GS;
 	
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_RemainReviveTime)
 	int RemainReviveTime;

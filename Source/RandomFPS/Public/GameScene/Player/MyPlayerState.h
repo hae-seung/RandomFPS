@@ -39,7 +39,7 @@ public:
 	FORCEINLINE int GetLife() const { return Life; }
 	float GetKDARating() const;
 
-
+	void AddLife(int LifeDelta);
 	void DeadPlayer();
 	void KillOtherPlayer(); //k d a 에서 k++;
 	void Assist(AActor* Victim);

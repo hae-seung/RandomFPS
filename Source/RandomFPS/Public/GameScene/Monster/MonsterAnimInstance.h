@@ -24,4 +24,7 @@ private:
 	AMonster* Monster;
 	UPROPERTY(VisibleAnywhere ,BlueprintReadOnly, meta=(AllowPrivateAccess))
 	float Speed;
+	UPROPERTY(VisibleAnywhere ,BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool Dead;
+	
 };

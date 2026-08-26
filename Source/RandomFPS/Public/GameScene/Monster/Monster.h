@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameScene/Poolable.h"
 #include "Interface/Damageable.h"
 #include "Struct/MonsterStruct.h"
 #include "Monster.generated.h"
@@ -17,7 +18,8 @@ class UMonsterData;
 class UBehaviorTree;
 
 UCLASS()
-class RANDOMFPS_API AMonster : public ACharacter, public IDamageable
+class RANDOMFPS_API AMonster :
+public ACharacter, public IDamageable, public IPoolable
 {
 	GENERATED_BODY()
 
@@ -26,7 +28,8 @@ public:
 	UBehaviorTree* GetBT() const;
 	FORCEINLINE UMonsterData* GetData() const { return Data; }
 	FORCEINLINE const FMonsterAttackDefinition* GetCurAttackDefinition() const { return CurrentAttackDefinition; }
-	FORCEINLINE const UMonsterCombatSystem* GetCombatSystem() const { return CombatSystem; }
+	FORCEINLINE UMonsterCombatSystem* GetCombatSystem() const { return CombatSystem; }
+	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	void ApplyDamage(FHitResult& HitResult);
 	void SetCurrentAttackDefinition(const FMonsterAttackDefinition& AttackDefinition);
 	UFUNCTION(NetMulticast, Reliable)
@@ -38,22 +41,37 @@ public:
 	void EndAttack();
 
 	virtual EEntityType GetEntityType() override;
-	//쳐맞음
+	//맞음
 	virtual void TakeDamage(FDamageContext& Context) override;
 	virtual bool GetIsDead() override;
+
+
+
+	//IPoolable
+	virtual void Acquire(AActor* NewOwner) override;
+	virtual void Release() override;
+	virtual bool IsActive() const override;
+
+	//FromSpawner
+	//현재 라운드를 받아서 해당 라운드 진행도 만큼 강화되도록함 
+	void SetMonsterReinforceData(int CurSpawnRound);
+	void NotDeadButRequestReleasePool(bool bState);
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 	virtual void PossessedBy(AController* NewController) override;
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 private:
 	UPROPERTY(EditAnywhere)
 	UBehaviorTree* BT;
 	UPROPERTY(EditAnywhere)
 	UMonsterData* Data;
-
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
 	bool bIsDead;
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsActive)
+	bool bIsActive;
 
 private:
 	UPROPERTY()
@@ -78,4 +96,10 @@ private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_SpawnDamageActor(FVector HitLocation, float Damage, bool bIsCritic);
 	void SpawnDamageActor(FVector& HitLocation, float Damage, bool bIsCritic);
+
+	void SetDeadState(bool bState);
+	UFUNCTION()
+	void OnRep_bIsDead();
+	UFUNCTION()
+	void OnRep_bIsActive();
 };

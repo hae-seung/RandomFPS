@@ -3,6 +3,7 @@
 
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
 
+#include "GameScene/PlayGameState.h"
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "GameScene/Player/PlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
@@ -23,6 +24,8 @@ void UPlayerCombatSystem::SetComponents(UPlayerStatSystem* PlayerStatSystem)
 void UPlayerCombatSystem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GS = GetWorld()->GetGameState<APlayGameState>();
 	
 	// if(GetOwner()->HasAuthority())
 	// {
@@ -98,6 +101,9 @@ void UPlayerCombatSystem::TakeDamage(FDamageContext& Context)
 	const int FinalGetDamage = CalculateGetDamage(Context);
 	if(Context.EntityType == EEntityType::Player)
 	{
+		if(GS->GetRoundType() == ERoundType::Pve)
+			return;
+		
 		HitMePlayers.Add(Context.Attacker, GetWorld()->GetTimeSeconds());
 	}
 

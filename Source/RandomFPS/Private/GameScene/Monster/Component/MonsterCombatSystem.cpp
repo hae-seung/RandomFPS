@@ -33,7 +33,6 @@ void UMonsterCombatSystem::Init(UMonsterData* Data)
 	
 	Hp = Stat.MaxHP;
 	MaxHp = Stat.MaxHP;
-	OnMonsterHealthStatChanged.Broadcast(Hp, MaxHp);
 }
 
 float UMonsterCombatSystem::TakeDamage(FDamageContext& Context)
@@ -119,7 +118,7 @@ void UMonsterCombatSystem::Dead(AActor* Attacker)
 
 	if(IKillable* Killable = Cast<IKillable>(Attacker))
 	{
-		Killable->KillMonster();
+		Killable->KillMonster(Stat.Gold);
 	}
 }
 
@@ -136,4 +135,15 @@ void UMonsterCombatSystem::OnRep_Hp()
 void UMonsterCombatSystem::OnRep_MaxHp()
 {
 	OnMonsterHealthStatChanged.Broadcast(Hp, MaxHp);
+}
+
+void UMonsterCombatSystem::SetMonsterSpawnStat(int CurSpawnRound)
+{
+	MaxHp += CurSpawnRound * 50.f;
+	Hp = MaxHp;
+
+	Stat.Defense += CurSpawnRound * 5.f;
+	Stat.Gold += CurSpawnRound * 20;
+	Stat.AttackDamage += CurSpawnRound * 20.f;
+	Stat.CriticalProbability += CurSpawnRound;
 }

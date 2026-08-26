@@ -90,3 +90,10 @@ enum class EShopCategoryType : uint8
 	Portion,
 	Card
 };
+
+UENUM(BlueprintType)
+enum class ERoundType : uint8
+{
+	Pve,
+	Pvp
+};

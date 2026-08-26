@@ -44,6 +44,11 @@ public:
 	void SetInputModeGame();
 	void ToggleCombatUI(bool bState);
 	void ChangeWidgetInteractionMode(bool bState);
+
+	void RequestPlayerReadyToStartRound();
+	UFUNCTION(Server,Reliable)
+	void Server_PlayerReadyToStartRound();
+	void PlayerReadyToStartRound();
 	
 protected:
 	virtual void BeginPlay() override;

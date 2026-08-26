@@ -15,6 +15,7 @@
 #include "UI/InteractorUI.h"
 #include "UI/InventoryUI.h"
 #include "UI/KillLogUI.h"
+#include "UI/RoundUI.h"
 #include "UI/ScoreUI.h"
 
 
@@ -29,7 +30,7 @@ void UUIManager::Init(APawn* Pawn)
 	ScoreUI->FindLocalEntry(GetOwningPlayerState());
 	KillLogUI->Init(APC->KillAlarmEvent, APC->AssistAlarmEvent);
 	InteractorUI->Init(APC->GetInteractSystem());
-
+	RoundUI->Init();
 	
 	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
 	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);

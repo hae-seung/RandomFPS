@@ -5,6 +5,8 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "GameScene/PlayGameMode.h"
+#include "GameScene/PlayGameState.h"
 #include "GameScene/Player/MyPlayerState.h"
 #include "GameScene/Player/ControllerHubs/ReinforceShopHub.h"
 #include "GameScene/Player/ControllerHubs/ShopHub.h"
@@ -126,6 +128,37 @@ void AMyPlayerController::ChangeWidgetInteractionMode(bool bState)
 	{
 		SubSystem->RemoveMappingContext(IMC_Mouse_RayCast);
 	}
+}
+
+void AMyPlayerController::RequestPlayerReadyToStartRound()
+{
+	if(HasAuthority())
+	{
+		PlayerReadyToStartRound();
+	}
+	else
+	{
+		Server_PlayerReadyToStartRound();
+	}
+}
+
+
+void AMyPlayerController::Server_PlayerReadyToStartRound_Implementation()
+{
+	PlayerReadyToStartRound();
+}
+
+void AMyPlayerController::PlayerReadyToStartRound()
+{
+	APlayGameMode* GM = Cast<APlayGameMode>(GetWorld()->GetAuthGameMode());
+	if(!GM)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("No GM"));
+		return;
+	}
+
+	GM->AddFinishInitPlayer();
+	GM->CheckToPlayStart();
 }
 
 

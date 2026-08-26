@@ -18,7 +18,8 @@ void UFindRandomPosService::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 	
 	const APawn* Pawn = OwnerComp.GetAIOwner()->GetPawn();
 	const FVector CurPos = Pawn->GetActorLocation();
-
+	
+	
 	const UNavigationSystemV1* Nav = UNavigationSystemV1::GetCurrent(Pawn->GetWorld());
 	if(!Nav)
 		return;
@@ -28,6 +29,7 @@ void UFindRandomPosService::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 		CurPos,
 		Radius,
 		RandomLocation);
+
 	
 	if(bFound)
 	{

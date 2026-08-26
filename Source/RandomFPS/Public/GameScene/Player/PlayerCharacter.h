@@ -129,6 +129,8 @@ public:
 	void ToggleCharacterMoveState(bool bState);
 	void ChangeWidgetInteraction(UCameraComponent* TargetCamera = nullptr);
 	
+	void SetPlayerCanShot(bool bState);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -183,6 +185,8 @@ private:
 	
 	bool bCanSprint;
 	bool bIsSprint;
+	UPROPERTY(Replicated)
+	bool bCanShot;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	float WalkSpeed = 250.0f;
@@ -269,7 +273,7 @@ private:
 	void InitPlayerState();
 
 	
-	virtual void KillMonster() override;
+	virtual void KillMonster(int MonsterGold) override;
 	virtual void KillOtherPlayer(AActor* DeadPlayer, bool bIsCriticalKill) override;
 	virtual void GetAssist(AActor* DeadPlayer) override;
 };

@@ -32,6 +32,7 @@ private:
 	
 	UPROPERTY(meta=(BindWidget))
 	UProgressBar* HealthBar;
+
 	
 	bool bIsOpen;
 	FVector CameraLocation;

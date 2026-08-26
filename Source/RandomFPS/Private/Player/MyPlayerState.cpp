@@ -1,5 +1,6 @@
 #include "GameScene/Player/MyPlayerState.h"
 
+#include "GameScene/PlayGameState.h"
 #include "Lobby/LobbyGameState.h"
 #include "Net/UnrealNetwork.h"
 
@@ -84,14 +85,22 @@ float AMyPlayerState::GetKDARating() const
 	return Rating / KDA.Death;
 }
 
+//server
 void AMyPlayerState::DeadPlayer()
 {
 	KDA.Death += 1;
 	KDAChanged.Broadcast(KDA);
 
 	//게임스테이트로부터 현재 차감될 Life를 가져온 뒤 Life 차감.
-	//Life -= ..
-	//LifeChanged.Broadcast
+	if(APlayGameState* GS = GetWorld()->GetGameState<APlayGameState>())
+	{
+		const FRoundInfo* RoundInfo = GS->GetCurrentRoundInfo();
+		if(RoundInfo == nullptr)
+			return;
+
+		Life -= RoundInfo->RoundDeathLife;
+		LifeChanged.Broadcast(Life);
+	}
 }
 
 void AMyPlayerState::KillOtherPlayer()
@@ -134,3 +143,8 @@ void AMyPlayerState::OnRep_Life()
 	LifeChanged.Broadcast(Life);
 }
 
+void AMyPlayerState::AddLife(int LifeDelta)
+{
+	Life += LifeDelta;
+	LifeChanged.Broadcast(Life);
+}

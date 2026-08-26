@@ -1,6 +1,7 @@
 
 #include "GameScene/Monster/Monster.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameScene/PoolManager.h"
@@ -9,6 +10,7 @@
 #include "GameScene/Monster/MonsterData.h"
 #include "GameScene/Monster/Component/MonsterAttackSystem.h"
 #include "GameScene/Monster/Component/MonsterCombatSystem.h"
+#include "Net/UnrealNetwork.h"
 #include "UI/HealthUI.h"
 
 
@@ -35,7 +37,8 @@ void AMonster::PostInitializeComponents()
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	SetDeadState(false);
 	UHealthUI* HealthUI = Cast<UHealthUI>(HealthBarComp->GetUserWidgetObject());
 	if(HealthUI)
 	{
@@ -51,6 +54,15 @@ void AMonster::PossessedBy(AController* NewController)
 	MonsterController = Cast<AMonsterController>(NewController);
 	CombatSystem->OnMonsterFlinched.AddUObject(MonsterController, &AMonsterController::SetFlinchState);
 	CombatSystem->OnMonsterDead.AddUObject(MonsterController, &AMonsterController::SetDeadState);
+	CombatSystem->OnMonsterDead.AddUObject(this, &AMonster::SetDeadState);
+}
+
+void AMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMonster, bIsDead);
+	DOREPLIFETIME(AMonster, bIsActive);
 }
 
 UBehaviorTree* AMonster::GetBT() const
@@ -171,13 +183,10 @@ void AMonster::SpawnDamageActor(FVector& HitLocation, float Damage, bool bIsCrit
 	}
 }
 
-
-
 bool AMonster::GetIsDead()
 {
 	return bIsDead;
 }
-
 
 void AMonster::ApplyDamage(FHitResult& HitResult)
 {
@@ -187,5 +196,74 @@ void AMonster::ApplyDamage(FHitResult& HitResult)
 	CombatSystem->ApplyDamage(HitResult);
 }
 
+void AMonster::Acquire(AActor* NewOwner)
+{
+	UE_LOG(LogTemp,Warning, TEXT("몬스터 풀 획득"));
+	bIsDead = false;
+	bIsActive = true;
+	
+	if(IsValid(MonsterController))
+		MonsterController->SetDeadState(false);
+}
 
+void AMonster::Release()
+{
+	UE_LOG(LogTemp,Warning, TEXT("몬스터 풀 반환"));
+	
+	bIsDead = true;
+	bIsActive = false;
+	
+	UPoolManager* PoolManager = GetWorld()->GetSubsystem<UPoolManager>();
+	PoolManager->Server_ReleaseActor(this);
+}
 
+bool AMonster::IsActive() const
+{
+	return bIsActive;
+}
+
+void AMonster::SetMonsterReinforceData(int CurSpawnRound)
+{
+	CombatSystem->SetMonsterSpawnStat(CurSpawnRound);
+}
+
+void AMonster::NotDeadButRequestReleasePool(bool bState)
+{
+	SetDeadState(bState);
+	MonsterController->SetDeadState(true);
+}
+
+void AMonster::SetDeadState(bool bState)
+{
+	bIsDead = bState;
+
+	if(bIsDead)
+	{
+		UHealthUI* HealthUI = Cast<UHealthUI>(HealthBarComp->GetUserWidgetObject());
+		if(HealthUI)
+		{
+			HealthUI->HideHealth();
+		}
+		
+		SetActorEnableCollision(false);
+	}
+}
+
+void AMonster::OnRep_bIsDead()
+{
+	SetActorEnableCollision(bIsActive);
+	
+	if(bIsDead)
+	{
+		UHealthUI* HealthUI = Cast<UHealthUI>(HealthBarComp->GetUserWidgetObject());
+		if(HealthUI)
+		{
+			HealthUI->HideHealth();
+		}
+	}
+}
+
+void AMonster::OnRep_bIsActive()
+{
+	SetActorHiddenInGame(!bIsActive);
+}

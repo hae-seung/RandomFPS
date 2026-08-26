@@ -22,7 +22,7 @@ AMonsterController::AMonsterController()
 void AMonsterController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-
+	
 	if(!HasAuthority())
 	{
 		if(AIPerceptionComponent)
@@ -346,5 +346,5 @@ void AMonsterController::OnFlinchEnd(UAnimMontage* Montage, bool bInterrupted)
 void AMonsterController::OnDeadEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	//풀 반환
-	
+	Monster->Release();
 }

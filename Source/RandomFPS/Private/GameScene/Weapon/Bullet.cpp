@@ -146,8 +146,6 @@ void ABullet::Acquire(AActor* NewOwner)
 
 	ProjectileMovementComponent->Activate(true);
 	
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
 
 	ProjectileMovementComponent->Activate(true);
@@ -164,8 +162,6 @@ void ABullet::Release()
 	SetInstigator(nullptr);
 	SetOwner(nullptr);
 	
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	
 	ClearTimer();
