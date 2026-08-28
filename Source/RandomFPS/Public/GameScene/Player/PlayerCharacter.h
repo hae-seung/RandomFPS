@@ -12,6 +12,7 @@
 #include "Item/Interactor.h"
 #include "PlayerCharacter.generated.h"
 
+class UCardSystem;
 class UPlayerWalletSystem;
 class UWidgetInteractionComponent;
 class UPlayerInteractSystem;
@@ -110,7 +111,7 @@ public:
 	FORCEINLINE UCapsuleComponent* GetInteractCapsule() const { return InteractCapsule; }
 	FORCEINLINE AMyPlayerController* GetMyController() const { return MyController; }
 	FORCEINLINE UPlayerWalletSystem* GetWalletSystem() const { return PlayerWalletSystem; }
-
+	FORCEINLINE UCardSystem* GetCardSystem() const { return CardSystem; }
 	
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	FORCEINLINE bool GetReloading() const { return bIsReloading; }
@@ -149,8 +150,6 @@ private:
 	UCameraComponent* FollowCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	UCameraComponent* FP_Camera;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
-	UCardManager* CardManager;
 	UPROPERTY()
 	AMyPlayerController* MyController;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess))
@@ -171,8 +170,8 @@ private:
 	UWidgetInteractionComponent* WidgetInteractionComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	UPlayerWalletSystem* PlayerWalletSystem;
-
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UCardSystem* CardSystem;
 	
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_bIsDead)
 	bool bIsDead;

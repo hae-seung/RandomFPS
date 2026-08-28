@@ -45,7 +45,12 @@ enum class EStat : uint8
 	MaxHp,
 	Hp,
 	Energy,
-	WalkSpeed
+	WalkSpeed,
+	Attack,
+	Defense,
+	Critical,
+	CriticalBonus,
+	MonsterFlinchProb
 };
 
 UENUM()

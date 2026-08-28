@@ -38,7 +38,7 @@ public:
 	void Revive();
 	void ModifyHp(float Delta);
 	
-	void ApplyPortion(const FStatModifier& Modifier);
+	void ApplyStatModifier(const FStatModifier& Modifier);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -82,5 +82,7 @@ private:
 	void HandleHp(float Value);
 	void HandleMaxHp(float Value);
 	void HandleWalkSpeed(float Value);
+	void HandleAttackDamage(float Value);
+	void HandleDefense(float Value);
 	void ApplyEnergyWalkSpeed();
 };

@@ -7,11 +7,16 @@
 #include "PlayerWalletSystem.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMoneyChanged, int);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RANDOMFPS_API UPlayerWalletSystem : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	FOnMoneyChanged OnMoneyChanged;
 
 	
 public:	

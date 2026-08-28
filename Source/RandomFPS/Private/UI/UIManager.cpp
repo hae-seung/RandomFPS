@@ -9,6 +9,7 @@
 #include "GameScene/Player/ItemData/BulletItemData.h"
 #include "GameScene/Player/ItemData/PortionItemData.h"
 #include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
+#include "UI/CardMenuUI.h"
 #include "UI/CombatUI.h"
 #include "UI/CrossHairUI.h"
 #include "UI/GunMenu.h"
@@ -17,20 +18,28 @@
 #include "UI/KillLogUI.h"
 #include "UI/RoundUI.h"
 #include "UI/ScoreUI.h"
+#include "UI/WalletUI.h"
 
 
 void UUIManager::Init(APawn* Pawn)
 {
 	APlayerCharacter* APC = Cast<APlayerCharacter>(Pawn);
 	
-	InventoryUI->Init(APC->GetInventory(), APC->GetStatComponent(), APC->GetWeaponSystem());
+	InventoryUI->Init(APC->GetInventory(), APC->GetStatComponent(),
+		APC->GetWeaponSystem(), APC->GetCardSystem());
 	GunMenuUI->Init(InventoryUI);
 	CombatUI->Init(APC->GetCombatComponent(), APC->GetStatComponent(), APC->GetWeaponSystem());
 	CrossHairUI->Init(APC->GetCombatComponent());
 	ScoreUI->FindLocalEntry(GetOwningPlayerState());
 	KillLogUI->Init(APC->KillAlarmEvent, APC->AssistAlarmEvent);
 	InteractorUI->Init(APC->GetInteractSystem());
+	WalletUI->Init(APC->GetWalletSystem());
+	CardMenuUI->Init(APC->GetCardSystem());
+
+	
 	RoundUI->Init();
+
+
 	
 	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
 	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);

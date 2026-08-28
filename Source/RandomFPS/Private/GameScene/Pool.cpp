@@ -19,13 +19,6 @@ AActor* UPool::GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner)
 	LastActor->SetActorEnableCollision(true);
 	LastActor->SetActorHiddenInGame(false);
 	PoolActor->Acquire(Owner);
-
-	UE_LOG(
-	LogTemp,
-	Warning,
-	TEXT("[POOL GET] %s"),
-	*GetNameSafe(LastActor)
-);
 	
 	return LastActor;
 }
@@ -43,13 +36,6 @@ void UPool::Spawn(TSubclassOf<AActor> BP_Actor)
 
 void UPool::ReleaseActor(AActor* Object)
 {
-	UE_LOG(
-	LogTemp,
-	Warning,
-	TEXT("[POOL RELEASE] %s"),
-	*GetNameSafe(Object)
-);
-
 	Object->SetActorEnableCollision(false);
 	Object->SetActorHiddenInGame(true);
 	

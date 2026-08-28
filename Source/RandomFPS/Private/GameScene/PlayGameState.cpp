@@ -6,6 +6,7 @@
 #include "GameScene/PlayGameMode.h"
 #include "GameScene/Player/MyPlayerState.h"
 #include "GameScene/Player/PlayerCharacter.h"
+#include "GameScene/Player/Components/CardSystem.h"
 #include "GameScene/Player/Components/PlayerWalletSystem.h"
 #include "Net/UnrealNetwork.h"
 
@@ -164,4 +165,12 @@ void APlayGameState::GiveAllPlayerGold(int PlusGold)
 void APlayGameState::GiveAllPlayerCard()
 {
 	//증강 시스템 만들때 카드 선택하게 만들기
+	for(APlayerState* PS : PlayerArray)
+	{
+		if(APlayerCharacter* APC = Cast<APlayerCharacter>(PS->GetPawn()))
+		{
+			UE_LOG(LogTemp,Warning,TEXT("Request OpenCardMenu"));
+			APC->GetCardSystem()->SelectCard();
+		}
+	}
 }

@@ -11,6 +11,7 @@
  * 
  */
 
+class APlayerCharacter;
 class UCardAbility;
 
 UCLASS()
@@ -21,19 +22,22 @@ class RANDOMFPS_API UCardData : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, Category="Card")
 	FText CardName;
-
 	UPROPERTY(EditAnywhere ,Category="Card", meta=(MultiLine=true))
 	FText Description;
-
 	UPROPERTY(EditAnywhere, Category="Card")
 	UTexture2D* Icon;
-
-	UPROPERTY(EditAnywhere, Category="Card")
-	ECardType CardType;
-
 	UPROPERTY(EditAnywhere, Category="Card")
 	ECardClass CardClass;
-	
 	UPROPERTY(EditAnywhere, Instanced, Category="Card")
-	TArray<TObjectPtr<UCardAbility>> Abilities;
+	TObjectPtr<UCardAbility> CardInstance;
+
+
+
+
+public:
+	FText GetCardName();
+	FText GetCardDescription();
+	UTexture2D* GetCardIcon();
+	FName GetCardId();
+	TObjectPtr<UCardAbility> GetCardInstance(APlayerCharacter* APC);
 };

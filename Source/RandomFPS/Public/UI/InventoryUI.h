@@ -7,6 +7,10 @@
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "InventoryUI.generated.h"
 
+class UTextBlock;
+class UOverlay;
+class UCardSlotWrapperUI;
+class UCardSlotUI;
 class UPlayerWeapon;
 class UStatUI;
 class URailPartsData;
@@ -23,7 +27,7 @@ class UWrapBox;
 class UInventorySlot;
 class UInventory;
 class UPlayerStatSystem;
-
+class UCardSystem;
 
 UCLASS()
 class RANDOMFPS_API UInventoryUI : public UUserWidget
@@ -34,7 +38,8 @@ public:
 	void Init(
 		UInventory* PlayerInventory,
 		UPlayerStatSystem* StatSystem,
-		UPlayerWeapon* PlayerWeapon);
+		UPlayerWeapon* PlayerWeapon,
+		UCardSystem* CardSystem);
 	void UpdateUI(int Index);
 	bool CheckInit() const;
 	void Toggle();
@@ -47,6 +52,10 @@ public:
 	void RequestUnEquipParts(EPartsType PartsType);
 
 	void SetGunRenderTarget(UTextureRenderTarget2D* RT);
+
+	
+	void OpenCardToolTip(FText CardDescription, FVector2D ScreenPos);
+	void CloseCardToolTip();
 
 private:
 	UPROPERTY(meta=(BindWidget))
@@ -63,6 +72,14 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	UGunSlotUI* GunSlotUI;
 
+	UPROPERTY(meta=(BindWidget))
+	UCardSlotWrapperUI* CardSlotWrapperUI;
+	UPROPERTY(meta=(BindWidget))
+	UOverlay* CardTooltipUI;
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* CardTooltipText;
+	UPROPERTY(meta=(BindWidget))
+	UCanvasPanel* CanvasPanel;
 
 private:
 	UPROPERTY()
@@ -85,4 +102,5 @@ private:
 	void CloseToolTip();
 	void SwapItems(int From, int To);
 	
+	void SetCardToolTipPos(FVector2D ScreenPos);
 };

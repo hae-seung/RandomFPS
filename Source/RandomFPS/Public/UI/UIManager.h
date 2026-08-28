@@ -7,6 +7,8 @@
 #include "GameScene/Cards/StructHeader.h"
 #include "UIManager.generated.h"
 
+class UCardMenuUI;
+class UWalletUI;
 class URoundUI;
 class UInteractorUI;
 class UPortionItemData;
@@ -99,4 +101,9 @@ private:
 	UInteractorUI* InteractorUI;
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	URoundUI* RoundUI;
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	UWalletUI* WalletUI;
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	UCardMenuUI* CardMenuUI;
+	
 };

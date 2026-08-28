@@ -15,7 +15,7 @@ void UPlayerWalletSystem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	OnMoneyChanged.Broadcast(Money);
 }
 
 void UPlayerWalletSystem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -32,14 +32,16 @@ int UPlayerWalletSystem::GetMoney() const
 void UPlayerWalletSystem::SpendMoney(int OutAmount)
 {
 	Money -= OutAmount;
+	OnMoneyChanged.Broadcast(Money);
 }
 
 void UPlayerWalletSystem::AcquireMoney(int InAmount)
 {
 	Money += InAmount;
+	OnMoneyChanged.Broadcast(Money);
 }
 
 void UPlayerWalletSystem::OnRep_Money()
 {
-	
+	OnMoneyChanged.Broadcast(Money);
 }

@@ -17,6 +17,7 @@
 #include "GameScene/Player/MyPlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "GameScene/Player/Components/CardManager.h"
+#include "GameScene/Player/Components/CardSystem.h"
 #include "GameScene/Player/Components/Inventory.h"
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
 #include "GameScene/Player/Components/PlayerInteractSystem.h"
@@ -115,7 +116,6 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	InitPlayerState();
-	
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -157,7 +157,6 @@ bool APlayerCharacter::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bu
 
 void APlayerCharacter::MakeComponents()
 {
-	CardManager = CreateDefaultSubobject<UCardManager>("CardManager");
 	PlayerWeapon = CreateDefaultSubobject<UPlayerWeapon>("PlayerWeapon");
 	
 	FP_Camera = CreateDefaultSubobject<UCameraComponent>("FP_Camera");
@@ -185,6 +184,7 @@ void APlayerCharacter::MakeComponents()
 	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::Mouse;
 
 	PlayerWalletSystem = CreateDefaultSubobject<UPlayerWalletSystem>(TEXT("WalletSystem"));
+	CardSystem = CreateDefaultSubobject<UCardSystem>(TEXT("CardSystem"));
 }
 
 void APlayerCharacter::Server_ChangeAimPitch_Implementation(float Pitch)
@@ -245,6 +245,7 @@ void APlayerCharacter::InitPlayerState()
 		KillPlayerEvent.AddUObject(MyGS, &APlayGameState::Server_GetPlayerKillEvent);
 	}
 }
+
 #pragma endregion Init
 
 

@@ -3,3 +3,12 @@
 
 #include "GameScene/Cards/CardAbility/Base/CardAbility.h"
 
+const UCardData* UCardAbility::GetCardData() const
+{
+	return CardData;
+}
+
+void UCardAbility::SetData(UCardData* Data)
+{
+	CardData = Data;
+}

@@ -39,7 +39,7 @@ void UPortionItem::Use(UPlayerStatSystem* PlayerStatSystem)
 	const TArray<FStatModifier>& StatModifiers = PortionItemData->GetStatModifiers();
 	for(const FStatModifier& StatModifier : StatModifiers)
 	{
-		PlayerStatSystem->ApplyPortion(StatModifier);
+		PlayerStatSystem->ApplyStatModifier(StatModifier);
 	}
 	
 	ItemAmount--;

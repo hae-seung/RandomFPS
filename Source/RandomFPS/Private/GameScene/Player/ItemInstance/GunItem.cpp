@@ -203,8 +203,6 @@ void UGunItem::ModifyMaxMagAmount(bool bPlus)
 
 void UGunItem::ApplyGunAbility()
 {
-	//todo : 이전레벨의 모든 능력치 삭제
-	
 	const FGunAbilityWrapper* CurrentLevelWrapper = GetAbilityWrapper(GunLevel);
 	if(!CurrentLevelWrapper)
 		return;
@@ -217,7 +215,14 @@ void UGunItem::ApplyGunAbility()
 
 void UGunItem::ApplyAwakeGunAbility()
 {
-	UE_LOG(LogTemp, Warning, TEXT("총 각성!!"));
+	const TArray<TObjectPtr<UGunAbilityModifier>>* AwakeAbilities = GunItemData->ReinforceData->GetAwakeAbility();
+	if(AwakeAbilities == nullptr)
+		return;
+
+	for(auto Modifier : *AwakeAbilities)
+	{
+		Modifier->ApplyGunAbility(&GunAbility);
+	}
 }
 
 

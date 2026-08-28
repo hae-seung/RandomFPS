@@ -9,7 +9,7 @@
 
 DECLARE_MULTICAST_DELEGATE(OnStartRelaxRound);
 DECLARE_MULTICAST_DELEGATE_OneParam(OnStartPlayRound, ERoundType RoundType);
-
+DECLARE_MULTICAST_DELEGATE(On)
 
 UCLASS()
 class RANDOMFPS_API APlayGameMode : public AGameMode

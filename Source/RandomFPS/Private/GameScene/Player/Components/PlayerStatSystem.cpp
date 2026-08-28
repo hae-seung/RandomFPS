@@ -66,7 +66,7 @@ void UPlayerStatSystem::ModifyHp(float Delta)
 	OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
 
-void UPlayerStatSystem::ApplyPortion(const FStatModifier& Modifier)
+void UPlayerStatSystem::ApplyStatModifier(const FStatModifier& Modifier)
 {
 	switch (Modifier.Stat)
 	{
@@ -81,6 +81,12 @@ void UPlayerStatSystem::ApplyPortion(const FStatModifier& Modifier)
 		break;
 	case EStat::WalkSpeed:
 		HandleWalkSpeed(Modifier.Value);
+		break;
+	case EStat::Attack:
+		HandleAttackDamage(Modifier.Value);
+		break;
+	case EStat::Defense:
+		HandleDefense(Modifier.Value);
 		break;
 	}
 }
@@ -166,7 +172,7 @@ void UPlayerStatSystem::OnRep_HealthStat()
 
 void UPlayerStatSystem::OnRep_CombatStat()
 {
-	
+	OnPlayerCombatStatChanged.Broadcast(CombatStat);
 }
 
 void UPlayerStatSystem::OnRep_UtilityStat()
@@ -179,4 +185,17 @@ void UPlayerStatSystem::OnRep_EnergyIndex()
 	//UI갱신
 	OnPlayerEnergyChanged.Broadcast(EnergyIndex);
 }
+
+void UPlayerStatSystem::HandleAttackDamage(float Value)
+{
+	CombatStat.AttackDamage += Value;
+	OnPlayerCombatStatChanged.Broadcast(CombatStat);
+}
+
+void UPlayerStatSystem::HandleDefense(float Value)
+{
+	CombatStat.Defense += Value;
+	OnPlayerCombatStatChanged.Broadcast(CombatStat);
+}
+
 

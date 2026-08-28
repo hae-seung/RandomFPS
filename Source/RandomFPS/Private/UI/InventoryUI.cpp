@@ -4,12 +4,17 @@
 #include "UI/InventoryUI.h"
 
 #include "Components/Border.h"
+#include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Overlay.h"
+#include "Components/TextBlock.h"
 #include "Components/WrapBox.h"
 #include "GameScene/Player/MyPlayerController.h"
+#include "GameScene/Player/Components/CardSystem.h"
 #include "GameScene/Player/Components/Inventory.h"
 #include "GameScene/Player/Components/PlayerWeapon.h"
 #include "Public/UI/InventorySlot.h"
+#include "UI/CardSlotWrapperUI.h"
 #include "UI/GunSlotUI.h"
 #include "UI/StatUI.h"
 #include "UI/TooltipUI.h"
@@ -35,12 +40,14 @@ void UInventoryUI::Toggle()
 void UInventoryUI::Init(
 	UInventory* PlayerInventory, 
 	UPlayerStatSystem* StatSystem,
-	UPlayerWeapon* PlayerWeapon)
+	UPlayerWeapon* PlayerWeapon,
+	UCardSystem* CardSystem)
 {
 	SetVisibility(ESlateVisibility::Collapsed);
 
 	GunSlotUI->Init(this);
 	StatUI->Init(StatSystem, PlayerWeapon);
+	CardSlotWrapperUI->Init(this, CardSystem);
 	
 	Inventory = PlayerInventory;
 
@@ -186,3 +193,54 @@ void UInventoryUI::SetGunRenderTarget(UTextureRenderTarget2D* RT)
 {
 	GunSlotUI->SetGunRenderTarget(RT);
 }
+
+void UInventoryUI::OpenCardToolTip(FText CardDescription, FVector2D ScreenPos)
+{
+	//텍스트 상자크기를 미리 바꿔야 해서 text를 우선 설정.
+	CardTooltipUI->SetVisibility(ESlateVisibility::Visible);
+	CardTooltipText->SetText(CardDescription);
+	
+	//크기가 자동으로 맞춰진 텍스트 상자를 기준으로
+	//컨텐츠 크기 맞춤된 Overlay의 좌표를 이제 설정
+	
+	SetCardToolTipPos(ScreenPos);
+}
+
+void UInventoryUI::CloseCardToolTip()
+{
+	CardTooltipUI->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UInventoryUI::SetCardToolTipPos(FVector2D ScreenPos)
+{
+	//카드 슬롯UI의 우상단에 ToolTip의 좌하단을 맞출거임
+	ForceLayoutPrepass();
+	CardTooltipUI->ForceLayoutPrepass();
+
+	//툴팁은 동적으로 조절되므로 LocalSize가 아닌 DesiredSize로도 가능
+	const FVector2D TipSize = CardTooltipUI->GetDesiredSize();
+
+	//Root가 곧 CanvasPanel임
+	const FGeometry RootGeo = CanvasPanel->GetCachedGeometry();
+	//실제 캔버스의 크기가 필요함
+	const FVector2D RootSize = RootGeo.GetLocalSize();
+
+	//캔버스 기준 상대좌표로 변환
+	FVector2D CardTooltipPos = RootGeo.AbsoluteToLocal(ScreenPos);
+
+	//툴팁의 우하단을 슬롯의 우상단에 맞춤
+	CardTooltipPos -= TipSize;
+
+	//화면밖(캔버스 밖)으로 못나가게 Clamp
+	CardTooltipPos.X = FMath::Clamp(CardTooltipPos.X,  0.f, FMath::Max(0.f, RootSize.X - TipSize.X));
+	CardTooltipPos.Y = FMath::Clamp(CardTooltipPos.Y, 0.f, FMath::Max(0.f, RootSize.Y - TipSize.Y));
+
+	//위치 적용
+	if(UCanvasPanelSlot* TipCanvasSlot = Cast<UCanvasPanelSlot>(CardTooltipUI->Slot))
+	{
+		TipCanvasSlot->SetAutoSize(true);
+		TipCanvasSlot->SetPosition(CardTooltipPos);
+		TipCanvasSlot->SetZOrder(999);
+	}
+}
+
