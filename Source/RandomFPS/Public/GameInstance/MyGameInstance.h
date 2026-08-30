@@ -44,6 +44,10 @@ public:
 	void FindSession(bool bSearchLan = false);
 	void TryCreateSession(FString RoomName, int32 MaxPlayerCnt, bool bLanMode = false);
 	void TryJoinSession(const FOnlineSessionSearchResult& Result);
+
+
+	void SetGamePlayerCnt(int TotalPlayerNums);
+	int GetTotalPlayers();
 	
 private:
 	//TSharedPtr로 참조카운트 기반 C++객체임. <포인터처럼 쓸 수 있도록 operator를 다 바꿈 내부에서>
@@ -64,7 +68,8 @@ private:
 	FString PendingRoomName;
 	int32 PendingMaxPlayerCnt;
 	bool bPendingLanMode;
-	
+
+	int RoomPlayerNums;
 
 	
 private:

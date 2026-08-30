@@ -45,6 +45,8 @@ void UFireMode::Shot(TSubclassOf<ABullet> BP_Bullet,
 
 	MuzzleLoc = GunActor->GetMesh()->GetSocketLocation(TEXT("Muzzle"));
 	ShootDir = (TargetPoint - MuzzleLoc).GetSafeNormal();
+
+	LastFireTime = GetWorld()->GetTimeSeconds();
 }
 
 

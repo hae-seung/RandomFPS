@@ -138,11 +138,14 @@ void ULobbyUI::OnStartBtnClicked()
 			FString URL = GI->GetWorldURL(EWorldName::MainMap);
 			if(!URL.IsEmpty())
 			{
+				if(ALobbyGameState* LGS = GetWorld()->GetGameState<ALobbyGameState>())
+				{
+					GI->SetGamePlayerCnt(LGS->GetAllPlayerNumsIncludeMaster());
+				}
 				GetWorld()->ServerTravel(URL + "?listen");
 				StartBtn->SetIsEnabled(false);
 			}
 		}
-		
 	}
 }
 

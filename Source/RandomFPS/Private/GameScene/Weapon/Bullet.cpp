@@ -190,7 +190,6 @@ void ABullet::Shot(const FVector& Direction, float Speed, bool bHasBullet)
 	ProjectileMovementComponent->Velocity = Direction * Speed;
 }
 
-
 void ABullet::OnRep_bIsActive()
 {
 	SetActorHiddenInGame(!bIsActive);

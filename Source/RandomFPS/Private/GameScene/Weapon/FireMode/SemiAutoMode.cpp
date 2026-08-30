@@ -17,7 +17,8 @@ void USemiAutoMode::Shot(TSubclassOf<ABullet> BP_Bullet,
                          AGun* GunActor,
                          bool HasBullet)
 {
-	if(IsShooting || !bInit ||GunActor->GetMagAmmo() <= 0)
+	if(IsShooting || !bInit ||GunActor->GetMagAmmo() <= 0 ||
+		GetWorld()->GetTimeSeconds() - LastFireTime < GunActor->GetGunInstance()->GetShotInterval())
 		return;
 
 	IsShooting = true;

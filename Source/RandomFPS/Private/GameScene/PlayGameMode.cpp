@@ -3,6 +3,7 @@
 
 #include "GameScene/PlayGameMode.h"
 
+#include "GameInstance/MyGameInstance.h"
 #include "GameScene/PlayGameState.h"
 
 APlayGameMode::APlayGameMode()
@@ -13,6 +14,13 @@ APlayGameMode::APlayGameMode()
 void APlayGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(UMyGameInstance* GI = Cast<UMyGameInstance>(GetGameInstance()))
+	{
+		const int PlayerNum = GI->GetTotalPlayers();
+		if(PlayerNum > 0)
+			ExpectedPlayerNum = GI->GetTotalPlayers();
+	}
 	
 	CheckToPlayStart();
 }

@@ -165,7 +165,6 @@ void UMyGameInstance::TryJoinSession(const FOnlineSessionSearchResult& Result)
 	SessionInterface->JoinSession(0, SESSION_NAME, Result);
 }
 
-
 void UMyGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	if(Result != EOnJoinSessionCompleteResult::Success)
@@ -248,4 +247,14 @@ FString UMyGameInstance::GetWorldURL(EWorldName WorldName)
 	}
 
 	return MapURL;
+}
+
+void UMyGameInstance::SetGamePlayerCnt(int TotalPlayerNums)
+{
+	RoomPlayerNums = TotalPlayerNums;
+}
+
+int UMyGameInstance::GetTotalPlayers()
+{
+	return RoomPlayerNums;
 }

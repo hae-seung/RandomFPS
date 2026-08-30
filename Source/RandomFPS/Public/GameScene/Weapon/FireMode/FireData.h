@@ -8,9 +8,8 @@
 
 class UGunItem;
 class UFireMode;
-/**
- * 
- */
+
+
 UCLASS()
 class RANDOMFPS_API UFireData : public UDataAsset
 {

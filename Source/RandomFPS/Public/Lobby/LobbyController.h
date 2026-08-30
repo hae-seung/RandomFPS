@@ -18,6 +18,7 @@ class RANDOMFPS_API ALobbyController : public APlayerController
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ULobbyUI> BP_LobbyUI;
+	UPROPERTY()
 	ULobbyUI* LobbyUI;
 
 

@@ -93,7 +93,7 @@ void APlayerCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	
 	Inventory->SetComponents(PlayerWeapon, InteractSystem, StatSystem);
-	CombatSystem->SetComponents(StatSystem);
+	CombatSystem->SetComponents(StatSystem, PlayerWeapon);
 }
 
 void APlayerCharacter::BeginPlay()

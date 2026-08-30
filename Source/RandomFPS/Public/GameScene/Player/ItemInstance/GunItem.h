@@ -39,6 +39,9 @@ public:
 	int GetMaxMagAmmo();
 	
 	float GetBulletSpeed() const;
+	float GetShotInterval() const;
+	bool GetHeadShotAvailable() const;
+	
 	int GetGunLevel();
 	const FGunAbilityWrapper* GetAbilityWrapper(int InGunLevel);
 	const TArray<TObjectPtr<UGunAbilityModifier>>* GetAwakeAbility();

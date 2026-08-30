@@ -54,6 +54,11 @@ void ALobbyGameState::SetReadyState(bool bIsReady)
 	SetRoomMasterStartBtn();
 }
 
+int ALobbyGameState::GetAllPlayerNumsIncludeMaster()
+{
+	return CurrentRoomMemberCnt;
+}
+
 void ALobbyGameState::OnRep_ReadyPlayerCnt()
 {
 	SetRoomMasterStartBtn();

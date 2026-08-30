@@ -53,6 +53,16 @@ float UGunItem::GetBulletSpeed() const
 	return GunAbility.BulletSpeed;
 }
 
+float UGunItem::GetShotInterval() const
+{
+	return GunAbility.ShotInterval;
+}
+
+bool UGunItem::GetHeadShotAvailable() const
+{
+	return GunAbility.bCanHeadShot;
+}
+
 int UGunItem::GetGunLevel()
 {
 	return GunLevel;

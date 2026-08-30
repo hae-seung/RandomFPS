@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "PlayerStatSystem.h"
+#include "PlayerWeapon.h"
 #include "Components/ActorComponent.h"
 #include "Struct/CombatStructHeader.h"
 #include "PlayerCombatSystem.generated.h"
 
 
+class UPlayerWeapon;
 class APlayGameState;
 class IDamageable;
 
@@ -40,7 +42,7 @@ public:
 	
 public:	
 	UPlayerCombatSystem();
-	void SetComponents(UPlayerStatSystem* PlayerStatSystem);
+	void SetComponents(UPlayerStatSystem* PlayerStatSystem, UPlayerWeapon* PlayerWeaponSystem);
 	void TakeDamage(FDamageContext& Context);
 	//void SubScribeInit();
 	void ApplyDamageToTarget(IDamageable* Target, FVector HitLocation, FName BoneName, bool bIsRealBullet);
@@ -61,6 +63,8 @@ private:
 
 	UPROPERTY()
 	APlayGameState* GS;
+	UPROPERTY()
+	UPlayerWeapon* WeaponSystem;
 	
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_RemainReviveTime)
 	int RemainReviveTime;

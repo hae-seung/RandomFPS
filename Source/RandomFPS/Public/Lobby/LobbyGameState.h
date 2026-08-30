@@ -23,7 +23,7 @@ public:
 	
 public:
 	void SetReadyState(bool bIsReady);
-	
+	int GetAllPlayerNumsIncludeMaster();
 
 private:
 	UPROPERTY(Replicated)

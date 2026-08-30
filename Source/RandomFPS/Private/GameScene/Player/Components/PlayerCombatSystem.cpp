@@ -6,6 +6,7 @@
 #include "GameScene/PlayGameState.h"
 #include "GameScene/EnumHeader/EnumHeader.h"
 #include "GameScene/Player/PlayerCharacter.h"
+#include "GameScene/Player/ItemInstance/GunItem.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -15,9 +16,10 @@ UPlayerCombatSystem::UPlayerCombatSystem()
 	SetIsReplicatedByDefault(true);
 }
 
-void UPlayerCombatSystem::SetComponents(UPlayerStatSystem* PlayerStatSystem)
+void UPlayerCombatSystem::SetComponents(UPlayerStatSystem* PlayerStatSystem, UPlayerWeapon* PlayerWeaponSystem)
 {
 	StatSystem = PlayerStatSystem;
+	WeaponSystem = PlayerWeaponSystem;
 }
 
 
@@ -60,7 +62,7 @@ void UPlayerCombatSystem::ApplyDamageToTarget(
 	FName BoneName,
 	bool bIsRealBullet)
 {
-	const bool bIsCritical = BoneName == "head";
+	const bool bIsCritical = (BoneName == "head") && WeaponSystem->GetCurrentEquipGun()->GetHeadShotAvailable();
 	
 	FDamageContext Context;
 	Context.Attacker = GetOwner();

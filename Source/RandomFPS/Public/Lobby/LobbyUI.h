@@ -26,8 +26,10 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ULobbyGuestListItemUI> BP_LobbyGuestItem;
+	UPROPERTY()
 	TMap<TObjectPtr<APlayerState>, TObjectPtr<ULobbyGuestListItemUI>> LobbyGuestItems;
 
+	UPROPERTY()
 	AMyPlayerState* MyPS;
 	
 	UPROPERTY(meta=(BindWidget))

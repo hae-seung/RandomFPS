@@ -36,9 +36,10 @@ protected:
 	FVector TargetPoint;
 	FVector ShootDir;
 	
-	
+	float LastFireTime;
 	
 private:
 	virtual bool IsSupportedForNetworking() const override;
+	UPROPERTY()
 	UFireData* Data;
 };
