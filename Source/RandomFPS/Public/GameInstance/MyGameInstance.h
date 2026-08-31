@@ -51,7 +51,6 @@ public:
 	
 private:
 	//TSharedPtr로 참조카운트 기반 C++객체임. <포인터처럼 쓸 수 있도록 operator를 다 바꿈 내부에서>
-	//엔진 내부 GC대상 아님 => PIE종료해도 계속 살아있음.
 	IOnlineSessionPtr SessionInterface; //OnlineSubSystem.h
 
 	//검색을 위한 스마트 포인터

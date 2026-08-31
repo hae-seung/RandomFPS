@@ -23,8 +23,6 @@ void USearchRoomUI::NativeOnInitialized()
 		GI->OnJoinSessionFail.BindUObject(this, &USearchRoomUI::OnJoinSessionFail);
 		GI->OnJoinSessionSuccess.BindUObject(this, &USearchRoomUI::OnJoinSessionSuccess);
 	}
-
-	
 }
 
 void USearchRoomUI::Open()

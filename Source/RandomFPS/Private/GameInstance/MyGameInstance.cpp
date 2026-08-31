@@ -158,6 +158,7 @@ void UMyGameInstance::OnFindSessionComplete(bool WasSuccessful)
 {
 	if(!WasSuccessful)
 		GetEngine()->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("검색실패"));
+	
 	if(SessionSearch->SearchResults.Num() <= 0)
 	{
 		GetEngine()->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("방갯수 0개"));
