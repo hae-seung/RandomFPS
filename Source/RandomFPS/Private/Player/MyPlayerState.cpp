@@ -30,6 +30,17 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMyPlayerState, Life);
 }
 
+void AMyPlayerState::CopyProperties(APlayerState* PlayerState)
+{
+	Super::CopyProperties(PlayerState);
+
+	AMyPlayerState* NewPS = Cast<AMyPlayerState>(PlayerState);
+	if(NewPS)
+	{
+		NewPS->PlayerNickName = PlayerNickName;
+	}
+}
+
 void AMyPlayerState::RequestSetNickName(const FText& NewNickName)
 {
 	const FString NewName = NewNickName.ToString();

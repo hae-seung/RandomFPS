@@ -42,16 +42,20 @@ void ATeleportManager::BeginPlay()
 
 void ATeleportManager::TeleportRelaxRoom()
 {
-	if(APlayGameState* GS = GetWorld()->GetGameState<APlayGameState>())
+	//PlayerState로부터 GetPawn을 하면 안됨.
+	//PlayerState에 아직 Pawn이 안들어왓을 수 있음
+	//GM에 플레이어 로딩완료 상태는 ClientUI가 완성되어야 옴
+	//이때 ClientUI는 컨트롤러에서 OnRep_Pawn일때 만들어짐
+	//즉 서버에서는 이미 Pawn과 컨트롤러가 연결 끝났음을 의미해서 이게 가장 확실함
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		for(APlayerState* PS : GS->PlayerArray)
+		if (APlayerController* PC = It->Get())
 		{
-			PS->GetPawn()->SetActorLocation(RelaxPoint->GetActorLocation());
+			if (APawn* Pawn = PC->GetPawn())
+			{	// Possess된 실체 Pawn에 바로 접근
+				Pawn->TeleportTo(RelaxPoint->GetActorLocation(), RelaxPoint->GetActorRotation());
+			}
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp,Warning,TEXT("TEleportManager : No GS"));
 	}
 }
 
@@ -85,7 +89,7 @@ void ATeleportManager::TeleportToArea(TArray<ATargetPoint*>& Points)
 		int i = 0;
 		for(APlayerState* PS : GS->PlayerArray)
 		{
-			PS->GetPawn()->SetActorLocation(Points[i]->GetActorLocation());
+			PS->GetPawn()->TeleportTo(Points[i]->GetActorLocation(), Points[i]->GetActorRotation());
 			i++;
 		}
 	}

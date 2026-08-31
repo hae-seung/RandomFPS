@@ -83,7 +83,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	UWidgetComponent* HealthBarComp;
 	
-	const FMonsterAttackDefinition* CurrentAttackDefinition;
+	const FMonsterAttackDefinition* CurrentAttackDefinition = nullptr;
 
 
 private:

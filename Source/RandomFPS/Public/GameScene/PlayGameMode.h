@@ -46,6 +46,8 @@ private:
 	//임시
 	UPROPERTY(EditAnywhere)
 	int ExpectedPlayerNum;
+
+	bool bInitPlayerNum = false;
 	
 private:
 	bool bStartGame = false;

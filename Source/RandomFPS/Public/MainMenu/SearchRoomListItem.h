@@ -43,15 +43,15 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* PersonTxt;
 
-
+	UPROPERTY()
 	FButtonStyle CachedButtonStyle;
+	
 	UPROPERTY(EditAnywhere)
 	FLinearColor NormalBtnColor;
 	UPROPERTY(EditAnywhere)
 	FLinearColor DisableColor;
 	UPROPERTY(EditAnywhere)
 	FLinearColor SelectedBtnColor;
-	
 	
 	FOnlineSessionSearchResult SessionSearchResult;
 

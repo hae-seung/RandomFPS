@@ -6,11 +6,12 @@
 #include "Components/Image.h"
 #include "GameScene/Player/Components/PlayerCombatSystem.h"
 
-void UCrossHairUI::Init(UPlayerCombatSystem* CombatSystem)
+void UCrossHairUI::Init(UPlayerCombatSystem* CombatSystem, UPlayerWeapon* PlayerWeapon)
 {
 	HitHair->SetVisibility(ESlateVisibility::Collapsed);
 
 	CombatSystem->OnHitSuccess.AddUObject(this, &UCrossHairUI::HitSuccess);
+	PlayerWeapon->OnZoomShortToggle.AddUObject(this, &UCrossHairUI::ZoomShortState);
 }
 
 
@@ -30,6 +31,19 @@ void UCrossHairUI::Toggle(bool bOpen)
 		SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
+
+void UCrossHairUI::ZoomShortState(bool bIsZoomState)
+{
+	if(bIsZoomState)
+	{
+		SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 
 void UCrossHairUI::HitSuccess(bool bIsCritical)
 {

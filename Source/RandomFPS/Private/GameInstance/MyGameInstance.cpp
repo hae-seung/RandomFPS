@@ -15,11 +15,19 @@ void UMyGameInstance::Init()
 	Super::Init();
 
 	//싱글톤 객체를 포인터로 Get
+	UE_LOG(LogTemp,Warning,TEXT("GI Init"));
 	const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
-	if(!Subsystem) return;
+	if(!Subsystem)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("No Init SubSystem"));
+		return;
+	}
 	
 	SessionInterface = Subsystem->GetSessionInterface();
-
+	if(!SessionInterface.IsValid())
+	{
+		UE_LOG(LogTemp,Warning,TEXT("No Init SessionInterface"));
+	}
 	
 	
 	AddDelegateHandle();
@@ -40,7 +48,15 @@ void UMyGameInstance::Shutdown()
 ////////////////////////////////////////////////////////////////////
 void UMyGameInstance::TryCreateSession(FString RoomName, int32 MaxPlayerCnt, bool bLanMode)
 {
-	if(!SessionInterface.IsValid()) return;
+	if(!SessionInterface.IsValid())
+	{
+		UE_LOG(LogTemp,Warning,TEXT("No SessionInterface"));
+		const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+		if(!Subsystem) return;
+	
+		SessionInterface = Subsystem->GetSessionInterface();
+	}
+		
 	
 	PendingRoomName = RoomName;
 	PendingMaxPlayerCnt = MaxPlayerCnt;
@@ -251,6 +267,7 @@ FString UMyGameInstance::GetWorldURL(EWorldName WorldName)
 
 void UMyGameInstance::SetGamePlayerCnt(int TotalPlayerNums)
 {
+	UE_LOG(LogTemp, Warning, TEXT("GI에 기록됨! : 기대 인원(ExpectedPlayerNum): %d"), TotalPlayerNums);
 	RoomPlayerNums = TotalPlayerNums;
 }
 

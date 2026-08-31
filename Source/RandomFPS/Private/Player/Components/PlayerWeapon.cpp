@@ -87,6 +87,7 @@ void UPlayerWeapon::ZoomShort(bool bZoomState)
 	if(IsValid(GunActor))
 	{
 		GunActor->ZoomQuick(bZoomState);
+		OnZoomShortToggle.Broadcast(bZoomState);
 	}
 }
 
@@ -232,6 +233,8 @@ bool UPlayerWeapon::EquipParts(UPartsItem* PartsItem)
 	{
 		Client_UpdateParts(PartsItem);
 	}
+
+	
 	
 	return true;
 }

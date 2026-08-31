@@ -20,6 +20,7 @@ class UCameraComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquipGunActor, AGun*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChangeGunInstance, UGunItem*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnZoomShortToggle, bool);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -30,7 +31,7 @@ class RANDOMFPS_API UPlayerWeapon : public UActorComponent
 public:
 	FOnEquipGunActor OnEquipGunActor;
 	FOnChangeGunInstance OnChangeGunInstance;
-
+	FOnZoomShortToggle OnZoomShortToggle;
 	
 public:
 	UPROPERTY(Replicated)
@@ -46,6 +47,7 @@ public:
 
 	void UnEquipGun();
 	bool EquipGun(UGunItem* NewGunInstance);
+	//client
 	void ZoomShort(bool bZoomState);
 	FTransform GetLeftHandIKTransform();
 

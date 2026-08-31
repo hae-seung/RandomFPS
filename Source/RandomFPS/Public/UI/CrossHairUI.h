@@ -8,6 +8,7 @@
 
 class UPlayerCombatSystem;
 class UImage;
+class UPlayerWeapon;
 
 
 
@@ -17,9 +18,10 @@ class RANDOMFPS_API UCrossHairUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Init(UPlayerCombatSystem* CombatSystem);
+	void Init(UPlayerCombatSystem* CombatSystem, UPlayerWeapon* PlayerWeapon);
 	void MoveCrossHair();
 	void Toggle(bool bOpen);
+	void ZoomShortState(bool bIsZoomState);
 	
 private:
 	UPROPERTY(EditAnywhere,meta=(BindWidget, AllowPrivateAccess))

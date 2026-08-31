@@ -853,6 +853,7 @@ void APlayerCharacter::ShotUIRay()
 {
 	if(!IsValid(WidgetInteractionComponent) || !IsLocallyControlled())
 		return;
+	
 	WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
 }
 
@@ -861,6 +862,17 @@ void APlayerCharacter::StopUIRay()
 	if(!IsValid(WidgetInteractionComponent) || !IsLocallyControlled())
 		return;
 	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
+}
+
+void APlayerCharacter::ToggleCheatUI()
+{
+	if(!MyController)
+		return;
+
+	if(!MyController->GetUIManager())
+		return;
+
+	MyController->GetUIManager()->ToggleCheatUI();
 }
 
 
@@ -899,6 +911,8 @@ void APlayerCharacter::BindKey(UEnhancedInputComponent* EIC)
 
 	EIC->BindAction(UIRayShot, ETriggerEvent::Started, this, &APlayerCharacter::ShotUIRay);
 	EIC->BindAction(UIRayShot, ETriggerEvent::Completed, this, &APlayerCharacter::StopUIRay);
+
+	EIC->BindAction(CheatUIAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCheatUI);
 }
 
 #pragma endregion InputFunctions

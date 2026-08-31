@@ -29,9 +29,11 @@ private:
 	UButton* CloseBtn;
 	UPROPERTY(meta=(BindWidget))
 	UButton* JoinBtn;
-	
+
+	UPROPERTY()
 	TArray<USearchRoomListItem*> SteamRooms;
 
+	UPROPERTY()
 	USearchRoomListItem* CurrentSelectRoom;
 
 private:

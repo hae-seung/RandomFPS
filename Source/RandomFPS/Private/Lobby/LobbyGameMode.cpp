@@ -12,8 +12,6 @@ ALobbyGameMode::ALobbyGameMode()
 	bUseSeamlessTravel = true;
 }
 
-
-
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	if(NewPlayer->IsLocalController())

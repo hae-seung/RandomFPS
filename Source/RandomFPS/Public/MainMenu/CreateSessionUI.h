@@ -33,7 +33,7 @@ private:
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget, AllowPrivateAccess))
 	UButton* CloseBtn;
 
-
+	UPROPERTY()
 	UMainMenuUI* MainMenuUI;
 	
 	bool bIsLanMode = false;

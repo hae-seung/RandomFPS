@@ -20,8 +20,11 @@ void APlayGameMode::BeginPlay()
 		const int PlayerNum = GI->GetTotalPlayers();
 		if(PlayerNum > 0)
 			ExpectedPlayerNum = GI->GetTotalPlayers();
+
+		bInitPlayerNum = true;
 	}
-	
+
+	UE_LOG(LogTemp, Warning, TEXT("GameMode 시작! 기대 인원(ExpectedPlayerNum): %d"), ExpectedPlayerNum);
 	CheckToPlayStart();
 }
 
@@ -33,6 +36,9 @@ void APlayGameMode::AddFinishInitPlayer()
 
 void APlayGameMode::CheckToPlayStart()
 {
+	if(!bInitPlayerNum)
+		return;
+	
 	if(ExpectedPlayerNum == 0)
 	{
 		UE_LOG(LogTemp,Warning,TEXT("ExpectedPlayerNum is 0"));

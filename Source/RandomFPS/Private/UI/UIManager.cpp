@@ -2,19 +2,16 @@
 
 
 #include "UI/UIManager.h"
-#include "GameFramework/PlayerState.h"
-#include "Components/Button.h"
 #include "GameScene/Player/PlayerCharacter.h"
-#include "GameScene/Player/Components/PlayerWeapon.h"
-#include "GameScene/Player/ItemData/BulletItemData.h"
-#include "GameScene/Player/ItemData/PortionItemData.h"
-#include "GameScene/Player/ItemData/PartsData/RailPartsData.h"
+#include "GameFramework/PlayerState.h"
+#include "GameScene/Player/MyPlayerController.h"
 #include "UI/CardMenuUI.h"
 #include "UI/CombatUI.h"
 #include "UI/CrossHairUI.h"
 #include "UI/GunMenu.h"
 #include "UI/InteractorUI.h"
 #include "UI/InventoryUI.h"
+#include "UI/ItemCheatUI.h"
 #include "UI/KillLogUI.h"
 #include "UI/RoundUI.h"
 #include "UI/ScoreUI.h"
@@ -24,82 +21,33 @@
 void UUIManager::Init(APawn* Pawn)
 {
 	APlayerCharacter* APC = Cast<APlayerCharacter>(Pawn);
+	LocalController = Cast<AMyPlayerController>(GetOwningPlayer());
 	
 	InventoryUI->Init(APC->GetInventory(), APC->GetStatComponent(),
 		APC->GetWeaponSystem(), APC->GetCardSystem());
 	GunMenuUI->Init(InventoryUI);
 	CombatUI->Init(APC->GetCombatComponent(), APC->GetStatComponent(), APC->GetWeaponSystem());
-	CrossHairUI->Init(APC->GetCombatComponent());
+	CrossHairUI->Init(APC->GetCombatComponent(), APC->GetWeaponSystem());
 	ScoreUI->FindLocalEntry(GetOwningPlayerState());
 	KillLogUI->Init(APC->KillAlarmEvent, APC->AssistAlarmEvent);
 	InteractorUI->Init(APC->GetInteractSystem());
 	WalletUI->Init(APC->GetWalletSystem());
 	CardMenuUI->Init(APC->GetCardSystem());
-
+	CheatUI->Init(APC, LocalController);
 	
 	RoundUI->Init();
-
-
-	
-	RedDotBtn->OnClicked.AddDynamic(this, &UUIManager::GiveRedDot);
-	BulletBtn->OnClicked.AddDynamic(this, &UUIManager::GiveBullet);
-	PortionBtn->OnClicked.AddDynamic(this,&UUIManager::GivePortion);
-	LevelUpBtn->OnClicked.AddDynamic(this, &UUIManager::LevelUpGun);
-	AwakeBtn->OnClicked.AddDynamic(this, &UUIManager::AwakeGun);
 }
-
-void UUIManager::GiveRedDot()
-{
-	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
-	if(APC)
-	{
-		APC->RequestAddItem(RailData);
-	}
-}
-
-void UUIManager::GiveBullet()
-{
-	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
-	if(APC)
-	{
-		APC->RequestAddItem(BulletService.BulletItemData, BulletService.Amount);
-	}
-}
-
-void UUIManager::GivePortion()
-{
-	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
-	if(APC)
-	{
-		APC->RequestAddItem(PortionData, 1);
-	}
-}
-
-void UUIManager::LevelUpGun()
-{
-	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
-	if(APC)
-	{
-		APC->GetWeaponSystem()->LevelUpGun();
-	}
-}
-
-void UUIManager::AwakeGun()
-{
-	APlayerCharacter* APC = GetOwningPlayer()->GetPawn<APlayerCharacter>();
-	if(APC)
-	{
-		APC->GetWeaponSystem()->AwakeGun();
-	}
-}
-
-
-
 
 void UUIManager::ToggleInventory()
 {
 	InventoryUI->Toggle();
 }
+
+void UUIManager::ToggleCheatUI()
+{
+	CheatUI->Toggle();
+}
+
 
 void UUIManager::OpenScoreBoard()
 {
@@ -114,5 +62,14 @@ void UUIManager::CloseScoreBoard()
 void UUIManager::ToggleCombatUI(bool bOpen)
 {
 	CrossHairUI->Toggle(bOpen);
+
+	if(bOpen)
+	{
+		CombatUI->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		CombatUI->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 

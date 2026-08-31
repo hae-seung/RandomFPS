@@ -91,11 +91,17 @@ void ADamageActor::SetDamageText(float DamageAmount, bool bIsCritical)
 
 void ADamageActor::RotateToLocalCamera()
 {
+	// PC가 유효하지 않거나, 유효하더라도 월드가 다르면 실행 중단
+	if (!IsValid(PC))
+	{
+		return; 
+	}
+
 	PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
 
 	LookAtRot = UKismetMathLibrary::FindLookAtRotation(
-		GetActorLocation(),
-		CameraLocation);
+	   GetActorLocation(),
+	   CameraLocation);
 
 	SetActorRotation(LookAtRot);
 }

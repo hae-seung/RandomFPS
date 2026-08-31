@@ -19,6 +19,7 @@ class RANDOMFPS_API AMenuController : public APlayerController
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UMainMenuUI> BP_MainMenuUI;
+	UPROPERTY()
 	UMainMenuUI* MainMenuUI;
 
 private:

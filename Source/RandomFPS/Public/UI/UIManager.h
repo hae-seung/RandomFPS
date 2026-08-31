@@ -7,6 +7,7 @@
 #include "GameScene/Cards/StructHeader.h"
 #include "UIManager.generated.h"
 
+class UItemCheatUI;
 class UCardMenuUI;
 class UWalletUI;
 class URoundUI;
@@ -34,43 +35,9 @@ class RANDOMFPS_API UUIManager : public UUserWidget
 	GENERATED_BODY()
 
 
-	
-public:
-	UPROPERTY(EditAnywhere)
-	UPartsItemData* RailData;
-	UPROPERTY(EditAnywhere)
-	FBulletService BulletService;
-	UPROPERTY(EditAnywhere)
-	UPortionItemData* PortionData;
-	
-	
-public:
-	
-
-	UPROPERTY(meta=(BindWidget))
-	UButton* RedDotBtn;
-	UPROPERTY(meta=(BindWidget))
-	UButton* BulletBtn;
-	UPROPERTY(meta=(BindWidget))
-	UButton* PortionBtn;
-	UPROPERTY(meta=(BindWidget))
-	UButton* LevelUpBtn;
-	UPROPERTY(meta=(BindWidget))
-	UButton* AwakeBtn;
-	
-	UFUNCTION()
-	void GiveRedDot();
-	UFUNCTION()
-	void GiveBullet();
-	UFUNCTION()
-	void GivePortion();
-	UFUNCTION()
-	void LevelUpGun();
-	UFUNCTION()
-	void AwakeGun();
-
 public:
 	void ToggleInventory();
+	void ToggleCheatUI();
 	FORCEINLINE UInventoryUI* GetInventoryUI()const { return InventoryUI; }
 	UCombatUI* GetCombatUI() const { return CombatUI; }
 	void Init(APawn* Pawn);
@@ -105,5 +72,6 @@ private:
 	UWalletUI* WalletUI;
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
 	UCardMenuUI* CardMenuUI;
-	
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess))
+	UItemCheatUI* CheatUI;
 };

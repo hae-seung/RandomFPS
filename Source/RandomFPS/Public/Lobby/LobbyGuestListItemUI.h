@@ -30,7 +30,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	USizeBox* LobbyMasterImage;
 
-	
+	UPROPERTY()
 	AMyPlayerState* CachedPlayerState;
 
 private:

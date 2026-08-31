@@ -87,7 +87,8 @@ public:
 	UInputAction* InteractAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInputAction* UIRayShot;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInputAction* CheatUIAction;
 	
 	UPROPERTY(EditAnywhere)
 	EEntityType EntityType;
@@ -219,6 +220,7 @@ private:
 	void TryInteract();
 	void ShotUIRay();
 	void StopUIRay();
+	void ToggleCheatUI();
 	
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	
