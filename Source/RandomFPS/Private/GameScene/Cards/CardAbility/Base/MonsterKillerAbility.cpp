@@ -8,7 +8,10 @@
 
 UCardAbility* UMonsterKillerAbility::Clone()
 {
-	return NewObject<UMonsterKillerAbility>(this);
+	UMonsterKillerAbility* NewCard = NewObject<UMonsterKillerAbility>(this);
+	NewCard->PlusMaxHp = PlusMaxHp;
+	
+	return NewCard;
 }
 
 void UMonsterKillerAbility::OnAcquire(APlayerCharacter* Player)

@@ -68,6 +68,7 @@ void UPlayerStatSystem::ModifyHp(float Delta)
 
 void UPlayerStatSystem::ApplyStatModifier(const FStatModifier& Modifier)
 {
+	UE_LOG(LogTemp,Warning,TEXT("Apply StatModifier"));
 	switch (Modifier.Stat)
 	{
 	case EStat::Energy:
@@ -87,6 +88,8 @@ void UPlayerStatSystem::ApplyStatModifier(const FStatModifier& Modifier)
 		break;
 	case EStat::Defense:
 		HandleDefense(Modifier.Value);
+		break;
+	default:
 		break;
 	}
 }
@@ -119,6 +122,7 @@ void UPlayerStatSystem::HandleHp(float Value)
 void UPlayerStatSystem::HandleMaxHp(float Value)
 {
 	HealthStat.MaxHp += Value;
+	UE_LOG(LogTemp,Warning,TEXT("현재 최대체력 : %f"), HealthStat.MaxHp);
 	OnPlayerHealthStatChanged.Broadcast(HealthStat);
 }
 

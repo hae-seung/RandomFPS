@@ -8,7 +8,10 @@
 
 UCardAbility* UPlayerKillerAbility::Clone()
 {
-	return NewObject<UPlayerKillerAbility>(this);
+	UPlayerKillerAbility* NewCard = NewObject<UPlayerKillerAbility>(this);
+	NewCard->Modifiers = Modifiers;
+	
+	return NewCard;
 }
 
 void UPlayerKillerAbility::OnAcquire(APlayerCharacter* Player)

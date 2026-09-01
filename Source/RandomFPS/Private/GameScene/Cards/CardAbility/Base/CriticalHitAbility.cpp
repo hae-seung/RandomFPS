@@ -8,7 +8,10 @@
 
 UCardAbility* UCriticalHitAbility::Clone()
 {
-	return NewObject<UCriticalHitAbility>(this);
+	UCriticalHitAbility* NewCard = NewObject<UCriticalHitAbility>(this);
+	NewCard->PlusAttack = PlusAttack;
+	
+	return NewCard;
 }
 
 void UCriticalHitAbility::OnAcquire(APlayerCharacter* Player)

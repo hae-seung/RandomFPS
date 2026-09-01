@@ -17,7 +17,6 @@ void UPoolManager::InitServerPool(const TArray<TSubclassOf<AActor>>& ServerPoolD
 	}
 }
 
-
 AActor* UPoolManager::Server_GetActor(TSubclassOf<AActor> BP_Actor, AActor* Owner)
 {
 	if(!ServerPool.Contains(BP_Actor))

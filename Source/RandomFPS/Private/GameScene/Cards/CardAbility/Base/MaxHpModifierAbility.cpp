@@ -9,15 +9,21 @@
 
 UCardAbility* UMaxHpModifierAbility::Clone()
 {
-	return NewObject<UMaxHpModifierAbility>(this);
+	UMaxHpModifierAbility* NewCard = NewObject<UMaxHpModifierAbility>(this);
+	NewCard->StatModifier = StatModifier;
+	
+	return NewCard;
 }
 
 void UMaxHpModifierAbility::OnAcquire(APlayerCharacter* Player)
 {
 	UPlayerStatSystem* StatSystem = Player->GetStatComponent();
+	
 
 	for(int i = 0; i < StatModifier.Num(); i++)
+	{
 		StatSystem->ApplyStatModifier(StatModifier[i]);
+	}
 }
 
 void UMaxHpModifierAbility::OnRemove(APlayerCharacter* Player)

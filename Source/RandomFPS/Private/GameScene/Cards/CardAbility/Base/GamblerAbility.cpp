@@ -8,7 +8,11 @@
 
 UCardAbility* UGamblerAbility::Clone()
 {
-	return NewObject<UGamblerAbility>(this);
+	UGamblerAbility* NewCard = NewObject<UGamblerAbility>(this);
+	NewCard->MinGold = MinGold;
+	NewCard->MaxGold = MaxGold;
+	
+	return NewCard;
 }
 
 void UGamblerAbility::OnAcquire(APlayerCharacter* Player)

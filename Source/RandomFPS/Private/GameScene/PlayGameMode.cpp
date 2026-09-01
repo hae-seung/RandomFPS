@@ -19,7 +19,7 @@ void APlayGameMode::BeginPlay()
 	{
 		const int PlayerNum = GI->GetTotalPlayers();
 		if(PlayerNum > 0)
-			ExpectedPlayerNum = GI->GetTotalPlayers();
+			ExpectedPlayerNum = PlayerNum;
 
 		bInitPlayerNum = true;
 	}
@@ -32,7 +32,6 @@ void APlayGameMode::AddFinishInitPlayer()
 {
 	FinishInitPlayerNum++;
 }
-
 
 void APlayGameMode::CheckToPlayStart()
 {
